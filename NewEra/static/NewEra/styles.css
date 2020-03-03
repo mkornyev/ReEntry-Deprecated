@@ -1,0 +1,16 @@
+/* Page Styles  */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#app-nav {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.content {
+    margin: auto;
+    width: 90%;
+}

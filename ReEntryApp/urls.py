@@ -18,6 +18,18 @@ from django.urls import path
 from NewEra import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls), # Django Server route for entity management (avail to staff & superusers)
+
+    # Url Routes for all users 
     path('', views.home, name='Home'),
+    path('resources/', views.resources, name='Resources'),
+    path('resources/<int:id>', views.get_resource, name = 'Show Resource'),
+    path('login/', views.login, name = 'Login'),
+    path('logout/', views.logout, name='Logout'),
+    path('about/', views.about, name='About'),
+    # path('register/', views.register, name = 'Register'),
+
+    # Routes for SOW's 
+    path('create_referral/', views.create_referral, name='Create Referral'),
+    path('case_load/', views.case_load, name='Case Load'),
 ]
