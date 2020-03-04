@@ -74,7 +74,7 @@ class CaseLoad(models.Model):
 	# We can change this later if needed
 	phone = models.CharField(max_length=10, null=False, blank=False)
 	notes = models.CharField(max_length=1000)
-	user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
 	# Methods
 	def __str__(self):
@@ -98,28 +98,28 @@ class Referral(models.Model):
 	phone = models.CharField(max_length=10, blank=False, null=False)
 	referral_date = models.DateField(auto_now=True)
 	# resource_accessed = models.BooleanField()
-	date_accessed = models.DateField()
+	date_accessed = models.DateField(blank=True, null=True)
 	notes = models.CharField(max_length=1000)
 
 	# Foreign attributes
-	user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
-	case = models.ForeignKey(CaseLoad, on_delete=models.CASCADE)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+	case = models.ForeignKey(CaseLoad, on_delete=models.CASCADE, blank=True, null=True)
 
 	# Methods
 	def __str__(self):
 		# name = (first_name == None || last_name == None) ? self.get_full_name() : "(unknown)"
-		return "Referral sent to " + self.phone + " by " + self.user.get_full_name() + " on " + str(self.referral_date)
+		return "Referral sent to " + self.phone + " by " + self.user.get_full_name() + " on " + self.referral_date.strftime("%m-%d-%Y")
 
 	def print_attributes(self):
-		print("---\nReferred by: " + self.user.get_full_name() + "\nReferred to: " + self.case.phone + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nReferral date: " + str(self.referral_date) + "\nDate accessed: " + str(self.date_accessed) + "\nNotes: " + self.notes + "\n---")
+		print("---\nReferred by: " + self.user.get_full_name() + "\nReferred to: " + self.case.phone + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nReferral date: " + self.referral_date.strftime("%m-%d-%Y") + "\nDate accessed: " + self.date_accessed.strftime("%m-%d-%Y") + "\nNotes: " + self.notes + "\n---")
 
 # Model representing one resource as it exists in isolation
 class Resource(models.Model):
 	# Attributes
 	name = models.CharField(max_length=100, blank=False, null=False)
 	description = models.CharField(max_length=1000)
-	start_date = models.DateField()
-	end_date = models.DateField()
+	start_date = models.DateField(blank=True, null=True)
+	end_date = models.DateField(blank=True, null=True)
 	# !!! IMPORTANT !!!
 	# Add regex validation for email and phone later
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
@@ -142,7 +142,7 @@ class Resource(models.Model):
 		return self.name
 
 	def print_attributes(self):
-		print("---\nName: " + self.name + "\nDescription: " + self.description + "\nStart Date: " + str(self.start_date) + "\nEnd date: " + str(self.end_date) + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nStreet: " + self.street + "\nZip code: " + self.zip_code + "\nState: " + self.state + "\nURL: " + self.url + "\nClicks: " + str(self.clicks) + "\n---")
+		print("---\nName: " + self.name + "\nDescription: " + self.description + "\nStart Date: " + self.start_date.strftime("%m-%d-%Y") + "\nEnd date: " + self.end_date.strftime("%m-%d-%Y") + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nStreet: " + self.street + "\nZip code: " + self.zip_code + "\nState: " + self.state + "\nURL: " + self.url + "\nClicks: " + str(self.clicks) + "\n---")
 
 # Model representing a tag
 class Tag(models.Model):
@@ -164,7 +164,7 @@ class ResourceReferral(models.Model):
 
 	# Methods
 	def __str__(self):
-		return self.resource.name + " referred to:\n" + self.referral.phone
+		return self.resource.name + " referred to " + self.referral.phone
 
 	def print_attributes(self):
 		print("---\nReferral: " + self.referral.phone + "\nResource: " + self.resource.name + "\n---")
