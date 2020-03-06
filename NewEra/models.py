@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import authenticate
 from django.db import models
+from django import forms
 
 # NOTE: There is no validation in this model, as it seems like that should be done in forms (and it's hard to set up here)
 
@@ -10,21 +11,12 @@ class User(AbstractUser):
 	Fields taken care of by base User class in Django:
 	- username
 	- password
-	- email (overriden here)
-	- first_name (overriden here)
-	- last_name (overriden here)
+	- email
+	- first_name
+	- last_name
 
 	Within this model, is_guest represents SOWs
 	'''
-
-	# HOWEVER, we are going to require first_name and last_name for recordkeeping purposes
-	first_name = models.CharField(max_length=30, blank=False, null=False)
-	last_name = models.CharField(max_length=150, blank=False, null=False)
-
-	# !!! IMPORTANT !!!
-	# Add regex validation for email and phone later
-	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
-	email = models.EmailField(max_length=254, blank=False, null=False)
 
 	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
@@ -59,15 +51,13 @@ class User(AbstractUser):
 		return self.is_active and self.is_staff
 
 	def get_case_load(self):
-		return CaseLoad.objects.filter(user=self)
+		return CaseLoadUser.objects.filter(user=self)
 
 # Model for individuals on the case load
-class CaseLoad(models.Model):
+class CaseLoadUser(models.Model):
 	# Attributes
 	first_name = models.CharField(max_length=35, blank=False, null=False)
 	last_name = models.CharField(max_length=35, blank=False, null=False)
-	# !!! IMPORTANT !!!
-	# Add regex validation for email and phone later
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
 	email = models.EmailField(max_length=254)
 	# 10 is the max length to force a phone number to be just the digits
@@ -89,10 +79,8 @@ class CaseLoad(models.Model):
 # Model for an entire referral
 class Referral(models.Model):
 	# Attributes
-	# !!! IMPORTANT !!!
-	# Add regex validation for email and phone later
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
-	email = models.EmailField(max_length=254, blank=False, null=False)
+	email = models.EmailField(max_length=254)
 	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
 	phone = models.CharField(max_length=10, blank=False, null=False)
@@ -103,7 +91,7 @@ class Referral(models.Model):
 
 	# Foreign attributes
 	user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-	case = models.ForeignKey(CaseLoad, on_delete=models.CASCADE, blank=True, null=True)
+	caseUser = models.ForeignKey(CaseLoadUser, on_delete=models.CASCADE, blank=True, null=True)
 
 	# Methods
 	def __str__(self):
@@ -111,38 +99,7 @@ class Referral(models.Model):
 		return "Referral sent to " + self.phone + " by " + self.user.get_full_name() + " on " + self.referral_date.strftime("%m-%d-%Y")
 
 	def print_attributes(self):
-		print("---\nReferred by: " + self.user.get_full_name() + "\nReferred to: " + self.case.phone + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nReferral date: " + self.referral_date.strftime("%m-%d-%Y") + "\nDate accessed: " + self.date_accessed.strftime("%m-%d-%Y") + "\nNotes: " + self.notes + "\n---")
-
-# Model representing one resource as it exists in isolation
-class Resource(models.Model):
-	# Attributes
-	name = models.CharField(max_length=100, blank=False, null=False)
-	description = models.CharField(max_length=1000)
-	start_date = models.DateField(blank=True, null=True)
-	end_date = models.DateField(blank=True, null=True)
-	# !!! IMPORTANT !!!
-	# Add regex validation for email and phone later
-	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
-	email = models.EmailField(max_length=254, blank=False, null=False)
-	# 10 is the max length to force a phone number to be just the digits
-	# We can change this later if needed
-	phone = models.CharField(max_length=10)
-	street = models.CharField(max_length=100)
-	# This should account for 5-digit and 10-digit zip codes
-	zip_code = models.CharField(max_length=10)
-	# Refers to two digits
-	state = models.CharField(max_length=2)
-	image = models.ImageField()
-	url = models.URLField()
-	clicks = models.IntegerField(default=0)
-	# city = models.BooleanField()
-
-	# Methods
-	def __str__(self):
-		return self.name
-
-	def print_attributes(self):
-		print("---\nName: " + self.name + "\nDescription: " + self.description + "\nStart Date: " + self.start_date.strftime("%m-%d-%Y") + "\nEnd date: " + self.end_date.strftime("%m-%d-%Y") + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nStreet: " + self.street + "\nZip code: " + self.zip_code + "\nState: " + self.state + "\nURL: " + self.url + "\nClicks: " + str(self.clicks) + "\n---")
+		print("---\nReferred by: " + self.user.get_full_name() + "\nReferred to: " + self.caseUser.phone + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nReferral date: " + self.referral_date.strftime("%m-%d-%Y") + "\nDate accessed: " + self.date_accessed.strftime("%m-%d-%Y") + "\nNotes: " + self.notes + "\n---")
 
 # Model representing a tag
 class Tag(models.Model):
@@ -156,28 +113,37 @@ class Tag(models.Model):
 	def print_attributes(self):
 		print("---\nName: " + self.name + "\n---")
 
-# Model capturing an individual referred resource
-class ResourceReferral(models.Model):
-	# Foreign attributes
-	referral = models.ForeignKey(Referral, on_delete=models.CASCADE)
-	resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
-
-	# Methods
-	def __str__(self):
-		return self.resource.name + " referred to " + self.referral.phone
-
-	def print_attributes(self):
-		print("---\nReferral: " + self.referral.phone + "\nResource: " + self.resource.name + "\n---")
-
-# Model capturing a tag as applied to a given resource
-class ResourceTag(models.Model):
+# Model representing one resource as it exists in isolation
+class Resource(models.Model):
 	# Attributes
-	tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-	resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
+	name = models.CharField(max_length=100, blank=False, null=False)
+	description = models.CharField(max_length=1000)
+	start_date = models.DateField(blank=True, null=True)
+	end_date = models.DateField(blank=True, null=True)
+	# !!! IMPORTANT !!!
+	# Add regex validation for email and phone later
+	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
+	email = models.EmailField(max_length=254)
+	# 10 is the max length to force a phone number to be just the digits
+	# We can change this later if needed
+	phone = models.CharField(max_length=10)
+	street = models.CharField(max_length=100)
+	# This should account for 5-digit and 10-digit zip codes
+	zip_code = models.CharField(max_length=10)
+	# Refers to two digits
+	state = models.CharField(max_length=2)
+	image = models.ImageField()
+	url = models.URLField()
+	clicks = models.IntegerField(default=0)
+	# city = models.BooleanField()
+
+	# Many-to-many foreign keys
+	tags = models.ManyToManyField(Tag)
+	referrals = models.ManyToManyField(Referral)
 
 	# Methods
 	def __str__(self):
-		return self.resource.name + " has tag " + self.tag.name
+		return self.name
 
 	def print_attributes(self):
-		print("---\nTag: " + self.tag.name + "\nResource: " + self.resource.name + "\n---")
+		print("---\nName: " + self.name + "\nDescription: " + self.description + "\nStart Date: " + self.start_date.strftime("%m-%d-%Y") + "\nEnd date: " + self.end_date.strftime("%m-%d-%Y") + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nStreet: " + self.street + "\nZip code: " + self.zip_code + "\nState: " + self.state + "\nURL: " + self.url + "\nClicks: " + str(self.clicks) + "\n---")
