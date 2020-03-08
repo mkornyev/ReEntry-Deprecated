@@ -1,0 +1,20 @@
+{% extends "NewEra/base.html" %}
+
+{% block title %}{% block navtitle %}
+	Log In
+{% endblock %}{% endblock %}
+
+{% block content %}
+    <div style="margin: auto; margin-top: 10%; width: 40%;">
+        <h3>Log In to NewEra:</h3>
+        <hr/>
+        <form method="POST" action="{% url 'Login' %}" class="login">
+            <table>
+                {{form}}
+            </table>
+            {% csrf_token %}
+            <hr/>
+            <button id="id_login_button" class="btn btn-primary" type="submit">Log In</button>
+        </form>
+    </div>
+{% endblock %}
