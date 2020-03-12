@@ -132,7 +132,7 @@ class Resource(models.Model):
 	zip_code = models.CharField(max_length=10)
 	# Refers to two digits
 	state = models.CharField(max_length=2)
-	image = models.ImageField()
+	image = models.FileField(blank=True)
 	url = models.URLField()
 	clicks = models.IntegerField(default=0)
 	# city = models.BooleanField()
