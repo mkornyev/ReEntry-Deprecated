@@ -136,8 +136,9 @@ class Resource(models.Model):
 	# city = models.BooleanField()
 
 	# Many-to-many foreign keys
-	tags = models.ManyToManyField(Tag)
-	referrals = models.ManyToManyField(Referral)
+	# Blank section added for the admin dashboard management (otherwise resources can't be added)
+	tags = models.ManyToManyField(Tag, blank=True)
+	referrals = models.ManyToManyField(Referral, blank=True)
 
 	# Methods
 	def __str__(self):
