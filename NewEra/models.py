@@ -38,6 +38,8 @@ class User(AbstractUser):
 	)
 	'''
 
+	# city = 
+
 	# Methods
 	def __str__(self):
 		return self.get_username() + " (" + self.get_full_name() + ")"
@@ -62,7 +64,7 @@ class CaseLoadUser(models.Model):
 	# We can change this later if needed
 	phone = models.CharField(max_length=10, null=False, blank=False)
 	notes = models.CharField(max_length=1000)
-	user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
 	# Methods
 	def __str__(self):
@@ -88,8 +90,8 @@ class Referral(models.Model):
 	notes = models.CharField(max_length=1000)
 
 	# Foreign attributes
-	user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
-	caseUser = models.ForeignKey(CaseLoadUser, on_delete=models.PROTECT, blank=True, null=True)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+	caseUser = models.ForeignKey(CaseLoadUser, on_delete=models.CASCADE, blank=True, null=True)
 
 	# Methods
 	def __str__(self):
