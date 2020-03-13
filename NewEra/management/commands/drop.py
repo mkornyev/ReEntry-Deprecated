@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
+from NewEra.models import User
 # from blogapp.models import Resource
 
 # DROP SCRIPT
@@ -13,6 +13,8 @@ class Command(BaseCommand):
 
         for u in users:
             u.delete() 
+
+        print("\nUsers deleted.\n")
 
     def handle(self, *args, **options):
         self._destroy_users()

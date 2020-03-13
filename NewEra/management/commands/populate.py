@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
+from NewEra.models import User
 # from blogapp.models import Resource
 
 # POPULATE SCRIPT
@@ -18,6 +18,8 @@ class Command(BaseCommand):
         admin.is_staff = True 
         admin.is_superuser = True
         admin.save()
+
+        print("\nAdmin and SOW users created.\n")
 
     def handle(self, *args, **options):
         self._create_users()
