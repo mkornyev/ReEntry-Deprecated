@@ -4,3 +4,6 @@ db.sqlite3
 migrations
 .DS_Store
 .vscode/
+NewEra/__pycache__
+ReEntryApp/__pycache__
+NewEra/migrations/__pycache__
