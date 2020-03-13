@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
-# from blogapp.models import Resource
+from NewEra.models import User
 
 # POPULATE SCRIPT
 

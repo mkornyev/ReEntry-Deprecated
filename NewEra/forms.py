@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.db import models
 
-from django.contrib.auth.models import User
+from NewEra.models import User
 # from NewEra.models import Resource
 
 # INPUT_ATTRIBUTES = {'style' : 'border: 1px solid gray; border-radius: 5px;'}
