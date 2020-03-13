@@ -11,7 +11,7 @@ from django.contrib.auth import logout as auth_logout # 'logout' can't clash w/v
 
 from django.utils import timezone
 
-from django.contrib.auth.models import User
+from NewEra.models import User
 
 # from NewEra.models import User, Resource, 
 from NewEra.forms import LoginForm, RegistrationForm
