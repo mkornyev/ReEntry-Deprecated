@@ -27,7 +27,7 @@ The following will set up a python environment **in the same directory** as the 
 
 ### Test Suite 
 
-* N/A
+* Run the suite with `./manage.py test`
 
 ### Included Scripts 
 
