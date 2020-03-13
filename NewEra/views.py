@@ -1,6 +1,7 @@
 
 # IMPORTS 
 
+from django.http import Http404 #, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
@@ -11,10 +12,8 @@ from django.contrib.auth import logout as auth_logout # 'logout' can't clash w/v
 
 from django.utils import timezone
 
-from NewEra.models import User
-
-# from NewEra.models import User, Resource, 
-from NewEra.forms import LoginForm, RegistrationForm
+from NewEra.models import User, CaseLoadUser
+from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm
 
 # VIEW ACTIONS 
 
@@ -70,6 +69,53 @@ def create_referral(request):
 	return render(request, 'NewEra/resources.html', context)
 
 def case_load(request):
-	context = {} 
+	users = [] 
+
+	if request.user.is_superuser: 
+		users = CaseLoadUser.objects.all()	
+	elif request.user.is_staff:
+		users = CaseLoadUser.objects.filter(user=request.user) 
+	else:  
+		raise Http404
+
+	context = {'caseload_users': users, 'form': CaseLoadUserForm()} 
 	#TEMP HTML TEMPLATE
 	return render(request, 'NewEra/resources.html', context)
+
+
+# ADMIN actions 
+
+def manage_users(request): 
+	if not request.user.is_superuser:
+		raise Http404
+
+	admins = User.objects.filter(is_superuser=True)
+	sows = User.objects.filter(is_superuser=False).filter(is_staff=True)
+	context = {'admins':admins, 'sows':sows, 'form': RegistrationForm()}
+
+	if request.method == 'POST':
+		form = RegistrationForm(request.POST)
+		context['form'] = form
+
+		if not form.is_valid():
+			return render(request, 'NewEra/manage_users.html', context)
+
+		user = User.objects.create_user(username=form.cleaned_data['username'], 
+										password=form.cleaned_data['password'],
+										email=form.cleaned_data['email'],
+										phone=form.cleaned_data['phone'],
+										first_name=form.cleaned_data['first_name'],
+										last_name=form.cleaned_data['last_name'])
+		user.is_staff = True 
+		user.is_superuser = False
+
+		# Radio button input 
+		if 'user_type' in request.POST and request.POST['user_type'] == 'admin': 
+			user.is_superuser = True
+
+		user.save()
+	
+	context['form'] = RegistrationForm()
+	return render(request, 'NewEra/manage_users.html', context)
+
+	

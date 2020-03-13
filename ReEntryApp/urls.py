@@ -29,7 +29,10 @@ urlpatterns = [
     path('about/', views.about, name='About'),
     # path('register/', views.register, name = 'Register'),
 
-    # Routes for SOW's 
+    # Routes for SOWs 
     path('create_referral/', views.create_referral, name='Create Referral'),
     path('case_load/', views.case_load, name='Case Load'),
+
+    # Routes for ADMINs 
+    path('manage_users/', views.manage_users, name='Manage Users'),
 ]

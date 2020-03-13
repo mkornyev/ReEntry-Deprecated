@@ -25,7 +25,7 @@
               </li>
             </ul>
           </div>
-        {% elif user.is_staff %}
+        {% elif user.is_superuser %}
           <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav ml-auto">
               <li class="nav-item">
@@ -38,27 +38,30 @@
                 <a class="nav-link" href="{% url 'Case Load' %}">Case Load</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'Logout' %}">Log Out</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'About' %}">About</a>
-              </li>
-            </ul>
-          </div>
-        {% elif user.is_superuser %}
-          <div class="collapse navbar-collapse" id="navbarText">
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'Resources' %}">Resources<!--<span class="sr-only">(current)</span>--></a>
+                <a class="nav-link" href="{% url 'Manage Users' %}">Manage Users</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'Logout' %}">Log Out</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'About' %}">About</a>
-              </li>
             </ul>
           </div>
+        {% elif user.is_staff %}
+        <div class="collapse navbar-collapse" id="navbarText">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'Resources' %}">Resources<!--<span class="sr-only">(current)</span>--></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'Create Referral' %}">Make Referral</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'Case Load' %}">Case Load</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'Logout' %}">Log Out</a>
+            </li>
+          </ul>
+        </div>
         {% endif %}
     </nav>
 {% endblock %}

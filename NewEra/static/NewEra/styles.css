@@ -14,3 +14,11 @@
     margin: auto;
     width: 100%;
 }
+
+table th {
+    padding-right: 20px;
+}
+
+ul.errorlist {
+    color: indianred;
+}

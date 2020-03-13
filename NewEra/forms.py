@@ -3,13 +3,34 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.db import models
+import re # Regex matching
 
-from NewEra.models import User
+from NewEra.models import User, CaseLoadUser
 # from NewEra.models import Resource
 
 # INPUT_ATTRIBUTES = {'style' : 'border: 1px solid gray; border-radius: 5px;'}
 INPUT_ATTRIBUTES = {'class' : 'form-input'}
 
+
+# Model Forms
+
+class CaseLoadUserForm(forms.ModelForm):
+    class Meta:
+        model = CaseLoadUser
+        fields = ['first_name', 'last_name', 'email', 'phone', 'notes', 'user']
+        exclude = (
+            'notes',
+            'user',
+        )
+
+    def clean_phone(self):
+        phone = self.cleaned_data['phone']
+        cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
+
+        if len(cleaned_phone) != 10:
+            raise forms.ValidationError('You must enter a valid phone number')
+
+        return cleaned_phone
 
 
 # Standard Validation Forms 
@@ -38,6 +59,7 @@ class RegistrationForm(forms.Form):
     email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
     first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
     last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+    phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
     def clean(self):
         cleaned_data = super().clean()
@@ -55,6 +77,15 @@ class RegistrationForm(forms.Form):
             raise forms.ValidationError("Username is already taken.")
 
         return username
+        
+    def clean_phone(self):
+        phone = self.cleaned_data['phone']
+        cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
+
+        if len(cleaned_phone) != 10:
+            raise forms.ValidationError('You must enter a valid phone number')
+
+        return cleaned_phone
 
 
 
