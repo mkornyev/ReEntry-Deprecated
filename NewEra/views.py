@@ -9,11 +9,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login # 'login' can't clash w/view names in namespace 
 from django.contrib.auth import logout as auth_logout # 'logout' can't clash w/view names in namespace 
+from django.contrib import messages
 
 from django.utils import timezone
 
-from NewEra.models import User, CaseLoadUser
-from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm
+from NewEra.models import User, CaseLoadUser, Resource
+from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm
 
 # VIEW ACTIONS 
 
@@ -22,7 +23,9 @@ def home(request):
 	return render(request, 'NewEra/index.html', context)
 
 def resources(request):
-	context = {}
+	context = {
+		'resources': Resource.objects.all(),
+	}
 	return render(request, 'NewEra/resources.html', context)
 
 def get_resource(request, id):
@@ -60,6 +63,28 @@ def logout(request):
 
 def about(request):
 	return render(request, 'NewEra/about.html')
+
+
+# Resource manipulation actions
+
+def create_resource(request):
+	context = {}
+	form = CreateResourceForm()
+	context['form'] = form
+
+	if request.method == 'POST':
+		form = CreateResourceForm(request.POST)
+		if form.is_valid():
+			resource = form.save(commit=True)
+			resource.save()
+
+			messages.success(request, 'Form submission successful')
+
+			return redirect('Resources')
+	else:
+		form = CreateResourceForm()
+
+	return render(request, 'NewEra/edit_resource.html', context)
 
 # SOW Actions 
 

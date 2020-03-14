@@ -5,8 +5,7 @@ from django.contrib.auth import authenticate
 from django.db import models
 import re # Regex matching
 
-from NewEra.models import User, CaseLoadUser
-# from NewEra.models import Resource
+from NewEra.models import User, CaseLoadUser, Resource
 
 # INPUT_ATTRIBUTES = {'style' : 'border: 1px solid gray; border-radius: 5px;'}
 INPUT_ATTRIBUTES = {'class' : 'form-input'}
@@ -95,5 +94,16 @@ class RegistrationForm(forms.Form):
 		return cleaned_phone
 
 
+class CreateResourceForm(forms.ModelForm):
+    name = forms.CharField(max_length=100, required=True)
+    description = forms.CharField(max_length=1000, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
+    email = forms.EmailField(max_length=254, required=False)
+    phone = forms.CharField(max_length=10, required=False)
+    street = forms.CharField(max_length=100, required=False)
+    zip_code = forms.CharField(max_length=100, required=False)
+    state = forms.CharField(max_length=2, required=False)
+    url = forms.URLField(required=False)
 
-		
+    class Meta:
+        model = Resource
+        fields = ('name', 'description', 'start_date', 'end_date', 'email', 'phone', 'street', 'zip_code', 'state', 'image', 'url', 'tags')
