@@ -1,0 +1,19 @@
+{% extends "NewEra/base.html" %}
+
+{% block title %}{% block navtitle %}
+	New Resource
+{% endblock %}{% endblock %}
+
+{% block content %}
+	<h3 style="margin: auto; margin-top: 50px; text-align: center;">
+		New Resource
+	</h3>
+
+    <form method="POST" action="{% url 'Create Resource' %}" class="resource-form">
+        {% csrf_token %}
+        <table>
+        	{{ form }}
+        </table>
+        <button id="id_login_button" class="btn btn-primary" type="submit">Save Resource</button>
+    </form>
+{% endblock %}

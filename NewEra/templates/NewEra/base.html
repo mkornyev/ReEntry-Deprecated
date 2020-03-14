@@ -14,10 +14,23 @@
 				border-radius: 5px;
 			}
 		</style>
+		<!-- Material Icons CSS -->
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	</head>
 
 	<body>
         {% include 'NewEra/_navbar.html' %}
+        {% if messages %}
+		<ul class="messages">
+		    {% for msg in messages %}       
+		    <li>
+		        <div class="alert alert-{{msg.level_tag}}" role="alert">
+		        {{msg.message}}
+		        </div>
+		    </li>
+		    {% endfor %}
+		</ul>
+		{% endif %}
 
 		<div class="content">
 			{% block content %}
