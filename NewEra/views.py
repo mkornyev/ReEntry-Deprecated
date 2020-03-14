@@ -29,9 +29,8 @@ def resources(request):
 	return render(request, 'NewEra/resources.html', context)
 
 def get_resource(request, id):
-	# resource = get_object_or_404(Resource, id=id)
-	# context = { 'resource': resource }
-	context = {} 
+	resource = get_object_or_404(Resource, id=id)
+	context = { 'resource': resource }
 	return render(request, 'NewEra/get_resource.html', context)
 
 # ***** Note about images *****
@@ -105,7 +104,7 @@ def create_resource(request):
 			form.save()
 			resource.save()
 
-			messages.success(request, 'Form submission successful')
+			messages.success(request, 'Resource successfully created!')
 
 			return redirect('Resources')
 	else:

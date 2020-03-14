@@ -16,42 +16,44 @@
 		<div class="container">
 			<div class="row">
 				{% for r in resources %}
-				<div class="col-sm-4">
-					<div class="card" style="width: 18rem;">
-						{% if r.image %}
-						<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
-						{% endif %} 
-					 	<div class="card-body">
-							<h4 class="card-title">{{ r.name }}</h4>
-							<!--p class="card-text">{{r.description}}</p-->
-							<!-- Display URL if available -->
-							{% if r.url %}
-								<a href="{{r.url}}"><i class="material-icons">link</i>{{ r.url }}</a>
+				<a href="{% url 'Show Resource' id=r.id %}">
+					<div class="col-sm-4">
+						<div class="card" style="width: 18rem;">
+							{% if r.image %}
+							<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
+							{% endif %} 
+						 	<div class="card-body">
+								<h4 class="card-title">{{ r.name }}</h4>
+								<!--p class="card-text">{{r.description}}</p-->
+								<!-- Display URL if available -->
+								{% if r.url %}
+									<a href="{{r.url}}"><i class="material-icons">link</i>{{ r.url }}</a>
+									<br/>
+								{% else %}
+									<p>&nbsp;</p>
+								{% endif %}
+								<!-- Display phone if available -->
+								{% if r.phone %}
+									<a href="tel:{{r.phone}}"><i class="material-icons">phone</i>{{ r.phone }}</a>
+									<br/>
+								{% else %}
+									<p>&nbsp;</p>
+								{% endif %}
+								<!-- Display email if available -->
+								{% if r.email %}
+									<a href="mailto:{{r.email}}"><i class="material-icons">email</i>{{ r.email }}</a>
+									<br/>
+								{% else %}
+									<p>&nbsp;</p>
+								{% endif %}
 								<br/>
-							{% else %}
-								<p>&nbsp;</p>
-							{% endif %}
-							<!-- Display phone if available -->
-							{% if r.phone %}
-								<a href="tel:{{r.phone}}"><i class="material-icons">phone</i>{{ r.phone }}</a>
-								<br/>
-							{% else %}
-								<p>&nbsp;</p>
-							{% endif %}
-							<!-- Display email if available -->
-							{% if r.email %}
-								<a href="mailto:{{r.email}}"><i class="material-icons">email</i>{{ r.email }}</a>
-								<br/>
-							{% else %}
-								<p>&nbsp;</p>
-							{% endif %}
-							<br/>
-							{% if perms.resource.edit_resource %}
-								<a href="#" class="btn btn-warning"><i class="material-icons">edit</i>Edit Resource</a>
-							{% endif %}
+								{% if perms.resource.edit_resource %}
+									<a href="#" class="btn btn-warning"><i class="material-icons">edit</i>Edit Resource</a>
+								{% endif %}
+							</div>
 						</div>
 					</div>
-				</div>
+				</a>
 				{% endfor %}
 			</div>
 		</div>
