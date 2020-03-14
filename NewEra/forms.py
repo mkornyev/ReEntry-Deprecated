@@ -100,7 +100,7 @@ class CreateResourceForm(forms.ModelForm):
 	email = forms.EmailField(max_length=254, required=False)
 	phone = forms.CharField(max_length=10, required=False)
 	street = forms.CharField(max_length=100, required=False)
-	zip_code = forms.CharField(max_length=100, required=False)
+	zip_code = forms.CharField(max_length=10, required=False)
 	state = forms.CharField(max_length=2, required=False)
 	url = forms.URLField(required=False)
 

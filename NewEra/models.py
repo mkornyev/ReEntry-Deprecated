@@ -129,12 +129,13 @@ class Resource(models.Model):
 	# This should account for 5-digit and 10-digit zip codes
 	zip_code = models.CharField(max_length=10)
 	# Refers to two digits
-	state = models.CharField(max_length=2)
+	state = models.CharField(max_length=2, default="PA")
 	image = models.FileField(blank=True)
 	content_type = models.CharField(max_length=50, blank=True)
 	url = models.URLField()
 	clicks = models.IntegerField(default=0)
-	# city = models.BooleanField()
+	city = models.CharField(max_length=100, default="Pittsburgh")
+	is_active = models.BooleanField(default=True)
 
 	# Many-to-many foreign keys
 	# Blank section added for the admin dashboard management (otherwise resources can't be added)

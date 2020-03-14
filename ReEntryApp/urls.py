@@ -25,7 +25,6 @@ urlpatterns = [
     path('resources/', views.resources, name='Resources'),
     path('resources/<int:id>', views.get_resource, name = 'Show Resource'),
     path('image/<int:id>', views.get_resource_image, name = 'Image'), 
-    path('resources/new/', views.create_resource, name='Create Resource'),
     path('login/', views.login, name = 'Login'),
     path('logout/', views.logout, name='Logout'),
     path('about/', views.about, name='About'),
@@ -37,4 +36,5 @@ urlpatterns = [
 
     # Routes for ADMINs 
     path('manage_users/', views.manage_users, name='Manage Users'),
+    path('resources/new/', views.create_resource, name='Create Resource'),
 ]

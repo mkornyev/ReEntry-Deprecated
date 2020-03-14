@@ -1,0 +1,53 @@
+{% extends "NewEra/base.html" %}
+
+{% block title %}{% block navtitle %}
+	Show Resource
+{% endblock %}{% endblock %}
+
+{% block content %}
+    <div style="width: 80%; margin: auto; padding-top: 10vh;">
+        <div class="">
+            <h1>{{ resource.name }}</h1>
+
+            {% if perms.resource.edit_resource %}
+                {% if resource.is_active %}
+                    Status: <p class="text-success">Active</p>
+                {% else %}
+                    Status: <p class="text-danger">Inactive</p>
+                {% endif %}
+            {% endif %}
+
+            <img src="{% url 'Image' resource.id %}"></img>
+
+            <h3>Description</h3>
+            <p>{{ resource.description }}</p>
+
+            <h3>Contact</h3>
+            <p><a href="{{r.url}}"><i class="material-icons">link</i>{{ resource.url }}</a></p>
+
+            <p><a href="tel:{{r.phone}}"><i class="material-icons">phone</i>{{ resource.phone }}</a></p>
+
+            <p><a href="mailto:{{r.email}}"><i class="material-icons">email</i>{{ resource.email }}</a></p>
+
+            <h3>Address</h3>
+            <p><i class="material-icons">location_on</i>{{ resource.street }}, {{ resource.city }}, {{ resource.state }} {{ resource.zip_code }}</p>
+
+            <h3>Dates</h3>
+            <p>{{ resource.start_date }} - {{ resource.end_date }}</p>
+
+        </div>
+
+        <br><hr></br>
+
+        {% if perms.resource.edit_resource %}
+            <a href="#" class="btn btn-warning"><i class="material-icons">edit</i>Edit Resource</a>
+        {% endif %}
+
+        {% if perms.resource.delete_resource %}
+            <a href="#" class="btn btn-danger"><i class="material-icons">delete</i>Delete Resource</a>
+        {% endif %}
+
+    </div>
+    <p>&nbsp;</p>
+
+{% endblock %}
