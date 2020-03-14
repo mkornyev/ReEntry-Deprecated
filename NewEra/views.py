@@ -11,10 +11,11 @@ from django.contrib.auth import logout as auth_logout # 'logout' can't clash w/v
 
 from django.utils import timezone
 
-from NewEra.models import User
+from NewEra.models import User, Resource
 
-# from NewEra.models import User, Resource, 
-from NewEra.forms import LoginForm, RegistrationForm
+from NewEra.forms import LoginForm, RegistrationForm, CreateResourceForm
+
+from django.contrib import messages
 
 # VIEW ACTIONS 
 
@@ -23,7 +24,9 @@ def home(request):
 	return render(request, 'NewEra/index.html', context)
 
 def resources(request):
-	context = {}
+	context = {
+		'resources': Resource.objects.all(),
+	}
 	return render(request, 'NewEra/resources.html', context)
 
 def get_resource(request, id):
@@ -61,6 +64,28 @@ def logout(request):
 
 def about(request):
 	return render(request, 'NewEra/about.html')
+
+
+# Resource manipulation actions
+
+def create_resource(request):
+	context = {}
+	form = CreateResourceForm()
+	context['form'] = form
+
+	if request.method == 'POST':
+		form = CreateResourceForm(request.POST)
+		if form.is_valid():
+			resource = form.save(commit=True)
+			resource.save()
+
+			messages.success(request, 'Form submission successful')
+
+			return redirect('Resources')
+	else:
+		form = CreateResourceForm()
+
+	return render(request, 'NewEra/edit_resource.html', context)
 
 # SOW Actions 
 

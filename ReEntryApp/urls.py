@@ -24,6 +24,7 @@ urlpatterns = [
     path('', views.home, name='Home'),
     path('resources/', views.resources, name='Resources'),
     path('resources/<int:id>', views.get_resource, name = 'Show Resource'),
+    path('resources/new/', views.create_resource, name='Create Resource'),
     path('login/', views.login, name = 'Login'),
     path('logout/', views.logout, name='Logout'),
     path('about/', views.about, name='About'),
