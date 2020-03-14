@@ -70,17 +70,31 @@ def create_referral(request):
 
 def case_load(request):
 	users = [] 
+	context = {} 
 
 	if request.user.is_superuser: 
 		users = CaseLoadUser.objects.all()	
+		context['staff'] = User.objects.order_by('first_name', 'last_name')
 	elif request.user.is_staff:
-		users = CaseLoadUser.objects.filter(user=request.user) 
+		users = CaseLoadUser.objects.filter(user=request.user).order_by('first_name', 'last_name')
 	else:  
 		raise Http404
 
-	context = {'caseload_users': users, 'form': CaseLoadUserForm()} 
-	#TEMP HTML TEMPLATE
-	return render(request, 'NewEra/resources.html', context)
+	if request.method == 'POST' and 'staff_id' in request.POST:
+		staff_user = get_object_or_404(User, id=request.POST['staff_id'])
+		load_user = CaseLoadUser(user=staff_user)
+		form = CaseLoadUserForm(request.POST, instance=load_user)
+
+		if not form.is_valid():
+			context['form'] = form 
+			return render(request, 'NewEra/case_load.html', context)
+
+		form.save()
+		load_user.save() 
+
+	context['caseload_users'] = users
+	context['form'] = CaseLoadUserForm()
+	return render(request, 'NewEra/case_load.html', context)
 
 
 # ADMIN actions 

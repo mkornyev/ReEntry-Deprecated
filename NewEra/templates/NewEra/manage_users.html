@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block title %}{% block navtitle %}
-	Home
+	User Management
 {% endblock %}{% endblock %}
 
 {% block content %}
@@ -44,6 +44,7 @@
                 <th>Last Name</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Active?</th>
             </tr>
             {% for admin in admins %}
             <tr>
@@ -52,13 +53,18 @@
                 <td>{{ admin.last_name }}</td>
                 <td>{{ admin.email }}</td>
                 <td>{{ admin.phone }}</td>
+                {% if admin.is_active %}
+                <td>&#10004;</td>
+                {% else %}
+                <td>&#10060;</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
         
         <br><hr></br>
 
-        <h2>SOWs</h2>
+        <h2>SOWs:</h2>
         <table>
             <tr>
                 <th>Username</th>
@@ -66,6 +72,7 @@
                 <th>Last Name</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Active?</th>
             </tr>
             {% for sow in sows %}
             <tr>
@@ -74,6 +81,11 @@
                 <td>{{ sow.last_name }}</td>
                 <td>{{ sow.email }}</td>
                 <td>{{ sow.phone }}</td>
+                {% if sow.is_active %}
+                <td>&#10004;</td>
+                {% else %}
+                <td>&#10060;</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>

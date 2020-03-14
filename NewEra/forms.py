@@ -15,22 +15,29 @@ INPUT_ATTRIBUTES = {'class' : 'form-input'}
 # Model Forms
 
 class CaseLoadUserForm(forms.ModelForm):
-    class Meta:
-        model = CaseLoadUser
-        fields = ['first_name', 'last_name', 'email', 'phone', 'notes', 'user']
-        exclude = (
-            'notes',
-            'user',
-        )
+	class Meta:
+		model = CaseLoadUser
+		fields = ['first_name', 'last_name', 'email', 'phone', 'notes', 'user']
+		exclude = (
+			'notes',
+			'user',
+		)
 
-    def clean_phone(self):
-        phone = self.cleaned_data['phone']
-        cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
+	def __init__(self, *args, **kwargs):
+		super(CaseLoadUserForm, self).__init__(*args, **kwargs)
+		self.fields['first_name'].widget.attrs=INPUT_ATTRIBUTES
+		self.fields['last_name'].widget.attrs=INPUT_ATTRIBUTES
+		self.fields['email'].widget.attrs=INPUT_ATTRIBUTES
+		self.fields['phone'].widget.attrs=INPUT_ATTRIBUTES
 
-        if len(cleaned_phone) != 10:
-            raise forms.ValidationError('You must enter a valid phone number')
+	def clean_phone(self):
+		phone = self.cleaned_data['phone']
+		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
 
-        return cleaned_phone
+		if len(cleaned_phone) != 10:
+			raise forms.ValidationError('You must enter a valid phone number')
+
+		return cleaned_phone
 
 
 # Standard Validation Forms 
@@ -53,40 +60,40 @@ class LoginForm(forms.Form):
 
 
 class RegistrationForm(forms.Form):
-    username   = forms.CharField(max_length = 50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-    password  = forms.CharField(max_length = 50, label='Password', widget = forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
-    confirm_password  = forms.CharField(max_length = 50, label='Confirm Password', widget = forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
-    email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
-    first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-    last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-    phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	username   = forms.CharField(max_length = 50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	password  = forms.CharField(max_length = 50, label='Password', widget = forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
+	confirm_password  = forms.CharField(max_length = 50, label='Confirm Password', widget = forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
+	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
+	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        confirm_password = cleaned_data.get('confirm_password')
+	def clean(self):
+		cleaned_data = super().clean()
+		password = cleaned_data.get('password')
+		confirm_password = cleaned_data.get('confirm_password')
 
-        if password and confirm_password and password != confirm_password:
-            raise forms.ValidationError("Passwords did not match.")
+		if password and confirm_password and password != confirm_password:
+			raise forms.ValidationError("Passwords did not match.")
 
-        return cleaned_data
+		return cleaned_data
 
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        if User.objects.filter(username__exact=username):
-            raise forms.ValidationError("Username is already taken.")
+	def clean_username(self):
+		username = self.cleaned_data.get('username')
+		if User.objects.filter(username__exact=username):
+			raise forms.ValidationError("Username is already taken.")
 
-        return username
-        
-    def clean_phone(self):
-        phone = self.cleaned_data['phone']
-        cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
+		return username
+		
+	def clean_phone(self):
+		phone = self.cleaned_data['phone']
+		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
 
-        if len(cleaned_phone) != 10:
-            raise forms.ValidationError('You must enter a valid phone number')
+		if len(cleaned_phone) != 10:
+			raise forms.ValidationError('You must enter a valid phone number')
 
-        return cleaned_phone
+		return cleaned_phone
 
 
 
-        
+		
