@@ -24,13 +24,17 @@ urlpatterns = [
     path('', views.home, name='Home'),
     path('resources/', views.resources, name='Resources'),
     path('resources/<int:id>', views.get_resource, name = 'Show Resource'),
+    path('image/<int:id>', views.get_resource_image, name = 'Image'), 
     path('resources/new/', views.create_resource, name='Create Resource'),
     path('login/', views.login, name = 'Login'),
     path('logout/', views.logout, name='Logout'),
     path('about/', views.about, name='About'),
     # path('register/', views.register, name = 'Register'),
 
-    # Routes for SOW's 
+    # Routes for SOWs 
     path('create_referral/', views.create_referral, name='Create Referral'),
     path('case_load/', views.case_load, name='Case Load'),
+
+    # Routes for ADMINs 
+    path('manage_users/', views.manage_users, name='Manage Users'),
 ]

@@ -1,14 +1,26 @@
 {% extends "NewEra/base.html" %}
 
+{% block page_specific_styles %}
+{% load static %}
+<link href="{% static 'NewEra/index_styles.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% block title %}{% block navtitle %}
 	Home
 {% endblock %}{% endblock %}
 
 {% block content %}
-	<div style="margin: auto; margin-top: 50px; text-align: center;">
-		<h1>Landing / Index Page</h1>
-		<h3>
-			Hello Taili. Come back next week to see some progress :).
-		</h3>
+	<div class="heading-banner">
+		<h1>NewEra412</h1>
+		<p>
+			Reintegrating previously incarcerated citizens into society.
+		</p>
+		<a href="{% url 'Resources' %}"><button type="button" class="btn btn-info">See Resources</button></a>
+	</div>
+
+	<div class="secondary-content">
+		{% load static %}
+		<img src="{% static 'NewEra/reentry_logo.jpg' %}" width="280" height="264" class="" alt="ReEntry Logo">
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
 	</div>
 {% endblock %}

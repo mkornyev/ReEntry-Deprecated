@@ -4,7 +4,7 @@
         <a class="navbar-brand" href="{% url 'Home' %}">
             {% load static %}
             <img src="{% static 'NewEra/reentry_logo.jpg' %}" width="35" height="33" class="d-inline-block align-top" alt="ReEntry Logo">
-            <b>&nbsp;&nbsp;NewERA 412&nbsp;&nbsp;|&nbsp;&nbsp;{% block nav_title %}Home{% endblock %}</b>
+            <b>&nbsp;&nbsp;NewERA 412&nbsp;&nbsp;|&nbsp;&nbsp;{% block navtitle %}Home{% endblock %}</b>
         </a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,7 +25,7 @@
               </li>
             </ul>
           </div>
-        {% elif user.is_staff %}
+        {% elif user.is_superuser %}
           <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav ml-auto">
               <li class="nav-item">
@@ -38,27 +38,30 @@
                 <a class="nav-link" href="{% url 'Case Load' %}">Case Load</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'Logout' %}">Log Out</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'About' %}">About</a>
-              </li>
-            </ul>
-          </div>
-        {% elif user.is_superuser %}
-          <div class="collapse navbar-collapse" id="navbarText">
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'Resources' %}">Resources<!--<span class="sr-only">(current)</span>--></a>
+                <a class="nav-link" href="{% url 'Manage Users' %}">Manage Users</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'Logout' %}">Log Out</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'About' %}">About</a>
-              </li>
             </ul>
           </div>
+        {% elif user.is_staff %}
+        <div class="collapse navbar-collapse" id="navbarText">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'Resources' %}">Resources<!--<span class="sr-only">(current)</span>--></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'Create Referral' %}">Make Referral</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'Case Load' %}">Case Load</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'Logout' %}">Log Out</a>
+            </li>
+          </ul>
+        </div>
         {% endif %}
     </nav>
 {% endblock %}

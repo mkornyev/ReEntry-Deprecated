@@ -13,5 +13,7 @@ class Command(BaseCommand):
         for u in users:
             u.delete() 
 
+        print("\nUsers deleted.\n")
+
     def handle(self, *args, **options):
         self._destroy_users()

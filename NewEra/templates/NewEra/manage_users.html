@@ -1,0 +1,96 @@
+{% extends "NewEra/base.html" %}
+
+{% block page_specific_styles %}
+<!-- {% load static %}
+<link href="{% static 'NewEra/index_styles.css' %}" rel="stylesheet" type="text/css"> -->
+{% endblock %}
+
+{% block title %}{% block navtitle %}
+	User Management
+{% endblock %}{% endblock %}
+
+{% block content %}
+    <div style="width: 80%; margin: auto; padding-top: 10vh;">
+        <div class="">
+            <h1>User Management:</h1>
+
+            <!-- {% if form.errors %}
+                <div>{{ form.errors }}</div>
+            {% endif %} -->
+
+            <form method="POST" action="{% url 'Manage Users' %}">
+                <table>
+                    {{form}}
+                </table>
+
+                <label><b>User Type:</b></label><br>
+            
+                <input type="radio" id="sow" name="user_type" value="sow" checked="checked">
+                <label for="sow">SOW</label><br>
+                <input type="radio" id="admin" name="user_type" value="admin">
+                <label for="admin">Admin</label><br>
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Create User</button>
+            </form>
+        </div>
+
+        <br><hr></br>
+
+        <h2>Admins:</h2>
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Active?</th>
+            </tr>
+            {% for admin in admins %}
+            <tr>
+                <td>{{ admin.username }}</td>
+                <td>{{ admin.first_name }}</td>
+                <td>{{ admin.last_name }}</td>
+                <td>{{ admin.email }}</td>
+                <td>{{ admin.phone }}</td>
+                {% if admin.is_active %}
+                <td>&#10004;</td>
+                {% else %}
+                <td>&#10060;</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <br><hr></br>
+
+        <h2>SOWs:</h2>
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Active?</th>
+            </tr>
+            {% for sow in sows %}
+            <tr>
+                <td>{{ sow.username }}</td>
+                <td>{{ sow.first_name }}</td>
+                <td>{{ sow.last_name }}</td>
+                <td>{{ sow.email }}</td>
+                <td>{{ sow.phone }}</td>
+                {% if sow.is_active %}
+                <td>&#10004;</td>
+                {% else %}
+                <td>&#10060;</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <br><br>
+
+    </div>
+{% endblock %}

@@ -60,7 +60,7 @@ class CaseLoadUser(models.Model):
 	email = models.EmailField(max_length=254)
 	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
-	phone = models.CharField(max_length=10, null=False, blank=False)
+	phone = models.CharField(max_length=10) # NOTE: temporarily null=True so users can be added to caseload
 	notes = models.CharField(max_length=1000)
 	user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
@@ -131,6 +131,7 @@ class Resource(models.Model):
 	# Refers to two digits
 	state = models.CharField(max_length=2)
 	image = models.FileField(blank=True)
+	content_type = models.CharField(max_length=50, blank=True)
 	url = models.URLField()
 	clicks = models.IntegerField(default=0)
 	# city = models.BooleanField()
