@@ -18,5 +18,7 @@ class Command(BaseCommand):
         admin.is_superuser = True
         admin.save()
 
+        print("\nAdmin and SOW users created.\n")
+
     def handle(self, *args, **options):
         self._create_users()

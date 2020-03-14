@@ -1,0 +1,30 @@
+div.heading-banner {
+    margin: auto; 
+    padding-top: 12vh; 
+    padding-bottom: 7vh; 
+    text-align: center;
+    background-color: lightgray;
+}
+
+div.heading-banner h1 {
+    font-size: 2rem;
+}
+
+div.heading-banner p {
+    font-weight: 100;
+}
+
+div.secondary-content {
+    margin: auto;
+    width: 80%;
+}
+
+div.secondary-content img {
+    float: left;
+    margin: 40px;
+}
+div.secondary-content p {
+    float: right;
+    margin: 40px;
+    width: 40%;
+}

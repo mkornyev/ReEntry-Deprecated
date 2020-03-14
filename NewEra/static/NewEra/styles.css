@@ -12,5 +12,14 @@
 
 .content {
     margin: auto;
-    width: 90%;
+    width: 100%;
+}
+
+table th, table td {
+    /* padding-left: 10px; */
+    padding-right: 10px;
+}
+
+ul.errorlist {
+    color: indianred;
 }
