@@ -9,7 +9,7 @@
 		New Resource
 	</h3>
 
-    <form method="POST" action="{% url 'Create Resource' %}" class="resource-form">
+    <form method="POST" enctype="multipart/form-data" action="{% url 'Create Resource' %}" class="resource-form">
         {% csrf_token %}
         <table>
         	{{ form }}

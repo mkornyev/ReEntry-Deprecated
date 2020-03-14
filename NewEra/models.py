@@ -131,6 +131,7 @@ class Resource(models.Model):
 	# Refers to two digits
 	state = models.CharField(max_length=2)
 	image = models.FileField(blank=True)
+	content_type = models.CharField(max_length=50, blank=True)
 	url = models.URLField()
 	clicks = models.IntegerField(default=0)
 	# city = models.BooleanField()

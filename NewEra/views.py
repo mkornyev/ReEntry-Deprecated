@@ -1,7 +1,7 @@
 
 # IMPORTS 
 
-from django.http import Http404 #, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse #, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
@@ -33,6 +33,18 @@ def get_resource(request, id):
 	# context = { 'resource': resource }
 	context = {} 
 	return render(request, 'NewEra/get_resource.html', context)
+
+# ***** Note about images *****
+# They are uploaded to the system as type .JPEG or .PNG etc.
+# And then saved as type django.FileField() 
+# *****************************
+def get_resource_image(request, id): 
+	resource = get_object_or_404(Resource, id=id)
+
+	if not resource.image:
+		raise Http404
+
+	return HttpResponse(resource.image, content_type=resource.content_type)
 
 def login(request):
 	if request.user.is_authenticated:
@@ -73,9 +85,24 @@ def create_resource(request):
 	context['form'] = form
 
 	if request.method == 'POST':
-		form = CreateResourceForm(request.POST)
+		resource = Resource()
+		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
+		
 		if form.is_valid():
-			resource = form.save(commit=True)
+			# Update content_type
+			pic = form.cleaned_data['image']
+			if pic and pic != '':
+				print('Uploaded image: {} (type={})'.format(pic, type(pic)))
+
+				resource.content_type = form.cleaned_data['image'].content_type
+
+				# REMOVE OLD IMAGE (for edit action)
+				# if oldImageName: 
+				# 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+				# 	IMAGE_ROOT = os.path.join(BASE_DIR, 'socialnetwork/user_uploads/' + oldImageName.name)
+				# 	os.remove(IMAGE_ROOT)
+
+			form.save()
 			resource.save()
 
 			messages.success(request, 'Form submission successful')

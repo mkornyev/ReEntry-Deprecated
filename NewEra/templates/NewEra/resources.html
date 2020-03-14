@@ -18,7 +18,9 @@
 				{% for r in resources %}
 				<div class="col-sm-4">
 					<div class="card" style="width: 18rem;">
-					 	<img class="card-img-top" src="..." alt="Card image cap">
+						{% if r.image %}
+						<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
+						{% endif %} 
 					 	<div class="card-body">
 							<h4 class="card-title">{{ r.name }}</h4>
 							<!--p class="card-text">{{r.description}}</p-->
