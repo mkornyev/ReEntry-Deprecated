@@ -9,7 +9,7 @@ from NewEra.models import User, CaseLoadUser, Resource
 
 # INPUT_ATTRIBUTES = {'style' : 'border: 1px solid gray; border-radius: 5px;'}
 INPUT_ATTRIBUTES = {'class' : 'form-input'}
-
+MAX_UPLOAD_SIZE = 2500000
 
 # Model Forms
 
@@ -112,3 +112,19 @@ class CreateResourceForm(forms.ModelForm):
 		exclude = (
 			'content_type',
 		)
+
+	def clean_image(self):
+		image = self.cleaned_data['image']
+
+		if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
+			raise forms.ValidationError('File type is not image')
+
+		if image:
+			try:
+				if (not image.content_type) or (not image.content_type.startswith('image')):
+					raise forms.ValidationError('File type is not image')
+				if image.size > MAX_UPLOAD_SIZE:
+					raise forms.ValidationError('File too big (max: {0} mb)'.format(MAX_UPLOAD_SIZE/1000000))
+			except:
+				pass 
+		return image

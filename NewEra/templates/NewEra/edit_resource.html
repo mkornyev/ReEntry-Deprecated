@@ -9,6 +9,9 @@
 		Edit Resource
 	</h3>
 
+    <!-- Using "clear" does not actually delete the image from the MEDIA_ROOT -->
+    <style>#image-clear_id { display: none; }</style>
+
     <form method="POST" enctype="multipart/form-data" class="resource-form">
         {% csrf_token %}
         <table>
