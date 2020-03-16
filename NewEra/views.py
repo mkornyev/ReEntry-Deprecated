@@ -76,42 +76,6 @@ def about(request):
 	return render(request, 'NewEra/about.html')
 
 
-# Resource manipulation actions
-
-def create_resource(request):
-	context = {}
-	form = CreateResourceForm()
-	context['form'] = form
-
-	if request.method == 'POST':
-		resource = Resource()
-		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
-		
-		if form.is_valid():
-			# Update content_type
-			pic = form.cleaned_data['image']
-			if pic and pic != '':
-				print('Uploaded image: {} (type={})'.format(pic, type(pic)))
-
-				resource.content_type = form.cleaned_data['image'].content_type
-
-				# REMOVE OLD IMAGE (for edit action)
-				# if oldImageName: 
-				# 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-				# 	IMAGE_ROOT = os.path.join(BASE_DIR, 'socialnetwork/user_uploads/' + oldImageName.name)
-				# 	os.remove(IMAGE_ROOT)
-
-			form.save()
-			resource.save()
-
-			messages.success(request, 'Resource successfully created!')
-
-			return redirect('Resources')
-	else:
-		form = CreateResourceForm()
-
-	return render(request, 'NewEra/edit_resource.html', context)
-
 # SOW Actions 
 
 def create_referral(request):
@@ -183,4 +147,80 @@ def manage_users(request):
 	context['form'] = RegistrationForm()
 	return render(request, 'NewEra/manage_users.html', context)
 
-	
+def create_resource(request):
+	context = {}
+	form = CreateResourceForm()
+	context['form'] = form
+
+	if request.method == 'POST':
+		resource = Resource()
+		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
+		
+		if form.is_valid():
+			# Update content_type
+			pic = form.cleaned_data['image']
+			if pic and pic != '':
+				print('Uploaded image: {} (type={})'.format(pic, type(pic)))
+
+				resource.content_type = form.cleaned_data['image'].content_type
+
+				# REMOVE OLD IMAGE (for edit action)
+				# if oldImageName: 
+				# 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+				# 	IMAGE_ROOT = os.path.join(BASE_DIR, 'socialnetwork/user_uploads/' + oldImageName.name)
+				# 	os.remove(IMAGE_ROOT)
+
+			form.save()
+			resource.save()
+
+			messages.success(request, 'Resource successfully created!')
+
+			return redirect('Resources')
+	else:
+		form = CreateResourceForm()
+
+	return render(request, 'NewEra/edit_resource.html', context)
+
+def edit_resource(request, id):
+	resource = get_object_or_404(Resource, id=id)
+	oldImageName = resource.image
+
+	if request.method == "POST":
+		form = CreateResourceForm(request.POST or None, instance=resource)
+		if form.is_valid():
+
+			# Does not work, not sure why
+
+			pic = form.cleaned_data['image']
+			if pic and pic != '':
+				print('Uploaded image: {} (type={})'.format(pic, type(pic)))
+
+				resource.content_type = form.cleaned_data['image'].content_type
+
+				if oldImageName: 
+					BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+					IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImageName.name)
+					os.remove(IMAGE_ROOT)
+
+			form.save()
+			resource.save()
+
+			return redirect('Show Resource', id=resource.id)
+	else:
+		form = CreateResourceForm(instance=resource)
+	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource})
+
+def delete_resource(request, id):
+	resource = get_object_or_404(Resource, id=id)
+
+	if request.method == 'POST':
+		if (resource.referrals.count() == 0):
+			resource.delete()
+			messages.success(request, 'Resource successfully deleted.')
+			return redirect('Resources')
+		else:
+			resource.is_active = False
+			resource.save()
+			messages.success(request, 'Resource was made inactive.')
+			return redirect('javascript:history.back()')
+	return render(request, 'NewEra/delete_resource.html', {'resource': resource})

@@ -97,16 +97,18 @@ class RegistrationForm(forms.Form):
 class CreateResourceForm(forms.ModelForm):
 	name = forms.CharField(max_length=100, required=True)
 	description = forms.CharField(max_length=1000, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
+	is_active = forms.BooleanField(required=False)
 	email = forms.EmailField(max_length=254, required=False)
 	phone = forms.CharField(max_length=10, required=False)
 	street = forms.CharField(max_length=100, required=False)
+	city = models.CharField(max_length=100)
 	zip_code = forms.CharField(max_length=10, required=False)
 	state = forms.CharField(max_length=2, required=False)
 	url = forms.URLField(required=False)
 
 	class Meta:
 		model = Resource
-		fields = ('name', 'description', 'start_date', 'end_date', 'email', 'phone', 'street', 'zip_code', 'state', 'image', 'url', 'tags')
+		fields = ('name', 'description', 'is_active', 'start_date', 'end_date', 'email', 'phone', 'street', 'zip_code', 'state', 'image', 'url', 'tags')
 		exclude = (
 			'content_type',
 		)

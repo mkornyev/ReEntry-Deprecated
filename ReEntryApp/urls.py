@@ -37,4 +37,6 @@ urlpatterns = [
     # Routes for ADMINs 
     path('manage_users/', views.manage_users, name='Manage Users'),
     path('resources/new/', views.create_resource, name='Create Resource'),
+    path('resources/<int:id>/edit/', views.edit_resource, name='Edit Resource'),
+    path('resources/<int:id>/delete/', views.delete_resource, name='Delete Resource'),
 ]
