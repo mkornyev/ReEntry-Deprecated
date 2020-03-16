@@ -16,6 +16,8 @@ from django.utils import timezone
 from NewEra.models import User, CaseLoadUser, Resource
 from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm
 
+import os
+
 # VIEW ACTIONS 
 
 def home(request): 
@@ -25,6 +27,8 @@ def home(request):
 def resources(request):
 	context = {
 		'resources': Resource.objects.all(),
+		'active_resources': Resource.objects.all().filter(is_active=True),
+		'inactive_resources': Resource.objects.all().filter(is_active=False)
 	}
 	return render(request, 'NewEra/resources.html', context)
 
@@ -49,7 +53,11 @@ def login(request):
 	if request.user.is_authenticated:
 		return redirect(reverse('Home'))
 
-	context = {} 
+	context = {
+		'resources': Resource.objects.all(),
+		'active_resources': Resource.objects.all().filter(is_active=True),
+		'inactive_resources': Resource.objects.all().filter(is_active=False)
+	}
 	if request.method == 'GET':
 		context['form'] = LoginForm()
 		return render(request, 'NewEra/login.html', context)
@@ -79,7 +87,11 @@ def about(request):
 # SOW Actions 
 
 def create_referral(request):
-	context = {} 
+	context = {
+		'resources': Resource.objects.all(),
+		'active_resources': Resource.objects.all().filter(is_active=True),
+		'inactive_resources': Resource.objects.all().filter(is_active=False)
+	}
 	# TEMP HTML TEMPLATE
 	return render(request, 'NewEra/resources.html', context)
 
@@ -186,7 +198,7 @@ def edit_resource(request, id):
 	oldImageName = resource.image
 
 	if request.method == "POST":
-		form = CreateResourceForm(request.POST or None, instance=resource)
+		form = CreateResourceForm(request.POST or None, request.FILES, instance=resource)
 		if form.is_valid():
 
 			# Does not work, not sure why
@@ -222,5 +234,5 @@ def delete_resource(request, id):
 			resource.is_active = False
 			resource.save()
 			messages.success(request, 'Resource was made inactive.')
-			return redirect('javascript:history.back()')
+			return redirect('Show Resource', id=resource.id)
 	return render(request, 'NewEra/delete_resource.html', {'resource': resource})
