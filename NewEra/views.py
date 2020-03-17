@@ -165,6 +165,7 @@ def create_resource(request):
 	context = {}
 	form = CreateResourceForm()
 	context['form'] = form
+	context['action'] = 'Create'
 
 	if request.method == 'POST':
 		resource = Resource()
@@ -214,7 +215,7 @@ def edit_resource(request, id):
 			return redirect('Show Resource', id=resource.id)
 	else:
 		form = CreateResourceForm(instance=resource)
-	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource})
+	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource, 'action': 'Edit'})
 
 def delete_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
@@ -250,6 +251,7 @@ def create_tag(request):
 	context = {}
 	form = TagForm()
 	context['form'] = form
+	context['action'] = 'Create'
 
 	if request.method == 'POST':
 		tag = Tag()
@@ -280,7 +282,7 @@ def edit_tag(request, id):
 			return redirect('Tags')
 	else:
 		form = TagForm(instance=tag)
-	return render(request, 'NewEra/edit_tag.html', {'form': form, 'tag': tag})
+	return render(request, 'NewEra/edit_tag.html', {'form': form, 'tag': tag, 'action': 'Edit'})
 
 def delete_tag(request, id):
 	tag = get_object_or_404(Tag, id=id)
