@@ -37,6 +37,13 @@
             <h3>Dates</h3>
             <p>{{ resource.start_date }} - {{ resource.end_date }}</p>
 
+            {% if tags.count > 0 %}
+                <h3>Tags</h3>
+                {% for tag in tags %}
+                    <p>{{ tag.name }}</p>
+                {% endfor %}
+            {% endif %}
+
         </div>
 
         <br><hr></br>

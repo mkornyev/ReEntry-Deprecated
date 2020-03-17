@@ -36,7 +36,13 @@ urlpatterns = [
 
     # Routes for ADMINs 
     path('manage_users/', views.manage_users, name='Manage Users'),
+    # Resource actions
     path('resources/new/', views.create_resource, name='Create Resource'),
     path('resources/<int:id>/edit/', views.edit_resource, name='Edit Resource'),
     path('resources/<int:id>/delete/', views.delete_resource, name='Delete Resource'),
+    # Tag actions
+    path('tags/', views.tags, name='Tags'),
+    path('tags/new', views.create_tag, name='Create Tag'),
+    path('tags/<int:id>/edit/', views.edit_tag, name='Edit Tag'),
+    path('tags/<int:id>/delete/', views.delete_tag, name='Delete Tag')
 ]
