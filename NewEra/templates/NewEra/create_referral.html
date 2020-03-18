@@ -1,0 +1,42 @@
+{% extends "NewEra/base.html" %}
+
+{% block page_specific_styles %}
+{% endblock %}
+
+{% block title %}{% block navtitle %}
+	Create Referral
+{% endblock %}{% endblock %}
+
+{% block content %}
+    <div style="width: 80%; margin: auto; padding-top: 10vh; text-align: center;">
+
+        <h1 style="margin: auto;">Make Referral</h1>
+
+        <div style="text-align: left;">
+            <form action="{% url 'Create Referral' %}" method="POST">
+
+            <h2>Resources</h2>
+            <ol>
+            {% for r in resources %}
+                <li>{{r.name}}</li>
+                <input type="hidden" name="resources[]" value="{{ r.id }}">
+            {% endfor %}
+            </ol>
+
+            <h2>Recipient Info</h2>
+            <label><b>Select User:</b></label><br>
+            <select name="user_id">
+                {% for r in recipients %}
+                <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label><b>Add Notes:</b></label><br>
+            <input type="text" name="notes" class="form-input"><br><br>
+
+            {% csrf_token %}
+            <button type="submit" class="btn-sm btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -8,16 +8,17 @@
 	<h3 style="margin: auto; margin-top: 50px; text-align: center;">
 		Resources
 	</h3>
-	{% if perms.resource.create_resource %}
-		<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
+	{% if user.is_staff %}
+		<br><a href="{% url 'Create Resource' %}" class="btn btn-primary btn-sm" style="margin-left: 10%;"><i class="material-icons">add</i>Add Resource</a>
+		<button id="make-referral" class="btn btn-primary" style="margin: auto; ">Make Referral</button>
 	{% endif %}
 	<p>&nbsp;</p>
 	{% if resources.count > 0 %}
-		<div class="container">
+		<div class="container" style="position: relative;">
 			<div class="row">
 				{% for r in resources %}
 				<div class="col-sm-4">
-					<div class="card" style="width: 18rem;">
+					<div id="resource-{{ r.id }}" class="card resource-card" style="width: 18rem;">
 						{% if r.image %}
 						<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
 						{% endif %} 
@@ -54,10 +55,17 @@
 				</div>
 				{% endfor %}
 			</div>
+			<button id='commit-referral' onclick="commitReferrals()" class='btn btn-warning' style="display: none; width: 20vw; position: fixed; bottom: 20px; left: 42.5vw; min-width: 150px;">Select Resources</button>
 		</div>
 
 	{% else %}
 	  <p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no resources at this time.</em></p>
 	{% endif %}
 	<p>&nbsp;</p>
+{% endblock %}
+
+{% block page_specific_scripts %}
+{% if user.is_staff %}{%load static %}
+<script src="{% static 'NewEra/referrals.js' %}" type="text/javascript"></script>
+{% endif %}
 {% endblock %}
