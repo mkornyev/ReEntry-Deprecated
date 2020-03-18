@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate
 from django.db import models
 from django import forms
 
+from datetime import datetime
+
 # NOTE: There is no validation in this model, as it seems like that should be done in forms (and it's hard to set up here)
 
 # User model; extends AbstractUser
@@ -82,9 +84,9 @@ class Referral(models.Model):
 	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
 	phone = models.CharField(max_length=10, blank=False, null=False)
-	referral_date = models.DateField(auto_now=True)
+	referral_date = models.DateTimeField(default=datetime.now)
 	# resource_accessed = models.BooleanField()
-	date_accessed = models.DateField(blank=True, null=True)
+	date_accessed = models.DateTimeField(blank=True, null=True)
 	notes = models.CharField(max_length=1000)
 
 	# Foreign attributes
@@ -116,8 +118,8 @@ class Resource(models.Model):
 	# Attributes
 	name = models.CharField(max_length=100, blank=False, null=False)
 	description = models.CharField(max_length=1000)
-	start_date = models.DateField(blank=True, null=True)
-	end_date = models.DateField(blank=True, null=True)
+	start_date = models.DateTimeField(blank=True, null=True)
+	end_date = models.DateTimeField(blank=True, null=True)
 	# !!! IMPORTANT !!!
 	# Add regex validation for email and phone later
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
