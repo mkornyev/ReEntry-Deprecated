@@ -5,7 +5,9 @@ from django.contrib.auth import authenticate
 from django.db import models
 import re # Regex matching
 
-from NewEra.models import User, CaseLoadUser, Resource
+from NewEra.models import User, CaseLoadUser, Resource, Tag
+# Help from: https://chase-seibert.github.io/blog/2010/05/20/django-manytomanyfield-on-modelform-as-checkbox-widget.html
+from django.forms.widgets import CheckboxSelectMultiple
 
 # INPUT_ATTRIBUTES = {'style' : 'border: 1px solid gray; border-radius: 5px;'}
 INPUT_ATTRIBUTES = {'class' : 'form-input'}
@@ -113,13 +115,20 @@ class CreateResourceForm(forms.ModelForm):
 			'content_type',
 		)
 
+	def __init__(self, *args, **kwargs):
+        
+		super(CreateResourceForm, self).__init__(*args, **kwargs)
+        
+		self.fields['tags'].widget = CheckboxSelectMultiple()
+		self.fields['tags'].queryset = Tag.objects.all()
+
 	def clean_image(self):
 		image = self.cleaned_data['image']
 
-		if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
-			raise forms.ValidationError('File type is not image')
-
 		if image:
+			if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
+				raise forms.ValidationError('File type is not image')
+
 			try:
 				if (not image.content_type) or (not image.content_type.startswith('image')):
 					raise forms.ValidationError('File type is not image')
@@ -128,3 +137,10 @@ class CreateResourceForm(forms.ModelForm):
 			except:
 				pass 
 		return image
+
+class TagForm(forms.ModelForm):
+	name = forms.CharField(max_length=20)
+
+	class Meta:
+		model = Tag
+		fields = ('name',)

@@ -15,8 +15,8 @@ from django.contrib import messages
 
 from django.utils import timezone
 
-from NewEra.models import User, CaseLoadUser, Resource
-from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm
+from NewEra.models import User, CaseLoadUser, Resource, Tag
+from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm, TagForm
 
 import os
 
@@ -36,7 +36,7 @@ def resources(request):
 
 def get_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
-	context = { 'resource': resource }
+	context = { 'resource': resource, 'tags': resource.tags.all() }
 	return render(request, 'NewEra/get_resource.html', context)
 
 # ***** Note about images *****
@@ -165,6 +165,7 @@ def create_resource(request):
 	context = {}
 	form = CreateResourceForm()
 	context['form'] = form
+	context['action'] = 'Create'
 
 	if request.method == 'POST':
 		resource = Resource()
@@ -214,7 +215,7 @@ def edit_resource(request, id):
 			return redirect('Show Resource', id=resource.id)
 	else:
 		form = CreateResourceForm(instance=resource)
-	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource})
+	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource, 'action': 'Edit'})
 
 def delete_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
@@ -238,3 +239,58 @@ def deleteImage(oldImage):
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImage.name)
 		os.remove(IMAGE_ROOT)
+
+# Creates tags
+def tags(request):
+	context = {
+		'tags': Tag.objects.all()
+	}
+	return render(request, 'NewEra/tags.html', context)
+
+def create_tag(request):
+	context = {}
+	form = TagForm()
+	context['form'] = form
+	context['action'] = 'Create'
+
+	if request.method == 'POST':
+		tag = Tag()
+		form = TagForm(request.POST, instance=tag)
+		
+		if form.is_valid():
+			form.save()
+			tag.save()
+
+			messages.success(request, 'Tag successfully created!')
+
+			return redirect('Tags')
+	else:
+		tag = TagForm()
+
+	return render(request, 'NewEra/edit_tag.html', context)
+
+def edit_tag(request, id):
+	tag = get_object_or_404(Tag, id=id)
+
+	if request.method == "POST":
+		form = TagForm(request.POST, instance=tag)
+    
+		if form.is_valid():
+			form.save()
+			tag.save()
+
+			return redirect('Tags')
+	else:
+		form = TagForm(instance=tag)
+	return render(request, 'NewEra/edit_tag.html', {'form': form, 'tag': tag, 'action': 'Edit'})
+
+def delete_tag(request, id):
+	tag = get_object_or_404(Tag, id=id)
+
+	if request.method == 'POST':
+		tag.delete()
+		messages.success(request, 'Tag successfully deleted.')
+		return redirect('Tags')
+
+	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
+
