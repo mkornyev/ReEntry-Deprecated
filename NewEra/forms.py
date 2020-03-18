@@ -5,11 +5,13 @@ from django.contrib.auth import authenticate
 from django.db import models
 import re # Regex matching
 
-from NewEra.models import User, CaseLoadUser, Resource
+from NewEra.models import User, CaseLoadUser, Resource, Tag
+# Help from: https://chase-seibert.github.io/blog/2010/05/20/django-manytomanyfield-on-modelform-as-checkbox-widget.html
+from django.forms.widgets import CheckboxSelectMultiple
 
 # INPUT_ATTRIBUTES = {'style' : 'border: 1px solid gray; border-radius: 5px;'}
 INPUT_ATTRIBUTES = {'class' : 'form-input'}
-
+MAX_UPLOAD_SIZE = 2500000
 
 # Model Forms
 
@@ -97,16 +99,48 @@ class RegistrationForm(forms.Form):
 class CreateResourceForm(forms.ModelForm):
 	name = forms.CharField(max_length=100, required=True)
 	description = forms.CharField(max_length=1000, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
+	is_active = forms.BooleanField(required=False)
 	email = forms.EmailField(max_length=254, required=False)
 	phone = forms.CharField(max_length=10, required=False)
 	street = forms.CharField(max_length=100, required=False)
-	zip_code = forms.CharField(max_length=100, required=False)
+	city = models.CharField(max_length=100)
+	zip_code = forms.CharField(max_length=10, required=False)
 	state = forms.CharField(max_length=2, required=False)
 	url = forms.URLField(required=False)
 
 	class Meta:
 		model = Resource
-		fields = ('name', 'description', 'start_date', 'end_date', 'email', 'phone', 'street', 'zip_code', 'state', 'image', 'url', 'tags')
+		fields = ('name', 'description', 'is_active', 'start_date', 'end_date', 'email', 'phone', 'street', 'zip_code', 'state', 'image', 'url', 'tags')
 		exclude = (
 			'content_type',
 		)
+
+	def __init__(self, *args, **kwargs):
+        
+		super(CreateResourceForm, self).__init__(*args, **kwargs)
+        
+		self.fields['tags'].widget = CheckboxSelectMultiple()
+		self.fields['tags'].queryset = Tag.objects.all()
+
+	def clean_image(self):
+		image = self.cleaned_data['image']
+
+		if image:
+			if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
+				raise forms.ValidationError('File type is not image')
+
+			try:
+				if (not image.content_type) or (not image.content_type.startswith('image')):
+					raise forms.ValidationError('File type is not image')
+				if image.size > MAX_UPLOAD_SIZE:
+					raise forms.ValidationError('File too big (max: {0} mb)'.format(MAX_UPLOAD_SIZE/1000000))
+			except:
+				pass 
+		return image
+
+class TagForm(forms.ModelForm):
+	name = forms.CharField(max_length=20)
+
+	class Meta:
+		model = Tag
+		fields = ('name',)

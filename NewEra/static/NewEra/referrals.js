@@ -32,7 +32,8 @@ function toggleSelect() {
     }
 }
 
-function toggleItem() {
+function toggleItem(event) {
+    event.preventDefault() 
     state = $(this).attr('state')
     id = $(this).attr('id').substring(9)
 

@@ -1,0 +1,48 @@
+{% extends "NewEra/base.html" %}
+
+{% block title %}{% block navtitle %}
+	Tags
+{% endblock %}{% endblock %}
+
+{% block content %}
+	<h1 style="margin: auto; margin-top: 50px; text-align: center;">
+		Tags
+	</h1>
+
+	<div class="container">
+		{% if perms.tag.create_tag %}
+			<a href="{% url 'Create Tag' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Tag</a>
+		{% endif %}
+	</div>
+	<p>&nbsp;</p>
+	{% if tags.count > 0 %}
+		<div class="container">
+			<div class="row">
+			{% for t in tags %}
+				<div class="col-sm-4">
+					<div class="card" style="width: 18rem;">
+						<h4 style="margin: auto; margin-top: 25px; text-align: center;">{{ t.name }}</h4>
+						<hr/>
+						<div class="row">
+							<div class="col">
+								{% if perms.tag.edit_tag %}
+									<a href="{% url 'Edit Tag' t.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
+								{% endif %}
+							</div>
+							<div class="col">
+								{% if perms.tag.delete_tag %}
+							        <a href="{% url 'Delete Tag' t.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a>
+							    {% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+			</div>
+		</div>
+
+	{% else %}
+	  <p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no tags at this time.</em></p>
+	{% endif %}
+	<p>&nbsp;</p>
+{% endblock %}

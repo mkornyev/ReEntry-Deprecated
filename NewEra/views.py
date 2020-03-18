@@ -2,6 +2,7 @@
 # IMPORTS 
 
 import ast
+import os
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect #, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -16,8 +17,8 @@ from django.contrib import messages
 
 from django.utils import timezone
 
-from NewEra.models import User, CaseLoadUser, Resource, Referral
-from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm
+from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag
+from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm, TagForm
 
 # VIEW ACTIONS 
 
@@ -28,13 +29,14 @@ def home(request):
 def resources(request):
 	context = {
 		'resources': Resource.objects.all(),
+		'active_resources': Resource.objects.all().filter(is_active=True),
+		'inactive_resources': Resource.objects.all().filter(is_active=False)
 	}
 	return render(request, 'NewEra/resources.html', context)
 
 def get_resource(request, id):
-	# resource = get_object_or_404(Resource, id=id)
-	# context = { 'resource': resource }
-	context = {} 
+	resource = get_object_or_404(Resource, id=id)
+	context = { 'resource': resource, 'tags': resource.tags.all() }
 	return render(request, 'NewEra/get_resource.html', context)
 
 # ***** Note about images *****
@@ -53,7 +55,11 @@ def login(request):
 	if request.user.is_authenticated:
 		return redirect(reverse('Home'))
 
-	context = {} 
+	context = {
+		'resources': Resource.objects.all(),
+		'active_resources': Resource.objects.all().filter(is_active=True),
+		'inactive_resources': Resource.objects.all().filter(is_active=False)
+	}
 	if request.method == 'GET':
 		context['form'] = LoginForm()
 		return render(request, 'NewEra/login.html', context)
@@ -77,9 +83,6 @@ def logout(request):
 
 def about(request):
 	return render(request, 'NewEra/about.html')
-
-
-# Resource manipulation actions
 
 def create_resource(request):
 	context = {}
@@ -205,4 +208,136 @@ def manage_users(request):
 	context['form'] = RegistrationForm()
 	return render(request, 'NewEra/manage_users.html', context)
 
-	
+def create_resource(request):
+	context = {}
+	form = CreateResourceForm()
+	context['form'] = form
+	context['action'] = 'Create'
+
+	if request.method == 'POST':
+		resource = Resource()
+		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
+		
+		if form.is_valid():
+			# Update content_type
+			pic = form.cleaned_data['image']
+			if pic and pic != '':
+				print('Uploaded image: {} (type={})'.format(pic, type(pic)))
+				resource.content_type = form.cleaned_data['image'].content_type
+
+			form.save()
+			resource.save()
+
+			messages.success(request, 'Resource successfully created!')
+
+			return redirect('Resources')
+	else:
+		form = CreateResourceForm()
+
+	return render(request, 'NewEra/edit_resource.html', context)
+
+def edit_resource(request, id):
+	resource = get_object_or_404(Resource, id=id)
+	oldImage = resource.image
+
+	if request.method == "POST":
+		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
+    
+		if form.is_valid():
+
+			pic = form.cleaned_data['image']
+			if pic and pic != '':
+				
+				# Update content type, remove old image
+				try: 
+					# Edge case where revalidated file is a FieldFile type (and not an Image)
+					resource.content_type = form.cleaned_data['image'].content_type
+					deleteImage(oldImage)
+				except: 
+					pass
+
+			form.save()
+			resource.save()
+
+			return redirect('Show Resource', id=resource.id)
+	else:
+		form = CreateResourceForm(instance=resource)
+	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource, 'action': 'Edit'})
+
+def delete_resource(request, id):
+	resource = get_object_or_404(Resource, id=id)
+
+	if request.method == 'POST':
+		if (resource.referrals.count() == 0):
+			deleteImage(resource.image)
+			resource.delete()
+			messages.success(request, 'Resource successfully deleted.')
+			return redirect('Resources')
+		else:
+			resource.is_active = False
+			resource.save()
+			messages.success(request, 'Resource was made inactive.')
+			return redirect('Show Resource', id=resource.id)
+	return render(request, 'NewEra/delete_resource.html', {'resource': resource})
+
+# Deletes the given image if it exists
+def deleteImage(oldImage):
+	if oldImage: 
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImage.name)
+		os.remove(IMAGE_ROOT)
+
+# Creates tags
+def tags(request):
+	context = {
+		'tags': Tag.objects.all()
+	}
+	return render(request, 'NewEra/tags.html', context)
+
+def create_tag(request):
+	context = {}
+	form = TagForm()
+	context['form'] = form
+	context['action'] = 'Create'
+
+	if request.method == 'POST':
+		tag = Tag()
+		form = TagForm(request.POST, instance=tag)
+		
+		if form.is_valid():
+			form.save()
+			tag.save()
+
+			messages.success(request, 'Tag successfully created!')
+
+			return redirect('Tags')
+	else:
+		tag = TagForm()
+
+	return render(request, 'NewEra/edit_tag.html', context)
+
+def edit_tag(request, id):
+	tag = get_object_or_404(Tag, id=id)
+
+	if request.method == "POST":
+		form = TagForm(request.POST, instance=tag)
+    
+		if form.is_valid():
+			form.save()
+			tag.save()
+
+			return redirect('Tags')
+	else:
+		form = TagForm(instance=tag)
+	return render(request, 'NewEra/edit_tag.html', {'form': form, 'tag': tag, 'action': 'Edit'})
+
+def delete_tag(request, id):
+	tag = get_object_or_404(Tag, id=id)
+
+	if request.method == 'POST':
+		tag.delete()
+		messages.success(request, 'Tag successfully deleted.')
+		return redirect('Tags')
+
+	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
+
