@@ -141,6 +141,8 @@ def create_referral(request):
 
 		for r in resources: 
 			referral.resource_set.add(r)
+		
+		referral.sendNotifications()
 
 	return redirect(reverse('Resources'))
 

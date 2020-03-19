@@ -2,6 +2,10 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import authenticate
 from django.db import models
 from django import forms
+from django.core import mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
 from datetime import datetime
 
@@ -94,6 +98,27 @@ class Referral(models.Model):
 	caseUser = models.ForeignKey(CaseLoadUser, on_delete=models.PROTECT, blank=True, null=True)
 
 	# Methods
+	def sendNotifications(self):
+		self.sendMail()
+
+	def sendMail(self):
+		strArgs = [ r.name + ' ,  ' for r in self.resource_set.all() ]
+		strArgs.append('and other resources.')
+
+		resources = [ r for r in self.resource_set.all() ]
+		userName = self.user.first_name + ' ' + self.user.last_name
+
+		subject = 'NewERA412 Referral from {}: {}'.format(self.user.first_name + ' ' + self.user.last_name, ''.join(strArgs))
+		html_message = render_to_string('NewEra/referral_mailer.html', {'resources': resources, 'userName': userName, 'notes': self.notes })
+		plain_message = strip_tags(html_message)
+		from_email = settings.EMAIL_HOST_USER
+		to = self.email
+
+		if self.email == '':
+			to = self.caseUser.email
+
+		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=False)
+
 	def __str__(self):
 		# name = (first_name == None || last_name == None) ? self.get_full_name() : "(unknown)"
 		return "Referral sent to " + self.phone + " by " + self.user.get_full_name() + " on " + self.referral_date.strftime("%m-%d-%Y")
