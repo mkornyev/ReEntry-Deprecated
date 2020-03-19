@@ -2,6 +2,12 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import authenticate
 from django.db import models
 from django import forms
+from django.core import mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
+
+from datetime import datetime
 
 # NOTE: There is no validation in this model, as it seems like that should be done in forms (and it's hard to set up here)
 
@@ -82,9 +88,9 @@ class Referral(models.Model):
 	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
 	phone = models.CharField(max_length=10, blank=False, null=False)
-	referral_date = models.DateField(auto_now=True)
+	referral_date = models.DateTimeField(default=datetime.now)
 	# resource_accessed = models.BooleanField()
-	date_accessed = models.DateField(blank=True, null=True)
+	date_accessed = models.DateTimeField(blank=True, null=True)
 	notes = models.CharField(max_length=1000)
 
 	# Foreign attributes
@@ -92,6 +98,27 @@ class Referral(models.Model):
 	caseUser = models.ForeignKey(CaseLoadUser, on_delete=models.PROTECT, blank=True, null=True)
 
 	# Methods
+	def sendNotifications(self):
+		self.sendMail()
+
+	def sendMail(self):
+		strArgs = [ r.name + ' ,  ' for r in self.resource_set.all() ]
+		strArgs.append('and other resources.')
+
+		resources = [ r for r in self.resource_set.all() ]
+		userName = self.user.first_name + ' ' + self.user.last_name
+
+		subject = 'NewERA412 Referral from {}: {}'.format(self.user.first_name + ' ' + self.user.last_name, ''.join(strArgs))
+		html_message = render_to_string('NewEra/referral_mailer.html', {'resources': resources, 'userName': userName, 'notes': self.notes })
+		plain_message = strip_tags(html_message)
+		from_email = settings.EMAIL_HOST_USER
+		to = self.email
+
+		if self.email == '':
+			to = self.caseUser.email
+
+		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=True)
+
 	def __str__(self):
 		# name = (first_name == None || last_name == None) ? self.get_full_name() : "(unknown)"
 		return "Referral sent to " + self.phone + " by " + self.user.get_full_name() + " on " + self.referral_date.strftime("%m-%d-%Y")
@@ -116,8 +143,8 @@ class Resource(models.Model):
 	# Attributes
 	name = models.CharField(max_length=100, blank=False, null=False)
 	description = models.CharField(max_length=1000)
-	start_date = models.DateField(blank=True, null=True)
-	end_date = models.DateField(blank=True, null=True)
+	start_date = models.DateTimeField(blank=True, null=True)
+	end_date = models.DateTimeField(blank=True, null=True)
 	# !!! IMPORTANT !!!
 	# Add regex validation for email and phone later
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address

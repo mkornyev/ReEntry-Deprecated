@@ -1,0 +1,14 @@
+<div>
+    <h1>Referral from NewERA412</h1>
+    <p>
+        <ul> 
+        {% for r in resources %}
+        <li><a href="https://newera-app.herokuapp.com/resources/{{ r.id }}">{{ r.name|add:': ' }}</a>{{ r.description|slice:"0:45"|add:'...' }}</li>
+        </li>
+        {% endfor %}
+        </ul>
+        {{ notes }}<br><br>
+        See our <a href='https://newera-app.herokuapp.com/'>online resources</a> for more.
+    </p>
+    <p> {{ '--'|add:userName }}</p>
+</div>

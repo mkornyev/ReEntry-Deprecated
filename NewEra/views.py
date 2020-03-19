@@ -1,11 +1,13 @@
 
 # IMPORTS 
 
+import ast
 import os
 
-from django.http import Http404, HttpResponse #, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect #, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
@@ -15,10 +17,8 @@ from django.contrib import messages
 
 from django.utils import timezone
 
-from NewEra.models import User, CaseLoadUser, Resource, Tag
+from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag
 from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm, TagForm
-
-import os
 
 # VIEW ACTIONS 
 
@@ -68,14 +68,13 @@ def login(request):
 	context['form'] = form
 
 	if not form.is_valid():
-		print(form.errors)
 		return render(request, 'NewEra/login.html', context)
 
 	user = authenticate(username=form.cleaned_data['username'],
 							password=form.cleaned_data['password'])
 
 	auth_login(request, user)
-	return render(request, 'NewEra/resources.html', context)
+	return redirect(reverse('Home'))
 
 @login_required
 def logout(request):
@@ -85,17 +84,67 @@ def logout(request):
 def about(request):
 	return render(request, 'NewEra/about.html')
 
+def create_resource(request):
+	context = {}
+	form = CreateResourceForm()
+	context['form'] = form
+
+	if request.method == 'POST':
+		resource = Resource()
+		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
+		
+		if form.is_valid():
+			# Update content_type
+			pic = form.cleaned_data['image']
+			if pic and pic != '':
+				resource.content_type = form.cleaned_data['image'].content_type
+
+				# REMOVE OLD IMAGE (for edit action)
+				# if oldImageName: 
+				# 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+				# 	IMAGE_ROOT = os.path.join(BASE_DIR, 'socialnetwork/user_uploads/' + oldImageName.name)
+				# 	os.remove(IMAGE_ROOT)
+
+			form.save()
+			resource.save()
+
+			messages.success(request, 'Form submission successful')
+
+			return redirect('Resources')
+	else:
+		form = CreateResourceForm()
+
+	return render(request, 'NewEra/edit_resource.html', context)
 
 # SOW Actions 
 
 def create_referral(request):
-	context = {
-		'resources': Resource.objects.all(),
-		'active_resources': Resource.objects.all().filter(is_active=True),
-		'inactive_resources': Resource.objects.all().filter(is_active=False)
-	}
-	# TEMP HTML TEMPLATE
-	return render(request, 'NewEra/resources.html', context)
+	resources = request.GET.get('resources', None)	
+
+	if request.method == 'GET' and resources:
+		resources = [digit.strip() for digit in ast.literal_eval(resources)] # Safely parse array
+		resources = [ get_object_or_404(Resource, id=resourceId) for resourceId in resources ]
+
+		recipients = [] 
+		if request.user.is_superuser: 
+			recipients = CaseLoadUser.objects.all()
+		elif request.user.is_staff: 
+			recipients = recipients = CaseLoadUser.objects.filter(user=request.user)
+
+		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients})
+	elif request.method == 'POST' and 'user_id' in request.POST and 'notes' in request.POST:
+		caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
+		resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
+
+		referral = Referral(email='', phone='', notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
+		referral.save()
+
+		for r in resources: 
+			referral.resource_set.add(r)
+		
+		referral.sendNotifications()
+
+	return redirect(reverse('Resources'))
 
 def case_load(request):
 	users = [] 

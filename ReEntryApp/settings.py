@@ -125,6 +125,14 @@ USE_TZ = True
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
 
+# EMAIL (Temporary credentials added below:)
+EMAIL_HOST = 'smtp.gmail.com'   
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'realistic.reentry.412@gmail.com'
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
 #####################################################
 
 # Misc Deployment Vars 
