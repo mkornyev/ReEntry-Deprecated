@@ -117,7 +117,7 @@ class Referral(models.Model):
 		if self.email == '':
 			to = self.caseUser.email
 
-		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=False)
+		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=True)
 
 	def __str__(self):
 		# name = (first_name == None || last_name == None) ? self.get_full_name() : "(unknown)"
