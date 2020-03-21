@@ -86,8 +86,6 @@
 			{% if perms.resource.edit_resource %}
 				<hr/>
 				<h3>Inactive Resources</h3>
-
-
 				{% if inactive_resources.count > 0 %}
 					<div class="row">
 						{% for r in inactive_resources %}
@@ -142,7 +140,7 @@
 				{% endif %}
 			{% endif %}
 		{% else %}
-			<p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no resources at this time.</em></p>
+			<p style="margin: auto; margin-top: 50px; text-align: center;"><em>No resources matching filtering criteria.</em></p>
 		{% endif %}
 		<p>&nbsp;</p>
 	</div>
