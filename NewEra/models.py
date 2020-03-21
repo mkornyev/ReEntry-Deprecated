@@ -143,8 +143,7 @@ class Resource(models.Model):
 	# Attributes
 	name = models.CharField(max_length=100, blank=False, null=False)
 	description = models.CharField(max_length=1000)
-	start_date = models.DateTimeField(blank=True, null=True)
-	end_date = models.DateTimeField(blank=True, null=True)
+	hours = models.CharField(max_length=1000, default='')
 	# !!! IMPORTANT !!!
 	# Add regex validation for email and phone later
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
@@ -153,6 +152,8 @@ class Resource(models.Model):
 	# We can change this later if needed
 	phone = models.CharField(max_length=10)
 	street = models.CharField(max_length=100)
+	street_secondary = models.CharField(max_length=100, default='')
+	city = models.CharField(max_length=100, default="Pittsburgh")
 	# This should account for 5-digit and 10-digit zip codes
 	zip_code = models.CharField(max_length=10)
 	# Refers to two digits
@@ -161,7 +162,6 @@ class Resource(models.Model):
 	content_type = models.CharField(max_length=50, blank=True)
 	url = models.URLField()
 	clicks = models.IntegerField(default=0)
-	city = models.CharField(max_length=100, default="Pittsburgh")
 	is_active = models.BooleanField(default=True)
 
 	# Many-to-many foreign keys
@@ -174,4 +174,4 @@ class Resource(models.Model):
 		return self.name
 
 	def print_attributes(self):
-		print("---\nName: " + self.name + "\nDescription: " + self.description + "\nStart Date: " + self.start_date.strftime("%m-%d-%Y") + "\nEnd date: " + self.end_date.strftime("%m-%d-%Y") + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nStreet: " + self.street + "\nZip code: " + self.zip_code + "\nState: " + self.state + "\nURL: " + self.url + "\nClicks: " + str(self.clicks) + "\n---")
+		print("---\nName: " + self.name + "\nDescription: " + self.description + "\nHours:" + self.hours + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nStreet: " + self.street + "\nZip code: " + self.zip_code + "\nState: " + self.state + "\nURL: " + self.url + "\nClicks: " + str(self.clicks) + "\n---")
