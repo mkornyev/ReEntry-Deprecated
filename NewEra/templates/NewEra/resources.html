@@ -1,8 +1,8 @@
 {% extends "NewEra/base.html" %}
 
-{% block title %}{% block navtitle %}
+{% block title %}
 	Resources
-{% endblock %}{% endblock %}
+{% endblock %}
 
 {% block content %}
 	<h1 style="margin: auto; margin-top: 50px; text-align: center;">
@@ -24,7 +24,7 @@
 			<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
 		{% endif %}
 		{% if user.is_staff %}
-			<button id="make-referral" class="btn btn-primary" style="margin: auto; ">Make Referral</button>
+			<button id="make-referral" class="btn btn-primary" style="margin: auto; ">Make Referral</button><br><br>
 		{% endif %}
 
 		{% if resources %}
