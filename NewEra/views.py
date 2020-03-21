@@ -16,7 +16,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from NewEra.models import User, CaseLoadUser, Resource, Tag
-from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm, TagForm
+from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
 
 import os
 
@@ -27,11 +27,21 @@ def home(request):
 	return render(request, 'NewEra/index.html', context)
 
 def resources(request):
+	all_resources = Resource.objects.all()
+
 	context = {
-		'resources': Resource.objects.all(),
-		'active_resources': Resource.objects.all().filter(is_active=True),
-		'inactive_resources': Resource.objects.all().filter(is_active=False)
+		'resources': all_resources,
+		'active_resources': all_resources.filter(is_active=True),
+		'inactive_resources': all_resources.filter(is_active=False),
+		'tags': Tag.objects.all()
 	}
+
+	context['filter'] = ResourceFilter(request.GET, queryset=context['resources'])
+
+	if request.method == 'GET':
+		context['active_resources'] = context['filter'].qs.filter(is_active=True)
+		context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
+
 	return render(request, 'NewEra/resources.html', context)
 
 def get_resource(request, id):
@@ -293,4 +303,3 @@ def delete_tag(request, id):
 		return redirect('Tags')
 
 	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
-

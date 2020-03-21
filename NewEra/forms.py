@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.db import models
 import re # Regex matching
+import django_filters
 
 from NewEra.models import User, CaseLoadUser, Resource, Tag
 # Help from: https://chase-seibert.github.io/blog/2010/05/20/django-manytomanyfield-on-modelform-as-checkbox-widget.html
@@ -144,3 +145,11 @@ class TagForm(forms.ModelForm):
 	class Meta:
 		model = Tag
 		fields = ('name',)
+
+# Filter function for the resources
+class ResourceFilter(django_filters.FilterSet):
+	tags = django_filters.ModelMultipleChoiceFilter(queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple, label='')
+
+	class Meta:
+		model = Resource
+		fields = ('tags',)
