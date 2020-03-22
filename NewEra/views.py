@@ -17,7 +17,7 @@ from django.contrib import messages
 
 from django.utils import timezone
 
-from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag
+from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
 from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
 
 # VIEW ACTIONS 
@@ -136,13 +136,15 @@ def create_referral(request):
 		resources = [ get_object_or_404(Resource, id=resourceId) for resourceId in resources ]
 
 		recipients = [] 
+		carriers = list(SMS_CARRIERS.keys())
 		if request.user.is_superuser: 
 			recipients = CaseLoadUser.objects.all()
 		elif request.user.is_staff: 
 			recipients = recipients = CaseLoadUser.objects.filter(user=request.user)
 
-		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients})
-	elif request.method == 'POST' and 'user_id' in request.POST and 'notes' in request.POST:
+		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
+
+	elif request.method == 'POST' and 'user_id' in request.POST and 'notes' in request.POST and 'carrier' in request.POST:
 		caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
 		resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 
@@ -152,7 +154,14 @@ def create_referral(request):
 		for r in resources: 
 			referral.resource_set.add(r)
 		
-		referral.sendNotifications()
+		carrierList = list(SMS_CARRIERS.keys())
+		carrier = request.POST['carrier']
+
+		if carrier not in carrierList: 
+			raise Http404
+
+		referral.sendEmail()
+		referral.sendSMS(carrier)
 
 	return redirect(reverse('Resources'))
 

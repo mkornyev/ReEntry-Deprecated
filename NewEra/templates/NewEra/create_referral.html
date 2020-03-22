@@ -31,6 +31,13 @@
                 {% endfor %}
             </select><br><br>
 
+            <label><b>Select Carrier:</b></label><br>
+            <select name="carrier">
+                {% for c in carriers %}
+                <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+            </select><br><br>
+
             <label><b>Add Notes:</b></label><br>
             <input type="text" name="notes" class="form-input"><br><br>
 

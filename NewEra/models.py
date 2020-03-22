@@ -9,7 +9,13 @@ from django.conf import settings
 
 from datetime import datetime
 
-# NOTE: There is no validation in this model, as it seems like that should be done in forms (and it's hard to set up here)
+SMS_CARRIERS = {
+	'AT&T':    '@txt.att.net',
+	'TMobile':' @tmomail.net',
+	'Verizon':  '@vtext.com',
+	'Sprint':   '@page.nextel.com'
+}
+
 
 # User model; extends AbstractUser
 class User(AbstractUser):
@@ -98,27 +104,45 @@ class Referral(models.Model):
 	caseUser = models.ForeignKey(CaseLoadUser, on_delete=models.PROTECT, blank=True, null=True)
 
 	# Methods
-	def sendNotifications(self):
-		self.sendMail()
+	def sendEmail(self):
+		if (not self.email or self.email == '') and (not self.caseUser.email or self.caseUser.email == ''): 
+			return 
 
-	def sendMail(self):
-		strArgs = [ r.name + ' ,  ' for r in self.resource_set.all() ]
+		strArgs = [ r.name + ',  ' for r in self.resource_set.all() ]
 		strArgs.append('and other resources.')
-
 		resources = [ r for r in self.resource_set.all() ]
 		userName = self.user.first_name + ' ' + self.user.last_name
 
-		subject = 'NewERA412 Referral from {}: {}'.format(self.user.first_name + ' ' + self.user.last_name, ''.join(strArgs))
+		subject = 'NewERA412 Referral from {}: {}'.format(userName, ''.join(strArgs))
 		html_message = render_to_string('NewEra/referral_mailer.html', {'resources': resources, 'userName': userName, 'notes': self.notes })
 		plain_message = strip_tags(html_message)
 		from_email = settings.EMAIL_HOST_USER
+		
 		to = self.email
-
 		if self.email == '':
 			to = self.caseUser.email
 
 		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=True)
 
+	def sendSMS(self, smsCarrier): 
+		if (not self.phone or self.phone == '') and (not self.caseUser.phone or self.caseUser.phone == ''):
+			return
+
+		userName = self.user.first_name + ' ' + self.user.last_name
+		from_email = settings.EMAIL_HOST_USER
+		to = self.phone
+
+		if to == None or to == '':
+			to = self.caseUser.phone
+		to = to + SMS_CARRIERS[smsCarrier]
+
+		messageIntro = '\n {} \n We\'ll send you another text with some links. --{}'.format(self.notes, userName)
+		mail.send_mail('NewERA Referral', messageIntro, from_email, [to], fail_silently=False)
+
+		links = [ '\n' + r.name + ': https://newera-app.herokuapp.com/resources/' + str(r.id) + '\n' for r in self.resource_set.all() ]
+		messageBody = ''.join(links) + '--- \n See us online for more: newera-app.herokuapp.com'
+		mail.send_mail('Links', messageBody, from_email, [to], fail_silently=True)
+		
 	def __str__(self):
 		# name = (first_name == None || last_name == None) ? self.get_full_name() : "(unknown)"
 		return "Referral sent to " + self.phone + " by " + self.user.get_full_name() + " on " + self.referral_date.strftime("%m-%d-%Y")
