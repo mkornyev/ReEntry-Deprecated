@@ -106,14 +106,21 @@ class CreateResourceForm(forms.ModelForm):
 	phone = forms.CharField(max_length=10, required=False)
 	street = forms.CharField(max_length=100, required=False)
 	street_secondary = forms.CharField(max_length=100, required=False)
-	city = models.CharField(max_length=100)
+	city = forms.CharField(max_length=100)
 	zip_code = forms.CharField(max_length=10, required=False)
 	state = forms.CharField(max_length=2, required=False)
 	url = forms.URLField(required=False)
 
+	contact_name = forms.CharField(max_length=100, required=False)
+	contact_position = forms.CharField(max_length=100, required=False)
+	# Assuming fax number is like a phone number
+	fax_number = forms.CharField(max_length=10, required=False)
+	# This may or may not be different from the organizational email
+	contact_email = forms.EmailField(max_length=254, required=False)
+
 	class Meta:
 		model = Resource
-		fields = ('name', 'description', 'is_active', 'hours', 'email', 'phone', 'street', 'street_secondary', 'zip_code', 'state', 'image', 'url', 'tags')
+		fields = ('name', 'description', 'is_active', 'hours', 'email', 'phone', 'street', 'street_secondary', 'city', 'state', 'zip_code', 'image', 'url', 'contact_name', 'contact_position', 'fax_number', 'contact_email', 'tags')
 		exclude = (
 			'content_type',
 		)

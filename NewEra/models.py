@@ -34,21 +34,7 @@ class User(AbstractUser):
 	# We can change this later if needed
 	phone = models.CharField(max_length=10, blank=False, null=False)
 
-	# This shouldn't be necessary if we have is_staff and is_superuser
-	'''
-	# Create permitted roles
-	# 	ROLE 	= "VALUE", _("Human readable name")
-	class Role(models.TextChoices):
-		ADMIN 	= "A", 	_("Admin")
-		SOW		= "S", 	_("Street Outreach Worker")
-
-	# Assign role
-	role = modelsCharField(
-		max_length = 1,
-		choices = Role.choices,
-		default = Role.SOW,
-	)
-	'''
+	# We have is_staff and is_superuser, so we don't need to create custom roles
 
 	# Methods
 	def __str__(self):
@@ -168,8 +154,6 @@ class Resource(models.Model):
 	name = models.CharField(max_length=100, blank=False, null=False)
 	description = models.CharField(max_length=1000)
 	hours = models.CharField(max_length=1000, default='')
-	# !!! IMPORTANT !!!
-	# Add regex validation for email and phone later
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
 	email = models.EmailField(max_length=254)
 	# 10 is the max length to force a phone number to be just the digits
@@ -187,6 +171,13 @@ class Resource(models.Model):
 	url = models.URLField()
 	clicks = models.IntegerField(default=0)
 	is_active = models.BooleanField(default=True)
+
+	contact_name = models.CharField(max_length=100)
+	contact_position = models.CharField(max_length=100)
+	# Assuming fax number is like a phone number
+	fax_number = models.CharField(max_length=10)
+	# This may or may not be different from the organizational email
+	contact_email = models.EmailField(max_length=254)
 
 	# Many-to-many foreign keys
 	# Blank section added for the admin dashboard management (otherwise resources can't be added)
