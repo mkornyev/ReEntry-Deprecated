@@ -26,6 +26,13 @@
               </li>
             {% endif %}
 
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                {% url 'Referrals' as referrals_url %}
+                <a class="nav-link {% if request.path == referrals_url %}active{% endif %}" href="{{ referrals_url }}">Referrals</a>
+              </li>
+            {% endif %}
+
             {% if user.is_staff %}
               <li class="nav-item">
                 {% url 'Case Load' as case_load_url %} 

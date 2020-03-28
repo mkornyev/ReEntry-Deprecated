@@ -66,6 +66,7 @@ class CaseLoadUser(models.Model):
 	# We can change this later if needed
 	phone = models.CharField(max_length=10) # NOTE: temporarily null=True so users can be added to caseload
 	notes = models.CharField(max_length=1000)
+	is_active = models.BooleanField(default=True)
 	user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
 	# Methods
@@ -76,7 +77,7 @@ class CaseLoadUser(models.Model):
 		return self.first_name + " " + self.last_name
 
 	def print_attributes(self):
-		print("---\nName: " + self.get_full_name() + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nNotes:\n" + self.notes + "\nUser: " + self.user.get_full_name() + "\n---")
+		print("---\nName: " + self.get_full_name() + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nNotes:\n" + self.notes + "\nIs active: " + self.is_active + "\nUser: " + self.user.get_full_name() + "\n---")
 
 	def get_referrals(self):
 		return Referral.objects.filter(caseUser=self)

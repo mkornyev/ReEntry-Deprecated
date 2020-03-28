@@ -1,0 +1,43 @@
+{% extends "NewEra/base.html" %}
+
+{% block title %}{% block navtitle %}
+	Show Resource
+{% endblock %}{% endblock %}
+
+{% block content %}
+    <div style="width: 80%; margin: auto; padding-top: 10vh;">
+        <div class="">
+            <h1>{{ case_load_user.get_full_name }}</h1>
+
+            {% if perms.case_load_user.edit_case_load_user %}
+                {% if case_load_user.is_active %}
+                    Status: <p class="text-success">Active</p>
+                {% else %}
+                    Status: <p class="text-danger">Inactive</p>
+                {% endif %}
+            {% endif %}
+
+            <h3>SOW</h3>
+            <p>{{ case_load_user.user }}</p>
+
+            <h3>Phone</h3>
+            <p><a href="tel:{{case_load_user.phone}}"><i class="material-icons">phone</i>{{ case_load_user.phone }}</a></p>
+
+            <h3>Email</h3>
+            <p><a href="mailto:{{case_load_user.email}}"><i class="material-icons">email</i>{{ case_load_user.email }}</a></p>
+
+            <h3>Notes</h3>
+            <p>{{ case_load_user.notes }}</p>
+
+        </div>
+
+        <br><hr></br>
+
+        <a href="{% url 'Edit Case Load User' case_load_user.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
+
+        <a href="{% url 'Delete Case Load User' case_load_user.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a>
+
+    </div>
+    <p>&nbsp;</p>
+
+{% endblock %}

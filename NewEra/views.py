@@ -18,7 +18,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
-from NewEra.forms import LoginForm, RegistrationForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
+from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
 
 # VIEW ACTIONS 
 
@@ -165,6 +165,23 @@ def create_referral(request):
 
 	return redirect(reverse('Resources'))
 
+def referrals(request):
+	if (request.user.is_superuser):
+		referrals = Referral.objects.all()
+	elif (request.user.is_staff):
+		referrals = Referral.objects.all().filter(user=request.user)
+
+	context = {
+		'referrals': referrals
+	}
+
+	return render(request, 'NewEra/referrals.html', context)
+
+def get_referral(request, id):
+	referral = get_object_or_404(Referral, id=id)
+	context = { 'referral': referral, 'resources': Resource.objects.all().filter(referrals=referral) }
+	return render(request, 'NewEra/get_referral.html', context)
+
 def case_load(request):
 	users = [] 
 	context = {} 
@@ -192,6 +209,42 @@ def case_load(request):
 	context['caseload_users'] = users
 	context['form'] = CaseLoadUserForm()
 	return render(request, 'NewEra/case_load.html', context)
+
+def get_case_load_user(request, id):
+	case_load_user = get_object_or_404(CaseLoadUser, id=id)
+	context = { 'case_load_user': case_load_user }
+	return render(request, 'NewEra/get_case_load_user.html', context)
+
+def edit_case_load_user(request, id):
+	case_load_user = get_object_or_404(CaseLoadUser, id=id)
+
+	if request.method == "POST":
+		form = CaseLoadUserForm(request.POST, instance=case_load_user)
+    
+		if form.is_valid():
+
+			form.save()
+			case_load_user.save()
+
+			return redirect('Show Case Load User', id=case_load_user.id)
+	else:
+		form = CaseLoadUserForm(instance=case_load_user)
+	return render(request, 'NewEra/edit_case_load_user.html', {'form': form, 'case_load_user': case_load_user, 'action': 'Edit'})
+
+def delete_case_load_user(request, id):
+	case_load_user = get_object_or_404(CaseLoadUser, id=id)
+
+	if request.method == 'POST':
+		if (case_load_user.get_referrals().count() == 0):
+			case_load_user.delete()
+			messages.success(request, 'Case Load User successfully deleted.')
+			return redirect('Case Load')
+		else:
+			case_load_user.is_active = False
+			case_load_user.save()
+			messages.success(request, 'case_load_user.get_full_name was made inactive.')
+			return redirect('Show Case Load User', id=case_load_user.id)
+	return render(request, 'NewEra/delete_case_load_user.html', {'case_load_user': case_load_user})
 
 
 # ADMIN actions 
@@ -228,6 +281,37 @@ def manage_users(request):
 	
 	context['form'] = RegistrationForm()
 	return render(request, 'NewEra/manage_users.html', context)
+
+def edit_user(request, id):
+	user = get_object_or_404(User, id=id)
+
+	if request.method == "POST":
+		form = EditUserForm(request.POST, instance=user)
+    
+		if form.is_valid():
+
+			form.save()
+			user.save()
+
+			return redirect('Manage Users')
+	else:
+		form = EditUserForm(instance=user)
+	return render(request, 'NewEra/edit_user.html', {'form': form, 'user': user, 'action': 'Edit'})
+
+def delete_user(request, id):
+	user = get_object_or_404(User, id=id)
+
+	if request.method == 'POST':
+		if (user.get_referrals().count() == 0 and user.get_case_load().count() == 0):
+			user.delete()
+			messages.success(request, 'User successfully deleted.')
+			return redirect('Manage Users')
+		else:
+			user.is_active = False
+			user.save()
+			messages.success(request, 'user.get_full_name was made inactive.')
+			return redirect('Manage Users')
+	return render(request, 'NewEra/delete_user.html', {'user': user})
 
 def create_resource(request):
 	context = {}

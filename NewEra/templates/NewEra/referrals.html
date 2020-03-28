@@ -1,0 +1,48 @@
+{% extends "NewEra/base.html" %}
+
+{% block page_specific_styles %}
+<!-- {% load static %}
+<link href="{% static 'NewEra/index_styles.css' %}" rel="stylesheet" type="text/css"> -->
+{% endblock %}
+
+{% block title %}
+	Referrals
+{% endblock %}
+
+{% block content %}
+    <h1 style="margin: auto; margin-top: 50px; text-align: center;">
+        Referrals
+    </h1>
+    <div class="container">
+        <hr/>
+    </div>
+
+    <div style="width: 80%; margin: auto; padding-top: 10vh;">
+
+        <table>
+            <tr>
+                <th>Referral Date</th>
+                {% if perms.referral.edit_referral %}
+                    <th>SOW</th>
+                {% endif %}
+                <th>Phone</th>
+                <th>Case Load User</th>
+            </tr>
+            {% for referral in referrals %}
+                <tr>
+                    <td>{{ referral.referral_date }}</td>
+                    {% if perms.referral.edit_referral %}
+                        <td>{{ referral.user }}</td>
+                    {% endif %}
+                    <td>{{ referral.phone }}</td>
+                    {% if referral.caseUser %}
+                        <td>{{ referral.caseUser.get_full_name }}</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                    <td><a href="{% url 'Show Referral' id=referral.id %}" class="btn btn-primary">Details</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

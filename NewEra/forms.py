@@ -19,9 +19,8 @@ MAX_UPLOAD_SIZE = 2500000
 class CaseLoadUserForm(forms.ModelForm):
 	class Meta:
 		model = CaseLoadUser
-		fields = ['first_name', 'last_name', 'email', 'phone', 'notes', 'user']
+		fields = ['first_name', 'last_name', 'email', 'phone', 'notes', 'is_active', 'user']
 		exclude = (
-			'notes',
 			'user',
 		)
 
@@ -31,6 +30,8 @@ class CaseLoadUserForm(forms.ModelForm):
 		self.fields['last_name'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['email'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['phone'].widget.attrs=INPUT_ATTRIBUTES
+		self.fields['notes'].widget.attrs=INPUT_ATTRIBUTES
+		self.fields['is_active'].widget.attrs=INPUT_ATTRIBUTES
 
 	def clean_phone(self):
 		phone = self.cleaned_data['phone']
@@ -97,6 +98,32 @@ class RegistrationForm(forms.Form):
 		return cleaned_phone
 
 
+class EditUserForm(forms.ModelForm):
+	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
+	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	is_active = forms.BooleanField(required=False)
+
+	class Meta:
+		model = User
+		fields = ('email', 'first_name', 'last_name', 'phone', 'is_active')
+		exclude = (
+			'username',
+			'password',
+			'confirm_password'
+		)
+
+	def clean_phone(self):
+		phone = self.cleaned_data['phone']
+		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
+
+		if len(cleaned_phone) != 10:
+			raise forms.ValidationError('You must enter a valid phone number.')
+
+		return cleaned_phone
+
+
 class CreateResourceForm(forms.ModelForm):
 	name = forms.CharField(max_length=100, required=True)
 	description = forms.CharField(max_length=1000, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
@@ -148,12 +175,14 @@ class CreateResourceForm(forms.ModelForm):
 				pass 
 		return image
 
+
 class TagForm(forms.ModelForm):
 	name = forms.CharField(max_length=20)
 
 	class Meta:
 		model = Tag
 		fields = ('name',)
+
 
 # Filter function for the resources
 class ResourceFilter(django_filters.FilterSet):

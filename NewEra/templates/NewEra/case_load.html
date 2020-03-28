@@ -62,6 +62,9 @@
                 {% if user.is_superuser %}
                 <td>{{ caseload_user.user.first_name|add:' '|add:caseload_user.user.last_name }}</td>
                 {% endif %}
+                <td><a href="{% url 'Show Case Load User' id=caseload_user.id %}" class="btn btn-primary">Details</a></td>
+                <td><a href="{% url 'Edit Case Load User' id=caseload_user.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
+                <td><a href="{% url 'Delete Case Load User' id=caseload_user.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
             </tr>
             {% endfor %}
         </table>

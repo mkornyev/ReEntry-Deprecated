@@ -36,6 +36,9 @@ urlpatterns = [
 
     # Routes for ADMINs 
     path('manage_users/', views.manage_users, name='Manage Users'),
+    # User actions
+    path('users/<int:id>/edit', views.edit_user, name='Edit User'),
+    path('users/<int:id>/delete', views.delete_user, name='Delete User'),
     # Resource actions
     path('resources/new/', views.create_resource, name='Create Resource'),
     path('resources/<int:id>/edit/', views.edit_resource, name='Edit Resource'),
@@ -44,5 +47,12 @@ urlpatterns = [
     path('tags/', views.tags, name='Tags'),
     path('tags/new', views.create_tag, name='Create Tag'),
     path('tags/<int:id>/edit/', views.edit_tag, name='Edit Tag'),
-    path('tags/<int:id>/delete/', views.delete_tag, name='Delete Tag')
+    path('tags/<int:id>/delete/', views.delete_tag, name='Delete Tag'),
+    # Referral actions
+    path('referrals/', views.referrals, name='Referrals'),
+    path('referrals/<int:id>/', views.get_referral, name='Show Referral'),
+    # Case load actions
+    path('case_load/<int:id>', views.get_case_load_user, name='Show Case Load User'),
+    path('case_load/<int:id>/edit/', views.edit_case_load_user, name='Edit Case Load User'),
+    path('case_load/<int:id>/delete/', views.delete_case_load_user, name='Delete Case Load User')
 ]
