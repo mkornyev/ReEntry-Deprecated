@@ -3,20 +3,10 @@ from NewEra.models import User, CaseLoadUser, Referral, Resource, Tag
 
 import datetime
 
-# Delete everything
-User.objects.all().delete()
-CaseLoadUser.objects.all().delete()
-Referral.objects.all().delete()
-Resource.objects.all().delete()
-Tag.objects.all().delete()
-
 # Test cases for User model
 class UserTests(TestCase):
 
 	def test_printing(self):
-		# Delete relevant models
-		User.objects.all().delete()
-
 		# Set up users
 		admin = User.objects.create_user(username="admin", password="administrator45", first_name="Admin", last_name="Guy", email="testemail@check.com", phone="5555555556", is_superuser=True)
 		brenth = User.objects.create_user(username="brenth", password="testsyay", first_name="Brent", last_name="Hong", is_staff=True)
@@ -28,10 +18,13 @@ class UserTests(TestCase):
 		self.assertEqual(str(maxk), "maxk (Max Kornyev)")
 		self.assertEqual(str(joeyp), "joeyp (Joey Perrino)")
 
-	def test_active_users(self):
-		# Delete relevant models
-		User.objects.all().delete()
+        # Delete users
+		admin.delete()
+		brenth.delete()
+		maxk.delete()
+		joeyp.delete()
 
+	def test_active_users(self):
 		# Set up users
 		admin = User.objects.create_user(username="admin", password="administrator45", first_name="Admin", last_name="Guy", email="testemail@check.com", phone="5555555556", is_superuser=True)
 		brenth = User.objects.create_user(username="brenth", password="testsyay", first_name="Brent", last_name="Hong", is_staff=True)
@@ -44,10 +37,13 @@ class UserTests(TestCase):
 		# joeyp should be inactive
 		self.assertEqual(joeyp.is_active, False)
 
-	def test_active_staff_users(self):
-		# Delete relevant models
-		User.objects.all().delete()
+		# Delete users
+		admin.delete()
+		brenth.delete()
+		maxk.delete()
+		joeyp.delete()
 
+	def test_active_staff_users(self):
 		# Set up users
 		admin = User.objects.create_user(username="admin", password="administrator45", first_name="Admin", last_name="Guy", email="testemail@check.com", phone="5555555556", is_superuser=True)
 		brenth = User.objects.create_user(username="brenth", password="testsyay", first_name="Brent", last_name="Hong", is_staff=True)
@@ -59,21 +55,25 @@ class UserTests(TestCase):
 		self.assertEqual(maxk.is_active_staff(), True)
 		self.assertEqual(joeyp.is_active_staff(), False)
 
-	def test_superuser(self):
-		# Delete relevant models
-		User.objects.all().delete()
+		# Delete users
+		admin.delete()
+		brenth.delete()
+		maxk.delete()
+		joeyp.delete()
 
+	def test_superuser(self):
+		# Set up users
 		admin = User.objects.create_user(username="admin", password="administrator45", first_name="Admin", last_name="Guy", email="testemail@check.com", phone="5555555556", is_superuser=True)
 		maxk = User.objects.create_user(username="maxk", password="testtime", first_name="Max", last_name="Kornyev", email="maxk@testingsuite.net", is_staff=True)
 		
 		self.assertEqual(admin.is_superuser, True)
 		self.assertEqual(maxk.is_superuser, False)
 
-	def test_case_load(self):
-		# Delete relevant models
-		User.objects.all().delete()
-		CaseLoadUser.objects.all().delete()
+		# Delete users
+		admin.delete()
+		maxk.delete()
 
+	def test_case_load(self):
 		# Set up users
 		admin = User.objects.create_user(username="admin", password="administrator45", first_name="Admin", last_name="Guy", email="testemail@check.com", phone="5555555556", is_superuser=True)
 		brenth = User.objects.create_user(username="brenth", password="testsyay", first_name="Brent", last_name="Hong", is_staff=True)
@@ -92,14 +92,54 @@ class UserTests(TestCase):
 		self.assertEqual(len(list(maxk.get_case_load())), 1)
 		self.assertEqual(len(list(joeyp.get_case_load())), 0)
 
+		# Delete caseload
+		c1.delete()
+		c2.delete()
+		c3.delete()
+		# Delete users
+		admin.delete()
+		brenth.delete()
+		maxk.delete()
+		joeyp.delete()
+
+	def test_get_referrals(self):
+		# Set up users
+		maxk = User.objects.create_user(username="maxk", password="testtime", first_name="Max", last_name="Kornyev", email="maxk@testingsuite.net", is_staff=True)
+		brenth = User.objects.create_user(username="brenth", password="testtest", first_name="Brent", last_name="Hong", is_staff=True, is_active=True)
+		joeyp = User.objects.create_user(username="joeyp", password="testtest", first_name="Joey", last_name="Perrino", is_staff=True, is_active=False)
+
+		# Set up case load
+		c1 = CaseLoadUser.objects.create(first_name="Steve", last_name="Test", email="test@abcd.com", phone="7777777777", notes="One More", user=maxk)
+		c2 = CaseLoadUser.objects.create(first_name="Martin", last_name="Tester", email="xyz@test.com", phone="2222222222", notes="Try another test", user=maxk)
+
+		# Set up referrals
+		r1 = Referral.objects.create(phone="7777777777", notes="check back next week", user=maxk, caseUser=c1)
+		r2 = Referral.objects.create(email="test@abcd.com", phone="5656565656", notes="make sure they are still open", user=joeyp)
+		r3 = Referral.objects.create(phone="7777777777", notes="keep it up!", user=maxk, caseUser=c1)
+		r4 = Referral.objects.create(phone="2222222222", notes="hope this helps", user=maxk, caseUser=c2)
+
+		self.assertEqual(maxk.get_referrals().count(), 3)
+		self.assertEqual(brenth.get_referrals().count(), 0)
+		self.assertEqual(joeyp.get_referrals().count(), 1)
+
+		# Delete referrals
+		r1.delete()
+		r2.delete()
+		r3.delete()
+		r4.delete()
+		# Delete caseload
+		c1.delete()
+		c2.delete()
+		# Delete users
+		brenth.delete()
+		maxk.delete()
+		joeyp.delete()
+
+
 # Test cases for individuals on a case load
-class CaseLoadUserUserTests(TestCase):
+class CaseLoadUserTests(TestCase):
 
 	def test_printing(self):
-		# Delete relevant models
-		User.objects.all().delete()
-		CaseLoadUser.objects.all().delete()
-
 		# Set up users
 		admin = User.objects.create_user(username="admin", password="administrator45", first_name="Admin", last_name="Guy", email="testemail@check.com", phone="5555555556", is_superuser=True)
 		brenth = User.objects.create_user(username="brenth", password="testsyay", first_name="Brent", last_name="Hong", is_staff=True)
@@ -115,11 +155,17 @@ class CaseLoadUserUserTests(TestCase):
 		self.assertEqual(str(c2), "Martha Test, phone number 6666666666")
 		self.assertEqual(str(c3), "Steve Test, phone number 7777777777")
 
-	def test_full_name(self):
-		# Delete relevant models
-		User.objects.all().delete()
-		CaseLoadUser.objects.all().delete()
+		# Delete caseload
+		c1.delete()
+		c2.delete()
+		c3.delete()
+		# Delete users
+		admin.delete()
+		brenth.delete()
+		maxk.delete()
+		joeyp.delete()
 
+	def test_full_name(self):
 		# Set up users
 		admin = User.objects.create_user(username="admin", password="administrator45", first_name="Admin", last_name="Guy", email="testemail@check.com", phone="5555555556", is_superuser=True)
 		brenth = User.objects.create_user(username="brenth", password="testsyay", first_name="Brent", last_name="Hong", is_staff=True)
@@ -135,15 +181,54 @@ class CaseLoadUserUserTests(TestCase):
 		self.assertEqual(c2.get_full_name(), "Martha Test")
 		self.assertEqual(c3.get_full_name(), "Steve Test")
 
+		# Delete caseload
+		c1.delete()
+		c2.delete()
+		c3.delete()
+		# Delete users
+		admin.delete()
+		brenth.delete()
+		maxk.delete()
+		joeyp.delete()
+
+	def test_get_referrals(self):
+		# Set up users
+		maxk = User.objects.create_user(username="maxk", password="testtime", first_name="Max", last_name="Kornyev", email="maxk@testingsuite.net", is_staff=True)
+		joeyp = User.objects.create_user(username="joeyp", password="testtest", first_name="Joey", last_name="Perrino", is_staff=True, is_active=False)
+
+		# Set up case load
+		c1 = CaseLoadUser.objects.create(first_name="Steve", last_name="Test", email="test@abcd.com", phone="7777777777", notes="One More", user=maxk)
+		c2 = CaseLoadUser.objects.create(first_name="Martin", last_name="Tester", email="xyz@test.com", phone="2222222222", notes="Try another test", user=maxk)
+		c3 = CaseLoadUser.objects.create(first_name="Mary", last_name="Testing", email="abc@defg.com", phone="5555555555", user=joeyp)
+
+		# Set up referrals
+		r1 = Referral.objects.create(phone="7777777777", notes="check back next week", user=maxk, caseUser=c1)
+		r2 = Referral.objects.create(email="test@abcd.com", phone="5656565656", notes="make sure they are still open", user=joeyp)
+		r3 = Referral.objects.create(phone="7777777777", notes="keep it up!", user=maxk, caseUser=c1)
+		r4 = Referral.objects.create(phone="2222222222", notes="hope this helps", user=maxk, caseUser=c2)
+
+		self.assertEqual(c1.get_referrals().count(), 2)
+		self.assertEqual(c2.get_referrals().count(), 1)
+		self.assertEqual(c3.get_referrals().count(), 0)
+
+		# Delete referrals
+		r1.delete()
+		r2.delete()
+		r3.delete()
+		r4.delete()
+		# Delete caseload
+		c1.delete()
+		c2.delete()
+		c3.delete()
+		# Delete users
+		maxk.delete()
+		joeyp.delete()
+
+
 # Test cases for referrals
 class ReferralTests(TestCase):
 
 	def test_printing(self):
-		# Delete relevant models
-		User.objects.all().delete()
-		CaseLoadUser.objects.all().delete()
-		Referral.objects.all().delete()
-
 		# Set up users
 		maxk = User.objects.create_user(username="maxk", password="testtime", first_name="Max", last_name="Kornyev", email="maxk@testingsuite.net", is_staff=True)
 		joeyp = User.objects.create_user(username="joeyp", password="testtest", first_name="Joey", last_name="Perrino", is_staff=True, is_active=False)
@@ -163,12 +248,22 @@ class ReferralTests(TestCase):
 		self.assertEqual(str(r3), "Referral sent to 7777777777 by Max Kornyev on %s" % datetime.datetime.now().strftime("%m-%d-%Y"))
 		self.assertEqual(str(r4), "Referral sent to 2222222222 by Max Kornyev on %s" % datetime.datetime.now().strftime("%m-%d-%Y"))
 
+		# Delete referrals
+		r1.delete()
+		r2.delete()
+		r3.delete()
+		r4.delete()
+		# Delete caseload
+		c1.delete()
+		c2.delete()
+		# Delete users
+		maxk.delete()
+		joeyp.delete()
+
+
 class TagTests(TestCase):
 
 	def test_printing(self):
-		# Delete relevant models
-		Tag.objects.all().delete()
-
 		# Set up tags
 		tag1 = Tag.objects.create(name="Housing")
 		tag2 = Tag.objects.create(name="Employment")
@@ -176,16 +271,14 @@ class TagTests(TestCase):
 		self.assertEqual(str(tag1), "Housing")
 		self.assertEqual(str(tag2), "Employment")
 
+		# Delete tags
+		tag1.delete()
+		tag2.delete()
+
+
 class ResourceTests(TestCase):
 
 	def test_printing(self):
-		# Delete relevant models
-		User.objects.all().delete()
-		CaseLoadUser.objects.all().delete()
-		Resource.objects.all().delete()
-		Tag.objects.all().delete()
-		Referral.objects.all().delete()
-
 		# Set up users
 		maxk = User.objects.create_user(username="maxk", password="testtime", first_name="Max", last_name="Kornyev", email="maxk@testingsuite.net", is_staff=True)
 		joeyp = User.objects.create_user(username="joeyp", password="testtest", first_name="Joey", last_name="Perrino", is_staff=True, is_active=False)
@@ -216,6 +309,21 @@ class ResourceTests(TestCase):
 
 		self.assertEqual(str(res1), "First Test Resource")
 		self.assertEqual(str(res2), "Second Test Resource")
+
+		# Delete resources
+		res1.delete()
+		res2.delete()
+		# Delete referrals
+		r1.delete()
+		r2.delete()
+		# Delete caseload
+		c1.delete()
+		# Delete users
+		maxk.delete()
+		joeyp.delete()
+		# Delete tags
+		tag1.delete()
+		tag2.delete()
 
 	def test_many_to_many(self):
 		# Delete relevant models
@@ -264,3 +372,18 @@ class ResourceTests(TestCase):
 
 		self.assertEqual(res1.referrals.count(), 1)
 		self.assertEqual(res2.referrals.count(), 2)
+
+		# Delete resources
+		res1.delete()
+		res2.delete()
+		# Delete referrals
+		r1.delete()
+		r2.delete()
+		# Delete caseload
+		c1.delete()
+		# Delete users
+		maxk.delete()
+		joeyp.delete()
+		# Delete tags
+		tag1.delete()
+		tag2.delete()

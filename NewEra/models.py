@@ -49,6 +49,12 @@ class User(AbstractUser):
 	def get_case_load(self):
 		return CaseLoadUser.objects.filter(user=self)
 
+	def get_referrals(self):
+		return Referral.objects.filter(user=self)
+
+	class Meta:
+		ordering = ['is_superuser', 'is_staff', 'is_active', 'username', 'first_name', 'last_name']
+
 # Model for individuals on the case load
 class CaseLoadUser(models.Model):
 	# Attributes
@@ -71,6 +77,12 @@ class CaseLoadUser(models.Model):
 
 	def print_attributes(self):
 		print("---\nName: " + self.get_full_name() + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nNotes:\n" + self.notes + "\nUser: " + self.user.get_full_name() + "\n---")
+
+	def get_referrals(self):
+		return Referral.objects.filter(caseUser=self)
+
+	class Meta:
+		ordering = ['user', 'first_name', 'last_name']
 
 # Model for an entire referral
 class Referral(models.Model):
@@ -136,6 +148,9 @@ class Referral(models.Model):
 	def print_attributes(self):
 		print("---\nReferred by: " + self.user.get_full_name() + "\nReferred to: " + self.caseUser.phone + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nReferral date: " + self.referral_date.strftime("%m-%d-%Y") + "\nDate accessed: " + self.date_accessed.strftime("%m-%d-%Y") + "\nNotes: " + self.notes + "\n---")
 
+	class Meta:
+		ordering = ['referral_date', 'user', 'caseUser']
+
 # Model representing a tag
 class Tag(models.Model):
 	# Attributes
@@ -147,6 +162,9 @@ class Tag(models.Model):
 
 	def print_attributes(self):
 		print("---\nName: " + self.name + "\n---")
+
+	class Meta:
+		ordering = ['name']
 
 # Model representing one resource as it exists in isolation
 class Resource(models.Model):
@@ -190,3 +208,6 @@ class Resource(models.Model):
 
 	def print_attributes(self):
 		print("---\nName: " + self.name + "\nDescription: " + self.description + "\nHours:" + self.hours + "\nEmail: " + self.email + "\nPhone: " + self.phone + "\nStreet: " + self.street + "\nZip code: " + self.zip_code + "\nState: " + self.state + "\nURL: " + self.url + "\nClicks: " + str(self.clicks) + "\n---")
+
+	class Meta:
+		ordering = ['name']
