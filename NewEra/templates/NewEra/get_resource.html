@@ -34,11 +34,11 @@
             <h3>Address</h3>
             <p><i class="material-icons">location_on</i>
             {{ resource.street }}<br/>
-            {{ resource.street_secondary }}<br/>
+            {{ resource.street_secondary }}
             {{ resource.city }}, {{ resource.state }} {{ resource.zip_code }}</p>
 
             <h3>Hours of Operation</h3>
-            <p>{{ hours }}</p>
+            <p>{{ resource.hours }}</p>
 
             {% if tags.count > 0 %}
                 <h3>Tags</h3>
