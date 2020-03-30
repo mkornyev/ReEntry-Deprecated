@@ -46,8 +46,14 @@ def resources(request):
 
 	return render(request, 'NewEra/resources.html', context)
 
+# @ensure_csrf_cookie
 def get_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
+
+	# Update clicks
+	resource.clicks = resource.clicks + 1
+	resource.save()
+
 	markReferralAsSeen(request)
 
 	context = { 'resource': resource, 'tags': resource.tags.all() }
