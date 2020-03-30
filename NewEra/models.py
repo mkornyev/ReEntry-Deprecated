@@ -103,7 +103,7 @@ class Referral(models.Model):
 	caseUser = models.ForeignKey(CaseLoadUser, on_delete=models.PROTECT, blank=True, null=True)
 
 	# Methods
-	def sendEmail(self):
+	def sendEmail(self, referralTimeStamp):
 		if (not self.email or self.email == '') and (not self.caseUser.email or self.caseUser.email == ''): 
 			return 
 
@@ -113,7 +113,7 @@ class Referral(models.Model):
 		userName = self.user.first_name + ' ' + self.user.last_name
 
 		subject = 'NewERA412 Referral from {}: {}'.format(userName, ''.join(strArgs))
-		html_message = render_to_string('NewEra/referral_mailer.html', {'resources': resources, 'userName': userName, 'notes': self.notes })
+		html_message = render_to_string('NewEra/referral_mailer.html', {'resources': resources, 'userName': userName, 'notes': self.notes, 'timeStamp': referralTimeStamp })
 		plain_message = strip_tags(html_message)
 		from_email = settings.EMAIL_HOST_USER
 		
@@ -123,7 +123,7 @@ class Referral(models.Model):
 
 		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=True)
 
-	def sendSMS(self, smsCarrier): 
+	def sendSMS(self, smsCarrier, referralTimeStamp): 
 		if (not self.phone or self.phone == '') and (not self.caseUser.phone or self.caseUser.phone == ''):
 			return
 
@@ -138,7 +138,8 @@ class Referral(models.Model):
 		messageIntro = '\n {} \n We\'ll send you another text with some links. --{}'.format(self.notes, userName)
 		mail.send_mail('NewERA Referral', messageIntro, from_email, [to], fail_silently=False)
 
-		links = [ '\n' + r.name + ': https://newera-app.herokuapp.com/resources/' + str(r.id) + '\n' for r in self.resource_set.all() ]
+		queryString = '?key=' + referralTimeStamp
+		links = [ '\n' + r.name + ': https://newera-app.herokuapp.com/resources/' + str(r.id) + queryString + '\n' for r in self.resource_set.all() ]
 		messageBody = ''.join(links) + '--- \n See us online for more: newera-app.herokuapp.com'
 		mail.send_mail('Links', messageBody, from_email, [to], fail_silently=True)
 		

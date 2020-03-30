@@ -3,6 +3,7 @@
 
 import ast
 import os
+from datetime import datetime
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect #, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -23,8 +24,9 @@ from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, CaseLoadUser
 # VIEW ACTIONS 
 
 def home(request): 
-	context = {}
-	return render(request, 'NewEra/index.html', context)
+	markReferralAsSeen(request)
+
+	return render(request, 'NewEra/index.html', {})
 
 def resources(request):
 	all_resources = Resource.objects.all()
@@ -46,8 +48,23 @@ def resources(request):
 
 def get_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
+	markReferralAsSeen(request)
+
 	context = { 'resource': resource, 'tags': resource.tags.all() }
 	return render(request, 'NewEra/get_resource.html', context)
+
+# Function to update the referral given a GET request with a querystring timestamp
+def markReferralAsSeen(request):
+	if 'key' not in request.GET:
+		return 
+
+	keyDate = datetime.strptime(request.GET['key'], '%Y-%m-%d %H:%M:%S.%f')
+	referrals = Referral.objects.filter(referral_date=keyDate)
+	
+	if referrals.count() == 1:
+		referral = referrals.first()
+		referral.date_accessed = datetime.now()
+		referral.save()
 
 # ***** Note about images *****
 # They are uploaded to the system as type .JPEG or .PNG etc.
@@ -159,9 +176,10 @@ def create_referral(request):
 
 		if carrier not in carrierList: 
 			raise Http404
-
-		referral.sendEmail()
-		referral.sendSMS(carrier)
+		
+		referralTimeStamp = str(referral.referral_date)
+		referral.sendEmail(referralTimeStamp)
+		referral.sendSMS(carrier, referralTimeStamp)
 
 	return redirect(reverse('Resources'))
 
