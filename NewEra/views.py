@@ -173,25 +173,22 @@ def create_referral(request):
 		if 'resources[]' in request.POST and 'user_id' in request.POST and 'carrier' in request.POST and 'notes' in request.POST: 
 			caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
-
 			referral = Referral(email='', phone='', notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
-			referral.save()
-
-			for r in resources: 
-				referral.resource_set.add(r)
 
 		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and len(phoneInput) == 10: 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
-			referral = Referral(email=request.POST['email'], phone=request.POST['phone'], notes=request.POST['notes'], user=request.user)
-			referral.save()
-
-			for r in resources: 
-				referral.resource_set.add(r)
+			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
 			
 		else: 
+			# REQUIRES "MESSAGE" IN TEMPLATE 
 			msg = 'Please fill out all fields.'
-			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers, 'messages': [msg]})
+			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers, 'message': msg })
 		
+		referral.save()
+
+		for r in resources: 
+			referral.resource_set.add(r)
+
 		carrierList = list(SMS_CARRIERS.keys())
 		carrier = request.POST['carrier']
 
