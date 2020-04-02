@@ -25,7 +25,6 @@ from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, CaseLoadUser
 
 def home(request): 
 	markReferralAsSeen(request)
-
 	return render(request, 'NewEra/index.html', {})
 
 def resources(request):
@@ -46,18 +45,44 @@ def resources(request):
 
 	return render(request, 'NewEra/resources.html', context)
 
-# @ensure_csrf_cookie
 def get_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
-
+	context = { 'resource': resource, 'tags': resource.tags.all() }
+	response = render(request, 'NewEra/get_resource.html', context)
+	
 	# Update clicks
-	resource.clicks = resource.clicks + 1
-	resource.save()
+	if isUniqueVisit(request, response, id):
+		resource.clicks = resource.clicks + 1
+		resource.save()
 
 	markReferralAsSeen(request)
 
-	context = { 'resource': resource, 'tags': resource.tags.all() }
-	return render(request, 'NewEra/get_resource.html', context)
+	return response
+
+# Function to check visitor cookie, and see if they accessed the resource
+def isUniqueVisit(request, response, id): 
+	siteStaff = request.COOKIES.get('siteStaff', '')
+
+	if request.user.is_authenticated or siteStaff == 'true':
+		response.set_cookie('siteStaff', 'true')
+		return False 
+
+	visitedResources = request.COOKIES.get('visitedResources', '').split(';')
+
+	if visitedResources == ['']:
+		response.set_cookie('visitedResources', str(id))
+		return True 
+	elif str(id) in visitedResources:
+		return False
+	else: 
+		val = ';'.join(visitedResources)
+		val = val + ';' + str(id)
+		response.set_cookie('visitedResources', val)
+		return True 
+	
+	return False 
+
+	
 
 # Function to update the referral given a GET request with a querystring timestamp
 def markReferralAsSeen(request):
