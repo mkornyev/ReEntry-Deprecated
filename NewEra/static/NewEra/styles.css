@@ -23,3 +23,12 @@ table th, table td {
 ul.errorlist {
     color: indianred;
 }
+
+.tab-pane {
+    padding: 20px;
+}
+
+.inline-label {
+    display: inline-block;
+    vertical-align: top;
+}

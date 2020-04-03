@@ -3,6 +3,7 @@
 
 import ast
 import os
+from datetime import datetime
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect #, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -23,8 +24,8 @@ from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, CaseLoadUser
 # VIEW ACTIONS 
 
 def home(request): 
-	context = {}
-	return render(request, 'NewEra/index.html', context)
+	markReferralAsSeen(request)
+	return render(request, 'NewEra/index.html', {})
 
 def resources(request):
 	all_resources = Resource.objects.all()
@@ -47,7 +48,54 @@ def resources(request):
 def get_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
 	context = { 'resource': resource, 'tags': resource.tags.all() }
-	return render(request, 'NewEra/get_resource.html', context)
+	response = render(request, 'NewEra/get_resource.html', context)
+	
+	# Update clicks
+	if isUniqueVisit(request, response, id):
+		resource.clicks = resource.clicks + 1
+		resource.save()
+
+	markReferralAsSeen(request)
+
+	return response
+
+# Function to check visitor cookie, and see if they accessed the resource
+def isUniqueVisit(request, response, id): 
+	siteStaff = request.COOKIES.get('siteStaff', '')
+
+	if request.user.is_authenticated or siteStaff == 'true':
+		response.set_cookie('siteStaff', 'true')
+		return False 
+
+	visitedResources = request.COOKIES.get('visitedResources', '').split(';')
+
+	if visitedResources == ['']:
+		response.set_cookie('visitedResources', str(id))
+		return True 
+	elif str(id) in visitedResources:
+		return False
+	else: 
+		val = ';'.join(visitedResources)
+		val = val + ';' + str(id)
+		response.set_cookie('visitedResources', val)
+		return True 
+	
+	return False 
+
+	
+
+# Function to update the referral given a GET request with a querystring timestamp
+def markReferralAsSeen(request):
+	if 'key' not in request.GET:
+		return 
+
+	keyDate = datetime.strptime(request.GET['key'], '%Y-%m-%d %H:%M:%S.%f')
+	referrals = Referral.objects.filter(referral_date=keyDate)
+	
+	if referrals.count() == 1:
+		referral = referrals.first()
+		referral.date_accessed = datetime.now()
+		referral.save()
 
 # ***** Note about images *****
 # They are uploaded to the system as type .JPEG or .PNG etc.
@@ -144,24 +192,37 @@ def create_referral(request):
 
 		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
 
-	elif request.method == 'POST' and 'user_id' in request.POST and 'notes' in request.POST and 'carrier' in request.POST:
-		caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
-		resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
+	elif request.method == 'POST': 
+		phoneInput = ''.join(digit for digit in request.POST.get('phone', '') if digit.isdigit())
+		
+		if 'resources[]' in request.POST and 'user_id' in request.POST and 'carrier' in request.POST and 'notes' in request.POST: 
+			caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
+			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
+			referral = Referral(email='', phone='', notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
-		referral = Referral(email='', phone='', notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
+		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and len(phoneInput) == 10: 
+			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
+			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
+			
+		else: 
+			# REQUIRES "MESSAGE" IN TEMPLATE 
+			msg = 'Please fill out all fields.'
+			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers, 'message': msg })
+		
 		referral.save()
 
 		for r in resources: 
 			referral.resource_set.add(r)
-		
+
 		carrierList = list(SMS_CARRIERS.keys())
 		carrier = request.POST['carrier']
 
 		if carrier not in carrierList: 
 			raise Http404
-
-		referral.sendEmail()
-		referral.sendSMS(carrier)
+		
+		referralTimeStamp = str(referral.referral_date)
+		referral.sendEmail(referralTimeStamp)
+		referral.sendSMS(carrier, referralTimeStamp)
 
 	return redirect(reverse('Resources'))
 

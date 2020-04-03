@@ -27,20 +27,31 @@
                 {% endif %}
                 <th>Phone</th>
                 <th>Case Load User</th>
+                <th>Accessed?</th>
             </tr>
             {% for referral in referrals %}
                 <tr>
                     <td>{{ referral.referral_date }}</td>
+                    
                     {% if perms.referral.edit_referral %}
                         <td>{{ referral.user }}</td>
                     {% endif %}
+
                     <td>{{ referral.phone }}</td>
+
                     {% if referral.caseUser %}
                         <td>{{ referral.caseUser.get_full_name }}</td>
                     {% else %}
                         <td></td>
                     {% endif %}
-                    <td><a href="{% url 'Show Referral' id=referral.id %}" class="btn btn-primary">Details</a></td>
+
+                    {% if referral.date_accessed %}
+                    <td>&#10004;</td>
+                    {% else %}
+                    <td>&#10060;</td>
+                    {% endif %}
+
+                    <td style="padding: 2px;"><a href="{% url 'Show Referral' id=referral.id %}" class="btn-sm btn-primary">Details</a></td>
                 </tr>
             {% endfor %}
         </table>
