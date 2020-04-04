@@ -124,9 +124,35 @@ class EditUserForm(forms.ModelForm):
 		return cleaned_phone
 
 
+class EditSelfUserForm(forms.ModelForm):
+	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
+	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	
+	class Meta:
+		model = User
+		fields = ('email', 'first_name', 'last_name', 'phone')
+		exclude = (
+			'username',
+			'password',
+			'confirm_password',
+			'is_active'
+		)
+
+	def clean_phone(self):
+		phone = self.cleaned_data['phone']
+		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
+
+		if len(cleaned_phone) != 10:
+			raise forms.ValidationError('You must enter a valid phone number.')
+
+		return cleaned_phone
+
+
 class CreateResourceForm(forms.ModelForm):
 	name = forms.CharField(max_length=100, required=True)
-	description = forms.CharField(max_length=1000, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
+	description = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
 	is_active = forms.BooleanField(required=False)
 	hours = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
 	email = forms.EmailField(max_length=254, required=False)
@@ -134,7 +160,7 @@ class CreateResourceForm(forms.ModelForm):
 	extension = forms.CharField(max_length=11, required=False)
 	street = forms.CharField(max_length=100, required=False)
 	street_secondary = forms.CharField(max_length=100, required=False)
-	city = forms.CharField(max_length=100)
+	city = forms.CharField(max_length=100, required=False)
 	zip_code = forms.CharField(max_length=10, required=False)
 	state = forms.CharField(max_length=2, required=False)
 	url = forms.URLField(required=False)

@@ -94,7 +94,7 @@
 						{% for r in inactive_resources %}
 						<a href="{% url 'Show Resource' id=r.id %}">
 							<div class="col-sm-4">
-								<div id="resource-{{ r.id }}" class="card resource-card" style="width: 18rem;">
+								<div id="resource-{{ r.id }}" class="card" style="width: 18rem;">
 									{% if r.image %}
 									<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
 									{% endif %} 

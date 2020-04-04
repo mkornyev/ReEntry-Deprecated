@@ -58,6 +58,10 @@
                 {% else %}
                 <td>&#10060;</td>
                 {% endif %}
+                <td><a href="{% url 'Edit User' id=admin.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
+                {% if admin.id != user.id %}
+                    <td><a href="{% url 'Delete User' id=admin.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>

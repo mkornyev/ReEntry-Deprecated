@@ -18,7 +18,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
-from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
+from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
 
 # VIEW ACTIONS 
 
@@ -286,7 +286,10 @@ def edit_user(request, id):
 	user = get_object_or_404(User, id=id)
 
 	if request.method == "POST":
-		form = EditUserForm(request.POST, instance=user)
+		if user == request.user:
+			form = EditSelfUserForm(request.POST, instance=user)
+		else:
+			form = EditUserForm(request.POST, instance=user)
     
 		if form.is_valid():
 
@@ -295,7 +298,10 @@ def edit_user(request, id):
 
 			return redirect('Manage Users')
 	else:
-		form = EditUserForm(instance=user)
+		if user == request.user:
+			form = EditSelfUserForm(request.POST, instance=user)
+		else:
+			form = EditUserForm(request.POST, instance=user)
 	return render(request, 'NewEra/edit_user.html', {'form': form, 'user': user, 'action': 'Edit'})
 
 def delete_user(request, id):
