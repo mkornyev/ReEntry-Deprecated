@@ -177,7 +177,8 @@ class Resource(models.Model):
 	email = models.EmailField(max_length=254)
 	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
-	phone = models.CharField(max_length=10)
+	phone = models.CharField(max_length=11)
+	extension = models.CharField(max_length=11, blank=True, null=True)
 	street = models.CharField(max_length=100)
 	street_secondary = models.CharField(max_length=100, default='')
 	city = models.CharField(max_length=100, default="Pittsburgh")
