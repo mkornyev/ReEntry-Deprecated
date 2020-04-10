@@ -35,6 +35,12 @@ class CaseLoadUserForm(forms.ModelForm):
 		self.fields['email'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['notes'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['is_active'].widget.attrs=INPUT_ATTRIBUTES
+		
+		# https://stackoverflow.com/questions/55994307/exclude-fields-for-django-model-only-on-creation
+		if not self.instance or self.instance.pk is None:
+			for name, field in self.fields.items():
+				if name in ['is_active', ]:
+					field.widget = forms.HiddenInput()
 
 	def clean_phone(self):
 		phone = self.cleaned_data['phone']
@@ -74,6 +80,13 @@ class RegistrationForm(forms.Form):
 	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
+	class Meta:
+		model = User
+		fields = ['username', 'password', 'confirm_password' 'email', 'first_name', 'last_name', 'phone']
+		exclude = (
+			'is_active',
+		)
+
 	def clean(self):
 		cleaned_data = super().clean()
 		password = cleaned_data.get('password')
@@ -111,6 +124,7 @@ class EditUserForm(forms.ModelForm):
 	class Meta:
 		model = User
 		fields = ('email', 'first_name', 'last_name', 'phone', 'is_active')
+
 		exclude = (
 			'username',
 			'password',
@@ -188,6 +202,12 @@ class CreateResourceForm(forms.ModelForm):
         
 		self.fields['tags'].widget = CheckboxSelectMultiple()
 		self.fields['tags'].queryset = Tag.objects.all()
+
+		# https://stackoverflow.com/questions/55994307/exclude-fields-for-django-model-only-on-creation
+		if not self.instance or self.instance.pk is None:
+			for name, field in self.fields.items():
+				if name in ['is_active', ]:
+					field.widget = forms.HiddenInput()
 
 	def clean_image(self):
 		image = self.cleaned_data['image']

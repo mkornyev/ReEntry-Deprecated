@@ -360,9 +360,9 @@ def edit_user(request, id):
 			return redirect('Manage Users')
 	else:
 		if user == request.user:
-			form = EditSelfUserForm(request.POST, instance=user)
+			form = EditSelfUserForm(instance=user)
 		else:
-			form = EditUserForm(request.POST, instance=user)
+			form = EditUserForm(instance=user)
 	return render(request, 'NewEra/edit_user.html', {'form': form, 'user': user, 'action': 'Edit'})
 
 def delete_user(request, id):
