@@ -30,9 +30,7 @@ class User(AbstractUser):
 	Within this model, is_guest represents SOWs
 	'''
 
-	# 10 is the max length to force a phone number to be just the digits
-	# We can change this later if needed
-	phone = models.CharField(max_length=10, blank=False, null=False)
+	phone = models.CharField(max_length=11, blank=False, null=False)
 
 	# We have is_staff and is_superuser, so we don't need to create custom roles
 
@@ -64,7 +62,7 @@ class CaseLoadUser(models.Model):
 	email = models.EmailField(max_length=254)
 	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
-	phone = models.CharField(max_length=10) # NOTE: temporarily null=True so users can be added to caseload
+	phone = models.CharField(max_length=11) # NOTE: temporarily null=True so users can be added to caseload
 	notes = models.CharField(max_length=1000)
 	is_active = models.BooleanField(default=True)
 	user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
@@ -92,7 +90,7 @@ class Referral(models.Model):
 	email = models.EmailField(max_length=254)
 	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
-	phone = models.CharField(max_length=10, blank=False, null=False)
+	phone = models.CharField(max_length=11, blank=False, null=False)
 	referral_date = models.DateTimeField(default=datetime.now)
 	# resource_accessed = models.BooleanField()
 	date_accessed = models.DateTimeField(blank=True, null=True)
@@ -175,7 +173,6 @@ class Resource(models.Model):
 	hours = models.CharField(max_length=1000, default='')
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
 	email = models.EmailField(max_length=254)
-	# 10 is the max length to force a phone number to be just the digits
 	# We can change this later if needed
 	phone = models.CharField(max_length=11)
 	extension = models.CharField(max_length=11, blank=True, null=True)

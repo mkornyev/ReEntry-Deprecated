@@ -17,6 +17,10 @@ MAX_UPLOAD_SIZE = 2500000
 # Model Forms
 
 class CaseLoadUserForm(forms.ModelForm):
+	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	# Email currently is mandatory - need to change that
+	# email = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES), required=False)
+
 	class Meta:
 		model = CaseLoadUser
 		fields = ['first_name', 'last_name', 'email', 'phone', 'notes', 'is_active', 'user']
@@ -29,7 +33,6 @@ class CaseLoadUserForm(forms.ModelForm):
 		self.fields['first_name'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['last_name'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['email'].widget.attrs=INPUT_ATTRIBUTES
-		self.fields['phone'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['notes'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['is_active'].widget.attrs=INPUT_ATTRIBUTES
 
@@ -37,8 +40,8 @@ class CaseLoadUserForm(forms.ModelForm):
 		phone = self.cleaned_data['phone']
 		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
 
-		if len(cleaned_phone) != 10:
-			raise forms.ValidationError('You must enter a valid phone number')
+		if phone and (len(cleaned_phone) != 10 and not (len(cleaned_phone) == 11 and cleaned_phone[0] == '1')):
+			raise forms.ValidationError('The phone number must be either exactly 10 digits or a 1 followed by 10 digits.')
 
 		return cleaned_phone
 
@@ -69,7 +72,7 @@ class RegistrationForm(forms.Form):
 	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
 	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
 	def clean(self):
 		cleaned_data = super().clean()
@@ -92,8 +95,8 @@ class RegistrationForm(forms.Form):
 		phone = self.cleaned_data['phone']
 		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
 
-		if len(cleaned_phone) != 10:
-			raise forms.ValidationError('You must enter a valid phone number')
+		if phone and (len(cleaned_phone) != 10 and not (len(cleaned_phone) == 11 and cleaned_phone[0] == '1')):
+			raise forms.ValidationError('The phone number must be either exactly 10 digits or a 1 followed by 10 digits.')
 
 		return cleaned_phone
 
@@ -102,7 +105,7 @@ class EditUserForm(forms.ModelForm):
 	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
 	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	is_active = forms.BooleanField(required=False)
 
 	class Meta:
@@ -118,8 +121,8 @@ class EditUserForm(forms.ModelForm):
 		phone = self.cleaned_data['phone']
 		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
 
-		if len(cleaned_phone) != 10:
-			raise forms.ValidationError('You must enter a valid phone number.')
+		if phone and (len(cleaned_phone) != 10 and not (len(cleaned_phone) == 11 and cleaned_phone[0] == '1')):
+			raise forms.ValidationError('The phone number must be either exactly 10 digits or a 1 followed by 10 digits.')
 
 		return cleaned_phone
 
@@ -128,7 +131,7 @@ class EditSelfUserForm(forms.ModelForm):
 	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
 	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	phone = forms.CharField(max_length=10, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	
 	class Meta:
 		model = User
@@ -144,8 +147,8 @@ class EditSelfUserForm(forms.ModelForm):
 		phone = self.cleaned_data['phone']
 		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
 
-		if len(cleaned_phone) != 10:
-			raise forms.ValidationError('You must enter a valid phone number.')
+		if phone and (len(cleaned_phone) != 10 and not (len(cleaned_phone) == 11 and cleaned_phone[0] == '1')):
+			raise forms.ValidationError('The phone number must be either exactly 10 digits or a 1 followed by 10 digits.')
 
 		return cleaned_phone
 
@@ -168,13 +171,13 @@ class CreateResourceForm(forms.ModelForm):
 	contact_name = forms.CharField(max_length=100, required=False)
 	contact_position = forms.CharField(max_length=100, required=False)
 	# Assuming fax number is like a phone number
-	fax_number = forms.CharField(max_length=10, required=False)
+	fax_number = forms.CharField(max_length=11, required=False)
 	# This may or may not be different from the organizational email
 	contact_email = forms.EmailField(max_length=254, required=False)
 
 	class Meta:
 		model = Resource
-		fields = ('name', 'description', 'is_active', 'hours', 'email', 'phone', 'street', 'street_secondary', 'city', 'state', 'zip_code', 'image', 'url', 'contact_name', 'contact_position', 'fax_number', 'contact_email', 'tags')
+		fields = ('name', 'description', 'is_active', 'hours', 'email', 'phone', 'extension', 'street', 'street_secondary', 'city', 'state', 'zip_code', 'image', 'url', 'contact_name', 'contact_position', 'fax_number', 'contact_email', 'tags')
 		exclude = (
 			'content_type',
 		)
@@ -201,6 +204,24 @@ class CreateResourceForm(forms.ModelForm):
 			except:
 				pass 
 		return image
+
+	def clean_phone(self):
+		phone = self.cleaned_data['phone']
+		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
+
+		if phone and (len(cleaned_phone) != 10 and not (len(cleaned_phone) == 11 and cleaned_phone[0] == '1')):
+			raise forms.ValidationError('The phone number must be either exactly 10 digits or a 1 followed by 10 digits.')
+
+		return cleaned_phone
+
+	def clean_fax_number(self):
+		fax_number = self.cleaned_data['fax_number']
+		cleaned_fax_number = ''.join(digit for digit in fax_number if digit.isdigit())
+
+		if fax_number and (len(cleaned_fax_number) != 10 and not (len(cleaned_fax_number) == 11 and cleaned_fax_number[0] == '1')):
+			raise forms.ValidationError('The fax number must be either exactly 10 digits or a 1 followed by 10 digits.')
+
+		return cleaned_fax_number
 
 
 class TagForm(forms.ModelForm):
