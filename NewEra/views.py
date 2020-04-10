@@ -186,9 +186,9 @@ def create_referral(request):
 		recipients = [] 
 		carriers = list(SMS_CARRIERS.keys())
 		if request.user.is_superuser: 
-			recipients = CaseLoadUser.objects.all()
+			recipients = CaseLoadUser.objects.filter(is_active=True).all()
 		elif request.user.is_staff: 
-			recipients = recipients = CaseLoadUser.objects.filter(user=request.user)
+			recipients = recipients = CaseLoadUser.objects.filter(is_active=True).filter(user=request.user)
 
 		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
 
@@ -228,9 +228,11 @@ def create_referral(request):
 
 def referrals(request):
 	if (request.user.is_superuser):
-		referrals = Referral.objects.all()
+		# https://stackoverflow.com/questions/4236226/ordering-a-django-queryset-by-a-datetimes-month-day
+		# referrals = Referral.objects.all().extra(select={'year': 'YEAR(referral_date)', 'month': 'MONTH(referral_date)', 'day': 'DAY(referral_date)'}, order_by=['year', 'month', 'day'])
+		referrals = Referral.objects.all().order_by('-referral_date')
 	elif (request.user.is_staff):
-		referrals = Referral.objects.all().filter(user=request.user)
+		referrals = Referral.objects.all().filter(user=request.user).order_by('-referral_date')
 
 	context = {
 		'referrals': referrals
@@ -249,7 +251,8 @@ def case_load(request):
 
 	if request.user.is_superuser: 
 		users = CaseLoadUser.objects.all()	
-		context['staff'] = User.objects.order_by('first_name', 'last_name')
+		# Changed to account for inactive users
+		context['staff'] = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
 	elif request.user.is_staff:
 		users = CaseLoadUser.objects.filter(user=request.user).order_by('first_name', 'last_name')
 	else:  

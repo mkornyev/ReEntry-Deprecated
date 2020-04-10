@@ -30,7 +30,7 @@
                 <input type="radio" id="admin" name="user_type" value="admin">
                 <label for="admin">Admin</label><br>
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Create User</button>
+                <button type="submit" class="btn btn-primary"><i class="material-icons">person_add</i>Create User</button>
             </form>
         </div>
 
@@ -69,32 +69,38 @@
         <br><hr></br>
 
         <h2>SOWs:</h2>
-        <table>
-            <tr>
-                <th>Username</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Active?</th>
-            </tr>
-            {% for sow in sows %}
-            <tr>
-                <td>{{ sow.username }}</td>
-                <td>{{ sow.first_name }}</td>
-                <td>{{ sow.last_name }}</td>
-                <td>{{ sow.email }}</td>
-                <td>{{ sow.phone }}</td>
-                {% if sow.is_active %}
-                <td>&#10004;</td>
-                {% else %}
-                <td>&#10060;</td>
-                {% endif %}
-                <td><a href="{% url 'Edit User' id=sow.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
-                <td><a href="{% url 'Delete User' id=sow.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
-            </tr>
-            {% endfor %}
-        </table>
+
+        {% if sows.count > 0 %}
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Active?</th>
+                </tr>
+                {% for sow in sows %}
+                <tr>
+                    <td>{{ sow.username }}</td>
+                    <td>{{ sow.first_name }}</td>
+                    <td>{{ sow.last_name }}</td>
+                    <td>{{ sow.email }}</td>
+                    <td>{{ sow.phone }}</td>
+                    {% if sow.is_active %}
+                    <td>&#10004;</td>
+                    {% else %}
+                    <td>&#10060;</td>
+                    {% endif %}
+                    <td><a href="{% url 'Edit User' id=sow.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
+                    <td><a href="{% url 'Delete User' id=sow.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+            
+        {% else %}
+            <em><p style="margin: auto;">There are no SOWs in the system.</p></em>
+        {% endif %}
         
         <br><br>
 

@@ -15,45 +15,51 @@
     </h1>
     <div class="container">
         <hr/>
-    </div>
-
-    <div style="width: 80%; margin: auto; padding-top: 10vh;">
-
-        <table>
-            <tr>
-                <th>Referral Date</th>
-                {% if perms.referral.edit_referral %}
-                    <th>SOW</th>
-                {% endif %}
-                <th>Phone</th>
-                <th>Case Load User</th>
-                <th>Accessed?</th>
-            </tr>
-            {% for referral in referrals %}
+        {% if referrals.count > 0 %}
+            <table>
                 <tr>
-                    <td>{{ referral.referral_date }}</td>
-                    
+                    <th>Referral Date</th>
+                    <th>Referral Time</th>
                     {% if perms.referral.edit_referral %}
-                        <td>{{ referral.user }}</td>
+                        <th>SOW</th>
                     {% endif %}
-
-                    <td>{{ referral.phone }}</td>
-
-                    {% if referral.caseUser %}
-                        <td>{{ referral.caseUser.get_full_name }}</td>
-                    {% else %}
-                        <td></td>
-                    {% endif %}
-
-                    {% if referral.date_accessed %}
-                    <td>&#10004;</td>
-                    {% else %}
-                    <td>&#10060;</td>
-                    {% endif %}
-
-                    <td style="padding: 2px;"><a href="{% url 'Show Referral' id=referral.id %}" class="btn-sm btn-primary">Details</a></td>
+                    <th>Phone</th>
+                    <th>Case Load User</th>
+                    <th>Accessed?</th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for referral in referrals %}
+                    <tr>
+                        <td>{{ referral.referral_date|date:'M d, Y' }}</td>
+                        <td>{{ referral.referral_date|time:'g:i A' }}</td>
+                        
+                        {% if perms.referral.edit_referral %}
+                            <td>{{ referral.user }}</td>
+                        {% endif %}
+
+                        <td>{{ referral.phone }}</td>
+
+                        {% if referral.caseUser %}
+                            <td>{{ referral.caseUser.get_full_name }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+
+                        {% if referral.date_accessed %}
+                        <td>&#10004;</td>
+                        {% else %}
+                        <td>&#10060;</td>
+                        {% endif %}
+
+                        <td style="padding: 2px;"><a href="{% url 'Show Referral' id=referral.id %}" class="btn-sm btn-primary">Details</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            {% if perms.resource.edit_resource %}
+                <em><p style="margin: auto;">No referrals have been made yet.</p></em>
+            {% else %}
+                <em><p style="margin: auto;">You have not made any referrals yet.</p></em>
+            {% endif %}
+        {% endif %}
     </div>
 {% endblock %}

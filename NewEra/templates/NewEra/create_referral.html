@@ -31,36 +31,46 @@
             </nav>
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="nav-caseload" role="tabpanel" aria-labelledby="nav-caseload-tab">
-                    <form action="{% url 'Create Referral' %}" method="POST">
-                        {% for r in resources %}
-                            <input type="hidden" name="resources[]" value="{{ r.id }}">
-                        {% endfor %}
+                    <br/>
+                    {% if recipients.size > 0 %}
+                        <form action="{% url 'Create Referral' %}" method="POST">
+                            {% for r in resources %}
+                                <input type="hidden" name="resources[]" value="{{ r.id }}">
+                            {% endfor %}
 
-                        <label><b class="inline-label">Select User:</b>
-                            <select name="user_id">
-                                {% for r in recipients %}
-                                <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
-                                {% endfor %}
-                            </select>
-                        </label><br>
+                            <label><b class="inline-label">Select User:</b>
+                                <select name="user_id">
+                                    {% for r in recipients %}
+                                    <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label><br>
 
-                        <label>
-                            <b class="inline-label">Select Carrier:</b>
-                            <select name="carrier">
-                                {% for c in carriers %}
-                                <option value="{{ c }}">{{ c }}</option>
-                                {% endfor %}
-                            </select>
-                        </label><br>
+                            <label>
+                                <b class="inline-label">Select Carrier:</b>
+                                <select name="carrier">
+                                    {% for c in carriers %}
+                                    <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label><br>
 
-                        <label><b>Add Notes:</b></label><br>
-                        <textarea type="text" name="notes" class="form-input" placeholder=" Add a notification note..."></textarea><br><br>
+                            <label><b>Add Notes:</b></label><br>
+                            <textarea type="text" name="notes" class="form-input" placeholder=" Add a notification note..."></textarea><br><br>
 
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    {% else %}
+                        {% if perms.resource.edit_resource %}
+                            <em><p style="margin: auto;">There are currently no case load users.</p></em>
+                        {% else %}
+                            <em><p style="margin: auto;">There is no one currently on your case load.</p></em>
+                        {% endif %}
+                    {% endif %}
                 </div>
                 <div class="tab-pane fade" id="nav-new" role="tabpanel" aria-labelledby="nav-new-tab">
+                    <br/>
                     <form action="{% url 'Create Referral' %}" method="POST">
                         {% for r in resources %}
                             <input type="hidden" name="resources[]" value="{{ r.id }}">
