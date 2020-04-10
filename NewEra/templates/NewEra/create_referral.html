@@ -13,37 +13,83 @@
         <h1 style="margin: auto;">Make Referral</h1>
 
         <div style="text-align: left;">
-            <form action="{% url 'Create Referral' %}" method="POST">
 
             <h2>Resources</h2>
             <ol>
             {% for r in resources %}
                 <li>{{r.name}}</li>
-                <input type="hidden" name="resources[]" value="{{ r.id }}">
             {% endfor %}
             </ol>
 
             <h2>Recipient Info</h2>
-            <label><b>Select User:</b></label><br>
-            <select name="user_id">
-                {% for r in recipients %}
-                <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
-                {% endfor %}
-            </select><br><br>
 
-            <label><b>Select Carrier:</b></label><br>
-            <select name="carrier">
-                {% for c in carriers %}
-                <option value="{{ c }}">{{ c }}</option>
-                {% endfor %}
-            </select><br><br>
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-caseload-tab" data-toggle="tab" href="#nav-caseload" role="tab" aria-controls="nav-caseload" aria-selected="true">Select From Caseload</a>
+                    <a class="nav-item nav-link" id="nav-new-tab" data-toggle="tab" href="#nav-new" role="tab" aria-controls="nav-new" aria-selected="false">Create an Out of System Referral</a>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-caseload" role="tabpanel" aria-labelledby="nav-caseload-tab">
+                    <form action="{% url 'Create Referral' %}" method="POST">
+                        {% for r in resources %}
+                            <input type="hidden" name="resources[]" value="{{ r.id }}">
+                        {% endfor %}
 
-            <label><b>Add Notes:</b></label><br>
-            <input type="text" name="notes" class="form-input"><br><br>
+                        <label><b class="inline-label">Select User:</b>
+                            <select name="user_id">
+                                {% for r in recipients %}
+                                <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label><br>
 
-            {% csrf_token %}
-            <button type="submit" class="btn-sm btn-primary">Submit</button>
-            </form>
+                        <label>
+                            <b class="inline-label">Select Carrier:</b>
+                            <select name="carrier">
+                                {% for c in carriers %}
+                                <option value="{{ c }}">{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                        </label><br>
+
+                        <label><b>Add Notes:</b></label><br>
+                        <textarea type="text" name="notes" class="form-input" placeholder=" Add a notification note..."></textarea><br><br>
+
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+                <div class="tab-pane fade" id="nav-new" role="tabpanel" aria-labelledby="nav-new-tab">
+                    <form action="{% url 'Create Referral' %}" method="POST">
+                        {% for r in resources %}
+                            <input type="hidden" name="resources[]" value="{{ r.id }}">
+                        {% endfor %}
+                        
+                        <label><b>Phone:</b></label>
+                        <input type="tel" name="phone" placeholder="3152965004" class="form-input" minlength="10" maxlength="10" pattern="[0-9]{10}" required><br>
+
+                        <label>
+                            <b class="inline-label">Select Carrier:</b>
+                            <select name="carrier">
+                                {% for c in carriers %}
+                                <option value="{{ c }}">{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                        </label><br>
+
+                        <label><b>Email:&nbsp;&nbsp;</b></label>
+                        <input type="email" name="email" placeholder="email@gmail.com" class="form-input" required><br>
+
+                        <label><b>Add Notes:</b></label><br>
+                        <textarea type="text" name="notes" class="form-input" placeholder=" Add a notification note..."></textarea><br><br>
+
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 {% endblock %}
