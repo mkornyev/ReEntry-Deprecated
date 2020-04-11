@@ -23,9 +23,6 @@
 			{% if perms.resource.create_resource %}
 				<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
 			{% endif %}
-			{% if user.is_staff %}
-				<button id="make-referral" class="btn btn-primary" style="margin: auto; "><i class="material-icons">people_alt</i>Make Referral</button><br><br>
-			{% endif %}
 			{% if not user.is_staff and not user.is_staff %}
 				<br></br>
 			{% endif %}
@@ -150,6 +147,14 @@
     {% else %}
       <p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no resources at this time.</em></p>
     {% endif %}
+
+    {% if user.is_staff %}
+
+    <button id="make-referral" type="button" class="btn btn-light white-background" style="width: 300px; position: fixed; bottom: 20px; right: 10%;">Make Referral</button>
+
+    <button id='commit-referral' onclick="commitReferrals()" class='btn btn-warning' style="display: none; width: 300px; position: fixed; bottom: 70px; right: 10%;">Select Resources</button>
+    {% endif %} 
+
     <p>&nbsp;</p>
 
 {% endblock %}
