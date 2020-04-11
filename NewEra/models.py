@@ -152,7 +152,7 @@ class Referral(models.Model):
 # Model representing a tag
 class Tag(models.Model):
 	# Attributes
-	name = models.CharField(max_length=20)
+	name = models.CharField(max_length=30)
 
 	# Methods
 	def __str__(self):
