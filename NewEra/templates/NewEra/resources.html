@@ -12,26 +12,28 @@
 	<div class="container">
 		<hr/>
 
-		<a class="btn btn-primary dropdown-toggle"  data-toggle="collapse" href="#filterDropdown" role="button" aria-expanded="false" aria-controls="filterDropdown" style="font-size: 1.2em;">
-			Filter Resources
-		</a>
+		<div aria-label="Filter Controls">
+			<a class="btn btn-primary dropdown-toggle"  data-toggle="collapse" href="#filterDropdown" role="button" aria-expanded="false" aria-controls="filterDropdown" style="font-size: 1.2em;">
+				Filter Resources
+			</a>
 
-		{% if perms.resource.create_resource %}
-			<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
-		{% endif %}
-		{% if user.is_staff %}
-			<button id="make-referral" class="btn btn-primary" style="margin: auto; "><i class="material-icons">people_alt</i>Make Referral</button><br><br>
-		{% endif %}
-		{% if not user.is_staff and not user.is_staff %}
-			<br></br>
-		{% endif %}
+			{% if perms.resource.create_resource %}
+				<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
+			{% endif %}
+			{% if user.is_staff %}
+				<button id="make-referral" class="btn btn-primary" style="margin: auto; "><i class="material-icons">people_alt</i>Make Referral</button><br><br>
+			{% endif %}
+			{% if not user.is_staff and not user.is_staff %}
+				<br></br>
+			{% endif %}
+		</div>
 
 		<div class="collapse" id="filterDropdown">
 			<div id="filter-card" class="card card-body">
 				<form action="" method="get" class="tag-form">
 					<div class="form-goup">
-						<input id="filter-search" class="form-control" type="search" placeholder="Search" aria-label="Search">
-						<button id="filter-search-btn" class="btn btn-primary" onkeyup="searchFilters(event);" style="margin-top: -3px;">Search</button>
+						<input id="filter-search" class="form-control" placeholder="Search for a tag" aria-label="Search" onkeyup="searchFilters(event);">
+						<!-- <button id="filter-search-btn" class="btn btn-primary" style="margin-top: -3px;">Search</button> -->
 					</div>
 
 					<hr style="margin-bottom: 0;">
@@ -60,6 +62,26 @@
 			{% endif %}
 
 			{% if active_resources.count > 0 %}
+
+				<!-- PAGINATION -->
+				<!-- <nav aria-label="Page navigation example">
+					<ul class="pagination">
+						<li class="page-item">
+							<a class="page-link" href="#" aria-label="Previous">
+							<span aria-hidden="true">&laquo;</span>
+							</a>
+						</li>
+
+						<li class="page-item"><a class="page-link" href="#">1</a></li>
+						
+						<li class="page-item">
+							<a class="page-link" href="#" aria-label="Next">
+							<span aria-hidden="true">&raquo;</span>
+							</a>
+						</li>
+					</ul>
+				</nav> -->
+
 				<div class="row">
 					{% for r in active_resources %}
 					<a href="{% url 'Show Resource' id=r.id %}">
@@ -186,7 +208,6 @@
 	{% if user.is_staff %}{%load static %}
 	<script src="{% static 'NewEra/referrals.js' %}" type="text/javascript"></script>
 	{% endif %}
-
-	<script src="{% static 'NewEra/resourceScripts.js' %}"></script>
+	<script src="{% static 'NewEra/resources.js' %}" type="text/javascript"></script>
 
 {% endblock %}

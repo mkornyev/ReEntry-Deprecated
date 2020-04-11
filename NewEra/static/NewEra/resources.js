@@ -1,3 +1,4 @@
+// -------- FILTER ACTION --------
 
 // Uncheck all filters
 function uncheckAll(event) {
@@ -11,8 +12,6 @@ function searchFilters() {
     event.preventDefault()
 
     var search = $('#filter-search')[0].value.split(' ')
-
-    console.log(search)
 
     $("#filter-card .scroll-section label").each(function(){ 
         var filter = this.innerText.toUpperCase()
@@ -33,6 +32,8 @@ function searchFilters() {
             }
         } else {
             $(this).show()
+            // $(this).attr('state','out')
+            // $(this).click(toggleItem)
         }
     })
 

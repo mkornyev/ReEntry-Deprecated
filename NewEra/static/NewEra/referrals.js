@@ -1,4 +1,6 @@
 
+// -------- MAKE REFERRAL ACTION --------
+
 var stagedResources = [] 
 
 $(document).ready(function(){
@@ -40,45 +42,27 @@ function toggleItem(event) {
     if (state === 'in') {
         $(this).attr('state','out')
         $(this).css('border','1px solid rgba(0,0,0,.125)')
-        stagedResources = stagedResources.filter(function(inId) { inId != id; })
+
+        console.log("Before:")
+        console.log(stagedResources)
+        index = stagedResources.indexOf(id)
+        stagedResources.splice(index, 1)
+
+        console.log("After:")
+        console.log(stagedResources)
+
+        // stagedResources = stagedResources.filter(function(inId) { inId != id; })
     } else if (state === 'out') {
         $(this).attr('state','in')
         $(this).css('border','5px solid yellow')
         $(this).css('border-radius','10px')
         stagedResources.push(id)
     }
+    console.log(stagedResources)
 }
-
-// Func to get login token from cookie
-// function getCSRFToken() {
-//     var cookies = document.cookie.split(";");
-//     for (var i = 0; i < cookies.length; i++) {
-//         c = cookies[i].trim();
-//         if (c.startsWith("csrftoken=")) {
-//             return c.substring("csrftoken=".length, c.length);
-//         }
-//     }
-//     return "unknown";
-// }
 
 function commitReferrals() {
     if (stagedResources.length === 0) return; 
 
     document.location.href = '/create_referral?resources=' + JSON.stringify(stagedResources);
-
-    // var req = new XMLHttpRequest();
-    // req.onreadystatechange = function() {
-    //     if (req.readyState != 4) return
-    //     if (req.status != 200) return
-    //     var response = JSON.parse(req.responseText)
-    //     if (response['error'] != null) {
-    //         // displayError(response.error);
-    //         alert('Error when sending axaj')
-    //     } else {
-    //         document.location.href = response['redirect'];
-    //     }
-    // }
-    // req.open("POST", "/stage_referrals/", true);
-    // req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    // req.send("payload=" + JSON.stringify(stagedResources) + "&csrfmiddlewaretoken="+getCSRFToken());
 }
