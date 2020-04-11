@@ -3,7 +3,11 @@
 
 import ast
 import os
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
 from datetime import datetime
+
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect #, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -198,7 +202,7 @@ def create_referral(request):
 		if 'resources[]' in request.POST and 'user_id' in request.POST and 'carrier' in request.POST and 'notes' in request.POST: 
 			caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
-			referral = Referral(email='', phone='', notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
+			referral = Referral(email=caseload_user.email, phone=caseload_user.phone, notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
 		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and len(phoneInput) == 10: 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
@@ -515,3 +519,213 @@ def delete_tag(request, id):
 		return redirect('Tags')
 
 	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
+
+def export_data(request):
+	# Get resources
+	resources = Resource.objects.all().filter(is_active=True)
+	
+	# Define the workbook and sheet
+	wb = Workbook()
+	ws = wb.active
+
+	# Set the bold font
+	bold = Font(bold=True)
+
+	# Create Header row
+	ws['A1'].font = bold
+	ws['B1'].font = bold
+	ws['C1'].font = bold
+	ws['D1'].font = bold
+
+	ws['A1'] = "Resource"
+	ws['B1'] = "# Referrals"
+	ws['C1'] = "# Accessed Referrals"
+	ws['D1'] = "# Views"
+
+	# Write resources
+	for r in resources:
+		# Get name
+		name = r.name
+		# Get referrals including the resource
+		referrals_count = r.referrals.count()
+		# Get accessed referrals
+		accessed_count = r.referrals.exclude(date_accessed=None).count()
+		# Get clicks
+		clicks = r.clicks
+		# Write to the Excel file
+		ws.append([name, referrals_count, accessed_count, clicks])
+	
+	ws = wb.worksheets[0]
+	ws.title = "Resources"
+	ws.column_dimensions[get_column_letter(1)].width = 60
+	ws.column_dimensions[get_column_letter(2)].width = 20
+	ws.column_dimensions[get_column_letter(3)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+
+
+	# Export breakdown by tag
+
+	ws1 = wb.create_sheet("By Tag")
+	ws = ws1
+
+	# Create Header row
+	ws['A1'].font = bold
+	ws['B1'].font = bold
+	ws['C1'].font = bold
+	ws['D1'].font = bold
+	ws['E1'].font = bold
+
+	ws['A1'] = "Tag"
+	ws['B1'] = "# Resources"
+	ws['C1'] = "# Referrals"
+	ws['D1'] = "# Accessed Referrals"
+	ws['E1'] = "# Views"
+
+	# Get tags
+	tags = Tag.objects.all().exclude(resource=None)
+
+	for t in tags:
+		# Get name
+		name = t.name
+
+		resources_count = 0
+
+		referrals_count_by_tag = 0
+		accessed_count = 0
+		clicks = 0
+
+		for r in resources:
+			if t in r.tags.all():
+				# Increment number of resources with this tag
+				resources_count += 1
+				# Get referrals associated with the tag
+				referrals_count_by_tag += r.referrals.count()
+				# Get accessed referrals by tag
+				accessed_count += r.referrals.exclude(date_accessed=None).count()
+				# Get clicks
+				clicks += r.clicks
+
+		# Write to the Excel file
+		ws.append([name, resources_count, referrals_count_by_tag, accessed_count, clicks])
+	
+	ws.column_dimensions[get_column_letter(1)].width = 30
+	ws.column_dimensions[get_column_letter(2)].width = 20
+	ws.column_dimensions[get_column_letter(3)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+
+
+	# Export user data
+
+	ws2 = wb.create_sheet("By User")
+	ws = ws2
+
+	# Create Header row
+	ws['A1'].font = bold
+	ws['B1'].font = bold
+	ws['C1'].font = bold
+	ws['D1'].font = bold
+	ws['E1'].font = bold
+
+	ws['A1'] = "User"
+	ws['B1'] = "# Case Load Users"
+	ws['C1'] = "# Referrals"
+	ws['D1'] = "# Accessed Referrals"
+	ws['E1'] = "Date of Last Referral"
+
+	# Get tags
+	users = User.objects.all()
+
+	for u in users:
+		case_load_count = u.get_case_load().count()
+		referrals_count = u.get_referrals().count()
+		accessed_referrals_count = u.get_referrals().exclude(date_accessed=None).count()
+		last_referral_date = u.get_referrals().order_by('-referral_date').first()
+		if last_referral_date:
+			last_referral_date = last_referral_date.referral_date.strftime('%m-%d-%Y')
+		else:
+			last_referral_date = "No referrals made"
+
+		# Write to the Excel file
+		ws.append([str(u), case_load_count, referrals_count, accessed_referrals_count, last_referral_date])
+
+	ws.column_dimensions[get_column_letter(1)].width = 30
+	ws.column_dimensions[get_column_letter(2)].width = 20
+	ws.column_dimensions[get_column_letter(3)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+
+
+	# Export case load data
+
+	ws3 = wb.create_sheet("By Referred Phone")
+	ws = ws3
+
+	# Create Header row
+	ws['A1'].font = bold
+	ws['B1'].font = bold
+	ws['C1'].font = bold
+	ws['D1'].font = bold
+	ws['E1'].font = bold
+
+	ws['A1'] = "Phone"
+	ws['B1'] = "Case Load User"
+	ws['C1'] = "# Referrals"
+	ws['D1'] = "# Accessed Referrals"
+	ws['E1'] = "Date of Last Referral"
+
+	# Get referrals
+	referrals = Referral.objects.all().order_by('-referral_date')
+
+	# Set to keep track of phones seen
+	phones = set()
+	case_load_dict = dict()
+	referrals_dict = dict()
+	accessed_referrals_dict = dict()
+	last_referral_dict = dict()
+
+	for r in referrals:
+		# Format phone number
+		if (len(r.phone) == 10):
+			phone_number = "(" + r.phone[0:3] + ") " + r.phone[3:6] + "-" + r.phone[6:10]
+		else:
+			phone_number = r.phone[0] + " (" + r.phone[1:4] + ") " + r.phone[4:7] + "-" + r.phone[7:11]
+
+		# Add phone to set
+		if (phone_number not in phones):
+			phones.add(phone_number)
+			referrals_dict[phone_number] = 0
+			accessed_referrals_dict[phone_number] = 0
+
+		# Add the case load user to the dictionary
+		if (r.caseUser):
+			case_load_dict[phone_number] = r.caseUser.get_full_name()
+		else:
+			case_load_user = "-"
+
+		# Add referrals given to this phone number
+		referrals_dict[phone_number] += 1
+
+		if (r.date_accessed):
+			# Add accessed referrals
+			accessed_referrals_dict[phone_number] += 1
+
+		# Get the last referral made
+		last_referral_dict[phone_number] = r.referral_date.strftime('%m-%d-%Y')
+
+	for p in phones:
+		# Write to the Excel file
+		ws.append([p, case_load_dict[p], referrals_dict[p], accessed_referrals_dict[p], last_referral_dict[p]])
+
+	ws.column_dimensions[get_column_letter(1)].width = 30
+	ws.column_dimensions[get_column_letter(2)].width = 20
+	ws.column_dimensions[get_column_letter(3)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+
+	# Save and download the Excel file
+	response = HttpResponse(content_type='application/vnd.ms-excel')
+	response['Content-Disposition'] = "attachment; filename=newera412_data_spreadsheet.xlsx"
+	wb.save(response)
+
+	return response

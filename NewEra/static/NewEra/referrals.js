@@ -1,4 +1,3 @@
-  
 var stagedDeleteId = null;
 
 $(document).ready(function() {

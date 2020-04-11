@@ -60,9 +60,7 @@ class CaseLoadUser(models.Model):
 	last_name = models.CharField(max_length=35, blank=False, null=False)
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
 	email = models.EmailField(max_length=254)
-	# 10 is the max length to force a phone number to be just the digits
-	# We can change this later if needed
-	phone = models.CharField(max_length=11) # NOTE: temporarily null=True so users can be added to caseload
+	phone = models.CharField(max_length=11)
 	notes = models.CharField(max_length=1000)
 	is_active = models.BooleanField(default=True)
 	user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
