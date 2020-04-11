@@ -32,7 +32,7 @@
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="nav-caseload" role="tabpanel" aria-labelledby="nav-caseload-tab">
                     <br/>
-                    {% if recipients.size > 0 %}
+                    {% if recipients.count > 0 %}
                         <form action="{% url 'Create Referral' %}" method="POST">
                             {% for r in resources %}
                                 <input type="hidden" name="resources[]" value="{{ r.id }}">

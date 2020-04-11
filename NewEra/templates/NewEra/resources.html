@@ -10,6 +10,7 @@
 	</h1>
 
 	<div class="container">
+
 		<hr/>
 		<h3>Filter Resources</h3>
 		<form action="" method="get" class="tag-form">
@@ -63,7 +64,9 @@
 									{% else %}
 										<p>&nbsp;</p>
 									{% endif %}
-									<p>Views: {{ r.clicks }}</p>
+									{% if perms.resource.create_resource %}
+										<p>Views: {{ r.clicks }}</p>
+									{% endif %}
 									<br/>
 									<div class="row">
 										<div class="col">
