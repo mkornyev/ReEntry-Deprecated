@@ -1,16 +1,55 @@
+var stagedDeleteId = null;
 
-// -------- MAKE REFERRAL ACTION --------
-
-var stagedResources = [] 
-
-$(document).ready(function(){
+$(document).ready(function() {
     $('#make-referral').attr('state', 'off')
     $('#make-referral').click(toggleSelect)
 });
 
-function toggleSelect() {
-    if ($(this).attr('state') === 'off') {
+cancel = () => {
+    var delModal = document.getElementById('del-confirm');
+    delModal.style.display = "none";
+}
 
+confirmDelete = () => {
+    console.log(localStorage.stagedResources);
+    if (stagedDeleteId == null) {
+        // Fail silently: just close the modal, however this
+        // should not happen.
+        var delModal = document.getElementById('del-confirm');
+        delModal.style.display = "none";
+        return;
+    }
+
+    stagedResources = JSON.parse(localStorage.getItem("stagedResources"));
+    leftoverResources = stagedResources.filter((id) => id != stagedDeleteId);
+
+    var empty = false;
+    if (leftoverResources.length === 0) {
+        empty = true;
+    }
+
+    localStorage.stagedResources = JSON.stringify(leftoverResources)
+
+    if (empty) {
+        document.location.href = "/resources";
+    }
+
+    else {
+        document.location.href = '/create_referral?resources=' + localStorage.stagedResources;
+    }
+}
+
+deleteResource = (id) => {
+    stagedDeleteId = id;
+    var delModal = document.getElementById('del-confirm');
+    delModal.style.display = "block";
+}
+
+function toggleSelect () {
+
+    localStorage.stagedResources = "[]";
+
+    if ($(this).attr('state') === 'off') {
         $('.resource-card').each(function() {
             $(this).attr('state','out')
             $(this).click(toggleItem)
@@ -23,10 +62,11 @@ function toggleSelect() {
         $('.resource-card').each(function() {
             $(this).unbind('click')
             $(this).attr('state','out')
-            $(this).css('border','1px solid rgba(0,0,0,.125)')
+            $(this).addClass("border-0")
+            $(this).removeClass("border-success");
         }) 
 
-        stagedResources = []
+        window.localStorage.stagedResources = "[]";
 
         $(this).html('Make Referral')
         $(this).attr('state', 'off')
@@ -35,34 +75,67 @@ function toggleSelect() {
 }
 
 function toggleItem(event) {
-    event.preventDefault() 
-    state = $(this).attr('state')
-    id = $(this).attr('id').substring(9)
+    event.preventDefault();
+    state = $(this).attr('state');;
+    id = $(this).attr('id').substring(9);
+
+    stagedResources = localStorage.getItem("stagedResources");
+
+    if (stagedResources.length === 0) {
+        stagedResources = "[]";
+    }
+
+    stagedResources = JSON.parse(stagedResources);
 
     if (state === 'in') {
-        $(this).attr('state','out')
-        $(this).css('border','1px solid rgba(0,0,0,.125)')
+        $(this).attr('state','out');
+        $(this).addClass("border-0");
+        $(this).removeClass("border-success");
+        stagedResources = stagedResources.filter((inId) => inId != id);
 
-        console.log("Before:")
-        console.log(stagedResources)
-        index = stagedResources.indexOf(id)
-        stagedResources.splice(index, 1)
-
-        console.log("After:")
-        console.log(stagedResources)
-
-        // stagedResources = stagedResources.filter(function(inId) { inId != id; })
     } else if (state === 'out') {
-        $(this).attr('state','in')
-        $(this).css('border','5px solid yellow')
-        $(this).css('border-radius','10px')
-        stagedResources.push(id)
+        $(this).attr('state','in');
+        $(this).removeClass("border-0");
+        $(this).addClass("border-success");
+
+        stagedResources.push(id);
+
     }
-    console.log(stagedResources)
+
+    localStorage.stagedResources = JSON.stringify(stagedResources);
 }
 
-function commitReferrals() {
-    if (stagedResources.length === 0) return; 
+// Func to get login token from cookie
+// function getCSRFToken() {
+//     var cookies = document.cookie.split(";");
+//     for (var i = 0; i < cookies.length; i++) {
+//         c = cookies[i].trim();
+//         if (c.startsWith("csrftoken=")) {
+//             return c.substring("csrftoken=".length, c.length);
+//         }
+//     }
+//     return "unknown";
+// }
 
-    document.location.href = '/create_referral?resources=' + JSON.stringify(stagedResources);
+function commitReferrals() {
+    stagedResources = window.localStorage.stagedResources
+    if (stagedResources === "[]") return; 
+
+    document.location.href = '/create_referral?resources=' + stagedResources;
+
+    // var req = new XMLHttpRequest();
+    // req.onreadystatechange = function() {
+    //     if (req.readyState != 4) return
+    //     if (req.status != 200) return
+    //     var response = JSON.parse(req.responseText)
+    //     if (response['error'] != null) {
+    //         // displayError(response.error);
+    //         alert('Error when sending axaj')
+    //     } else {
+    //         document.location.href = response['redirect'];
+    //     }
+    // }
+    // req.open("POST", "/stage_referrals/", true);
+    // req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    // req.send("payload=" + JSON.stringify(stagedResources) + "&csrfmiddlewaretoken="+getCSRFToken());
 }
