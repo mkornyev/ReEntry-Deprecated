@@ -12,6 +12,7 @@ from django.forms.widgets import CheckboxSelectMultiple
 
 # INPUT_ATTRIBUTES = {'style' : 'border: 1px solid gray; border-radius: 5px;'}
 INPUT_ATTRIBUTES = {'class' : 'form-input'}
+STYLE_ATTR = {'class' : 'form-control'}
 MAX_UPLOAD_SIZE = 2500000
 
 # Model Forms
@@ -168,26 +169,26 @@ class EditSelfUserForm(forms.ModelForm):
 
 
 class CreateResourceForm(forms.ModelForm):
-	name = forms.CharField(max_length=100, required=True)
-	description = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
+	name = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs=STYLE_ATTR))
+	description = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=STYLE_ATTR))
 	is_active = forms.BooleanField(required=False)
-	hours = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
-	email = forms.EmailField(max_length=254, required=False)
-	phone = forms.CharField(max_length=11, required=False)
-	extension = forms.CharField(max_length=11, required=False)
-	street = forms.CharField(max_length=100, required=False)
-	street_secondary = forms.CharField(max_length=100, required=False)
-	city = forms.CharField(max_length=100, required=False)
-	zip_code = forms.CharField(max_length=10, required=False)
-	state = forms.CharField(max_length=2, required=False)
-	url = forms.URLField(required=False)
+	hours = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=STYLE_ATTR))
+	email = forms.EmailField(max_length=254, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	extension = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	street = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	street_secondary = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	city = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	zip_code = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	state = forms.CharField(max_length=2, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	url = forms.URLField(required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
 
-	contact_name = forms.CharField(max_length=100, required=False)
-	contact_position = forms.CharField(max_length=100, required=False)
+	contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	contact_position = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
 	# Assuming fax number is like a phone number
-	fax_number = forms.CharField(max_length=11, required=False)
+	fax_number = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
 	# This may or may not be different from the organizational email
-	contact_email = forms.EmailField(max_length=254, required=False)
+	contact_email = forms.EmailField(max_length=254, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
 
 	class Meta:
 		model = Resource
