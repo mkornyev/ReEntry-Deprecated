@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-    <div style="width: 80%; margin: auto; padding-top: 10vh;">
+    <div class="container" style="padding-top: 7.5vh;">
         <div class="">
             <h1>Case Load Management:</h1>
 
@@ -36,6 +36,9 @@
                 <button type="submit" class="btn btn-primary"><i class="material-icons">person_add</i>Add to Caseload</button>
             </form>
         </div>
+    </div>
+
+    <div class="container">
 
         <br><hr></br>
 
@@ -46,6 +49,7 @@
         {% endif %}
 
         {% if caseload_users.count > 0 %}
+        <div style="overflow-x:auto;">
             <table>
                 <tr>
                     <th>Name</th>
@@ -69,6 +73,7 @@
                 </tr>
                 {% endfor %}
             </table>
+        </div>
         {% else %}
             {% if perms.resource.edit_resource %}
                 <em><p style="margin: auto;">There are currently no case load users.</p></em>

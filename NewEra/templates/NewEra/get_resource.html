@@ -5,70 +5,71 @@
 {% endblock %}{% endblock %}
 
 {% block content %}
-    <div style="width: 80%; margin: auto; padding-top: 10vh;">
-        <div class="">
-            <h1>{{ resource.name }}</h1>
+<div class="container" style="padding-top: 10vh;">
+        {% if resource.image %}
+            <div class="text-center">
+                <img class="resource-img shadow" src="{% url 'Image' resource.id %}"></img>
+            </div>
+            <br><br>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-lg-8 mb-3">
+                <div class="card border-0 shadow">
+                    <div class="card-body">
+                        <h3>{{ resource.name }}</h3>
+                        {% if tags.count > 0 %}
+                        {% for tag in tags %}
+                            <p>{{ tag.name }}</p>
+                        {% endfor %}
+                    {% endif %}
 
-            {% if perms.resource.edit_resource %}
-                {% if resource.is_active %}
-                    Status: <p class="text-success">Active</p>
-                {% else %}
-                    Status: <p class="text-danger">Inactive</p>
-                {% endif %}
-            {% endif %}
+                        {% if perms.resource.edit_resource %}
+                            {% if resource.is_active %}
+                                Status: <p class="text-success">Active</p>
+                            {% else %}
+                                Status: <p class="text-danger">Inactive</p>
+                            {% endif %}
+                        {% endif %}
+                        <br>
+                        <h3 style="margin: auto;">
+                            Description
+                        </h3>
+                        <br>
+                        <p>
+                            {{resource.description}}
+                        </p>
+                        <h3>Contact</h3>
+                        {% if resource.url %}
+                            <p><a href="{{resource.url}}" class="read-link"><i class="material-icons">link</i>{{ resource.url }}</a></p>
+                        {% endif %}
 
-            {% if resource.image %}
-                <img src="{% url 'Image' resource.id %}"></img>
-            {% endif %}
+                        <p><a href="tel:{{resource.phone}}" class="read-link"><i class="material-icons">phone</i>{{ resource.phone }}</a></p>
 
-            {% if resource.description %}
-                <h3>Description</h3>
-                <p>{{ resource.description }}</p>
-            {% endif %}
+                        <p><a href="mailto:{{resource.email}}" class="read-link"><i class="material-icons">email</i>{{ resource.email }}</a></p>
+                    </div>
+                </div>
+            </div>
 
-            {% if resource.url or resource.phone or resource.email %}
-                <h3>Contact</h3>
-                {% if resource.url %}
-                    <p><a href="{{resource.url}}"><i class="material-icons">link</i>{{ resource.url }}</a></p>
-                {% endif %}
-
-                {% if resource.phone %}
-                    <p><a href="tel:{{resource.phone}}"><i class="material-icons">phone</i>{{ resource.phone }}</a></p>
-                {% endif %}
-
-                {% if resource.email %}
-                    <p><a href="mailto:{{resource.email}}"><i class="material-icons">email</i>{{ resource.email }}</a></p>
-                {% endif %}
-            {% endif %}
-
-            {% if resource.street %}
-                <h3>Address</h3>
-                <p><i class="material-icons">location_on</i>
-                {{ resource.street }}<br/>
-                {{ resource.street_secondary }}
-                {{ resource.city }}, {{ resource.state }} {{ resource.zip_code }}</p>
-            {% endif %}
-
-            {% if resource.hours %}
-                <h3>Hours of Operation</h3>
-                <p>{{ resource.hours }}</p>
-            {% endif %}
-
-            {% if perms.resource.edit_resource %}
-                {% if tags.count > 0 %}
-                    <h3>Tags</h3>
-                    {% for tag in tags %}
-                        <p>{{ tag.name }}</p>
-                    {% endfor %}
-                {% endif %}
-
-                <h3>Views:</h3>
-                <p>{{ resource.clicks }}</p>
-            {% endif %}
-
+            <div class="col-lg-4">
+                <div class="card border-0 shadow">
+                    <div class="card-body">
+                        <h3>Address</h3>
+                        <p><i class="material-icons">location_on</i>{{ resource.street }}, {{ resource.city }}, {{ resource.state }} {{ resource.zip_code }}</p>
+                        <br><br>
+                        <h3 style="margin: auto;">
+                            Hours of Operation
+                        </h3>
+                        {% if resource.start_date != None  %}
+                            <p>{{ resource.start_date }} - {{ resource.end_date }}</p>
+                        {% else %}
+                            <p>N/A</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <hr></br>
+        <br><hr></br>
 
         {% if perms.resource.edit_resource %}
             <a href="{% url 'Edit Resource' resource.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
