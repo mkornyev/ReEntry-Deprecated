@@ -1,3 +1,8 @@
+
+# IMPORTS 
+
+import os
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import authenticate
 from django.db import models
@@ -9,12 +14,7 @@ from django.conf import settings
 
 from datetime import datetime
 
-SMS_CARRIERS = {
-	'AT&T':    '@txt.att.net',
-	'TMobile':' @tmomail.net',
-	'Verizon':  '@vtext.com',
-	'Sprint':   '@page.nextel.com'
-}
+from twilio.rest import Client
 
 
 # User model; extends AbstractUser
@@ -123,25 +123,28 @@ class Referral(models.Model):
 
 		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=True)
 
-	def sendSMS(self, smsCarrier, referralTimeStamp): 
+	def sendSMS(self, referralTimeStamp): 
 		if (not self.phone or self.phone == '') and (not self.caseUser.phone or self.caseUser.phone == ''):
 			return
 
 		userName = self.user.first_name + ' ' + self.user.last_name
-		from_email = settings.EMAIL_HOST_USER
-		to = self.phone
-
-		if to == None or to == '':
-			to = self.caseUser.phone
-		to = to + SMS_CARRIERS[smsCarrier]
-
-		messageIntro = '\n {} \n We\'ll send you another text with some links. --{}'.format(self.notes, userName)
-		mail.send_mail('NewERA Referral', messageIntro, from_email, [to], fail_silently=False)
-
 		queryString = '?key=' + referralTimeStamp
+		queryString = queryString.replace(' ', '%20') # Make SMS links accessible 
+
+		messageIntro = 'Your NewERA Referral: \n\n{} \n --{} \n\n--------- '.format(self.notes, userName)
 		links = [ '\n' + r.name + ': https://newera-app.herokuapp.com/resources/' + str(r.id) + queryString + '\n' for r in self.resource_set.all() ]
-		messageBody = ''.join(links) + '--- \n See us online for more: newera-app.herokuapp.com'
-		mail.send_mail('Links', messageBody, from_email, [to], fail_silently=True)
+		messageBody = ''.join(links) + '--------- \n See us online for more: newera-app.herokuapp.com'
+		
+		toNum = self.phone
+
+		if toNum == None or toNum == '':
+			toNum = self.caseUser.phone
+
+		client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+		client.messages.create(from_=settings.TWILIO_PHONE_NUMBER,
+                       to=toNum,
+                       body= messageIntro + messageBody)
 		
 	def __str__(self):
 		# name = (first_name == None || last_name == None) ? self.get_full_name() : "(unknown)"

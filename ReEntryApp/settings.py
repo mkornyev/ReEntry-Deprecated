@@ -11,6 +11,16 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from django.core.exceptions import ImproperlyConfigured
+
+# ENV VAR FETCHER / WRAPPER 
+def get_env_value(env_variable):
+    try:
+      	return os.environ[env_variable]
+    except KeyError:
+        error_msg = 'Couldn\'t fetch the {} from the env'.format(env_variable)
+        raise ImproperlyConfigured(error_msg)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -133,6 +143,12 @@ EMAIL_HOST_USER = 'realistic.reentry.412@gmail.com'
 EMAIL_HOST_PASSWORD = 'reentry412'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+# TWILIO SMS
+
+TWILIO_PHONE_NUMBER = get_env_value('TWILIO_PHONE_NUMBER')
+TWILIO_ACCOUNT_SID = get_env_value('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = get_env_value('TWILIO_AUTH_TOKEN')
 
 #####################################################
 
