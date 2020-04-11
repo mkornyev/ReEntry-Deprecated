@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block content %}
+
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
 	<h1 style="margin: auto; margin-top: 50px; text-align: center;">
 		Resources
 	</h1>
@@ -83,131 +86,79 @@
 				</nav> -->
 
 				<div class="row">
-					{% for r in active_resources %}
-					<a href="{% url 'Show Resource' id=r.id %}">
-						<div class="col-sm-4 mt-3">
-							<div id="resource-{{ r.id }}" class="card resource-card" style="width: 18rem;">
-								{% if r.image %}
-								<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
-								{% endif %} 
-							 	<div class="card-body">
-									<h4 class="card-title">{{ r.name }}</h4>
-									<!--p class="card-text">{{r.description}}</p-->
-									<!-- Display URL if available -->
-									{% if r.url %}
-										<p><a href="{{r.url}}"><i class="material-icons">link</i>{{ r.url }}</a></p>
-									{% else %}
-										<p>&nbsp;</p>
-									{% endif %}
-									<!-- Display phone if available -->
-									{% if r.phone %}
-										<p><a href="tel:{{r.phone}}"><i class="material-icons">phone</i>{{ r.phone }}</a></p>
-									{% else %}
-										<p>&nbsp;</p>
-									{% endif %}
-									<!-- Display email if available -->
-									{% if r.email %}
-										<p><a href="mailto:{{r.email}}"><i class="material-icons">email</i>{{ r.email }}</a></p>
-									{% else %}
-										<p>&nbsp;</p>
-									{% endif %}
-									{% if perms.resource.create_resource %}
-										<p>Views: {{ r.clicks }}</p>
-									{% endif %}
-									<br/>
-									<div class="row">
-										<div class="col">
-											{% if perms.resource.edit_resource %}
-												<a href="{% url 'Edit Resource' r.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
-											{% endif %}
-										</div>
-										<div class="col">
-											{% if perms.resource.delete_resource %}
-										        <a href="{% url 'Delete Resource' r.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a>
-										    {% endif %}
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</a>
-					{% endfor %}
+                    {% for r in active_resources %}
+                    <div class="col-lg-4 mb-3">
+                        <div id="resource-{{ r.id }}" class="card resource-card border-0 shadow">
+                            {% if r.image %}
+                            <img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
+                            {% endif %} 
+                                <div class="card-body">
+                                <h4 class="card-title">{{ r.name }}</h4>
+                                <p class="card-text">{{r.description|truncatewords:35}}</p>
+                                <!-- Display URL if available -->
+<!--                                {% if r.url %}
+                                    <p><a href="{{r.url}}"><i class="material-icons">link</i>{{ r.url }}</a></p>
+                                {% else %}
+                                    <p>&nbsp;</p>
+                                {% endif %} -->
+                                <!-- Display phone if available -->
+<!--                                {% if r.phone %}
+                                    <p><a href="tel:{{r.phone}}"><i class="material-icons">phone</i>{{ r.phone }}</a></p>
+                                {% else %}
+                                    <p>&nbsp;</p>
+                                {% endif %}
+                                Display email if available
+                                {% if r.email %}
+                                    <p><a href="mailto:{{r.email}}"><i class="material-icons">email</i>{{ r.email }}</a></p>
+                                {% else %}
+                                    <p>&nbsp;</p>
+                                {% endif %} -->
+                                {% if perms.resource.create_resource %}
+                                    <p>Views: {{ r.clicks }}</p>
+                                {% endif %}
+                                <br/>
+                                <a class="read-link" href="{% url 'Show Resource' id=r.id %}"><b>Read More</b></a>
+                                <br /><br />
+                                <div class="row">
+                                    <div class="col">
+                                        {% if perms.resource.edit_resource %}
+                                            <a href="{% url 'Edit Resource' r.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col">
+                                        {% if perms.resource.delete_resource %}
+                                            <a href="{% url 'Delete Resource' r.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+					
 				</div>
 			{% else %}
 				<p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no active resources at this time.</em></p>
 			{% endif %}
 
-			{% if perms.resource.edit_resource %}
-				<hr/>
-				<h3>Inactive Resources</h3>
-				{% if inactive_resources.count > 0 %}
-					<div class="row">
-						{% for r in inactive_resources %}
-						<a href="{% url 'Show Resource' id=r.id %}">
-							<div class="col-sm-4">
-								<div id="resource-{{ r.id }}" class="card" style="width: 18rem;">
-									{% if r.image %}
-									<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
-									{% endif %} 
-								 	<div class="card-body">
-										<h4 class="card-title">{{ r.name }}</h4>
-										<!--p class="card-text">{{r.description}}</p-->
-										<!-- Display URL if available -->
-										{% if r.url %}
-											<p><a href="{{r.url}}"><i class="material-icons">link</i>{{ r.url }}</a></p>
-										{% else %}
-											<p>&nbsp;</p>
-										{% endif %}
-										<!-- Display phone if available -->
-										{% if r.phone %}
-											<p><a href="tel:{{r.phone}}"><i class="material-icons">phone</i>{{ r.phone }}</a></p>
-										{% else %}
-											<p>&nbsp;</p>
-										{% endif %}
-										<!-- Display email if available -->
-										{% if r.email %}
-											<p><a href="mailto:{{r.email}}"><i class="material-icons">email</i>{{ r.email }}</a></p>
-										{% else %}
-											<p>&nbsp;</p>
-										{% endif %}
-										<br/>
-										<div class="row">
-											<div class="col">
-												{% if perms.resource.edit_resource %}
-													<a href="{% url 'Edit Resource' r.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
-												{% endif %}
-											</div>
-											<div class="col">
-												{% if perms.resource.delete_resource %}
-											        <a href="{% url 'Delete Resource' r.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a>
-											    {% endif %}
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</a>
-						{% endfor %}
-					</div>
-				{% else %}
-					<p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no inactive resources at this time.</em></p>
-				{% endif %}
-			{% endif %}
-		{% else %}
-			<p style="margin: auto; margin-top: 50px; text-align: center;"><em>No resources matching filtering criteria.</em></p>
-		{% endif %}
-		<p>&nbsp;</p>
+        {% if perms.resource.create_resource %}
+            <a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
+        {% endif %}
+        </div>
 
-		<button id='commit-referral' onclick="commitReferrals()" class='btn btn-warning' style="display: none; width: 20vw; position: fixed; bottom: 20px; left: 42.5vw; min-width: 150px;">Select Resources</button>
-	</div>
+    {% else %}
+      <p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no resources at this time.</em></p>
+    {% endif %}
+    <p>&nbsp;</p>
 
 {% endblock %}
 
 {% block page_specific_scripts %}
 
-	{% if user.is_staff %}{%load static %}
-	<script src="{% static 'NewEra/referrals.js' %}" type="text/javascript"></script>
-	{% endif %}
-	<script src="{% static 'NewEra/resources.js' %}" type="text/javascript"></script>
-
+{% if user.is_staff %}{%load static %}
+<script src="{% static 'NewEra/referrals.js' %}" type="text/javascript"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="{% static 'NewEra/resources.js' %}" type="text/javascript"></script>
+{% endif %}
 {% endblock %}
