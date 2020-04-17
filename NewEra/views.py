@@ -136,6 +136,7 @@ def login(request):
 							password=form.cleaned_data['password'])
 
 	auth_login(request, user)
+	messages.success(request, 'Logged in as {} {}.'.format(user.first_name, user.last_name))
 	return redirect(reverse('Home'))
 
 @login_required
@@ -146,40 +147,9 @@ def logout(request):
 def about(request):
 	return render(request, 'NewEra/about.html')
 
-def create_resource(request):
-	context = {}
-	form = CreateResourceForm()
-	context['form'] = form
-
-	if request.method == 'POST':
-		resource = Resource()
-		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
-		
-		if form.is_valid():
-			# Update content_type
-			pic = form.cleaned_data['image']
-			if pic and pic != '':
-				resource.content_type = form.cleaned_data['image'].content_type
-
-				# REMOVE OLD IMAGE (for edit action)
-				# if oldImageName: 
-				# 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-				# 	IMAGE_ROOT = os.path.join(BASE_DIR, 'socialnetwork/user_uploads/' + oldImageName.name)
-				# 	os.remove(IMAGE_ROOT)
-
-			form.save()
-			resource.save()
-
-			messages.success(request, 'Form submission successful')
-
-			return redirect('Resources')
-	else:
-		form = CreateResourceForm()
-
-	return render(request, 'NewEra/edit_resource.html', context)
-
 # SOW Actions 
 
+@login_required
 def create_referral(request):
 	resources = request.GET.get('resources', None)	
 
@@ -209,9 +179,8 @@ def create_referral(request):
 			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
 			
 		else: 
-			# REQUIRES "MESSAGE" IN TEMPLATE 
-			msg = 'Please fill out all fields.'
-			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers, 'message': msg })
+			messages.error(request, 'Please fill out all fields.')
+			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
 		
 		referral.save()
 
@@ -228,8 +197,11 @@ def create_referral(request):
 		referral.sendEmail(referralTimeStamp)
 		referral.sendSMS(carrier, referralTimeStamp)
 
+		messages.success(request, 'Successfully created a new referral.')
+
 	return redirect(reverse('Resources'))
 
+@login_required
 def referrals(request):
 	if (request.user.is_superuser):
 		# https://stackoverflow.com/questions/4236226/ordering-a-django-queryset-by-a-datetimes-month-day
@@ -244,11 +216,13 @@ def referrals(request):
 
 	return render(request, 'NewEra/referrals.html', context)
 
+@login_required
 def get_referral(request, id):
 	referral = get_object_or_404(Referral, id=id)
 	context = { 'referral': referral, 'resources': Resource.objects.all().filter(referrals=referral) }
 	return render(request, 'NewEra/get_referral.html', context)
 
+@login_required
 def case_load(request):
 	users = [] 
 	context = {} 
@@ -269,20 +243,25 @@ def case_load(request):
 
 		if not form.is_valid():
 			context['form'] = form 
+			context['caseload_users'] = users
+			context['modalStatus'] = 'show'
 			return render(request, 'NewEra/case_load.html', context)
 
 		form.save()
 		load_user.save() 
+		messages.success(request, 'Successfully added {} {} to the CaseLoad.'.format(load_user.first_name, load_user.last_name))
 
 	context['caseload_users'] = users
 	context['form'] = CaseLoadUserForm()
 	return render(request, 'NewEra/case_load.html', context)
 
+@login_required
 def get_case_load_user(request, id):
 	case_load_user = get_object_or_404(CaseLoadUser, id=id)
 	context = { 'case_load_user': case_load_user }
 	return render(request, 'NewEra/get_case_load_user.html', context)
 
+@login_required
 def edit_case_load_user(request, id):
 	case_load_user = get_object_or_404(CaseLoadUser, id=id)
 
@@ -299,6 +278,7 @@ def edit_case_load_user(request, id):
 		form = CaseLoadUserForm(instance=case_load_user)
 	return render(request, 'NewEra/edit_case_load_user.html', {'form': form, 'case_load_user': case_load_user, 'action': 'Edit'})
 
+@login_required
 def delete_case_load_user(request, id):
 	case_load_user = get_object_or_404(CaseLoadUser, id=id)
 
@@ -317,6 +297,7 @@ def delete_case_load_user(request, id):
 
 # ADMIN actions 
 
+@login_required
 def manage_users(request): 
 	if not request.user.is_superuser:
 		raise Http404
@@ -330,6 +311,7 @@ def manage_users(request):
 		context['form'] = form
 
 		if not form.is_valid():
+			context['modalStatus'] = 'show'
 			return render(request, 'NewEra/manage_users.html', context)
 
 		user = User.objects.create_user(username=form.cleaned_data['username'], 
@@ -346,10 +328,12 @@ def manage_users(request):
 			user.is_superuser = True
 
 		user.save()
+		messages.success(request, 'Added a new user to the system.')
 	
 	context['form'] = RegistrationForm()
 	return render(request, 'NewEra/manage_users.html', context)
 
+@login_required
 def edit_user(request, id):
 	user = get_object_or_404(User, id=id)
 
@@ -372,6 +356,7 @@ def edit_user(request, id):
 			form = EditUserForm(instance=user)
 	return render(request, 'NewEra/edit_user.html', {'form': form, 'user': user, 'action': 'Edit'})
 
+@login_required
 def delete_user(request, id):
 	user = get_object_or_404(User, id=id)
 
@@ -387,6 +372,7 @@ def delete_user(request, id):
 			return redirect('Manage Users')
 	return render(request, 'NewEra/delete_user.html', {'user': user})
 
+@login_required
 def create_resource(request):
 	context = {}
 	form = CreateResourceForm()
@@ -415,6 +401,7 @@ def create_resource(request):
 
 	return render(request, 'NewEra/edit_resource.html', context)
 
+@login_required
 def edit_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
 	oldImage = resource.image
@@ -443,6 +430,7 @@ def edit_resource(request, id):
 		form = CreateResourceForm(instance=resource)
 	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource, 'action': 'Edit'})
 
+@login_required
 def delete_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
 
@@ -460,6 +448,7 @@ def delete_resource(request, id):
 	return render(request, 'NewEra/delete_resource.html', {'resource': resource})
 
 # Deletes the given image if it exists
+@login_required
 def deleteImage(oldImage):
 	if oldImage: 
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -467,12 +456,14 @@ def deleteImage(oldImage):
 		os.remove(IMAGE_ROOT)
 
 # Creates tags
+@login_required
 def tags(request):
 	context = {
 		'tags': Tag.objects.all()
 	}
 	return render(request, 'NewEra/tags.html', context)
 
+@login_required
 def create_tag(request):
 	context = {}
 	form = TagForm()
@@ -495,6 +486,7 @@ def create_tag(request):
 
 	return render(request, 'NewEra/edit_tag.html', context)
 
+@login_required
 def edit_tag(request, id):
 	tag = get_object_or_404(Tag, id=id)
 
@@ -510,6 +502,7 @@ def edit_tag(request, id):
 		form = TagForm(instance=tag)
 	return render(request, 'NewEra/edit_tag.html', {'form': form, 'tag': tag, 'action': 'Edit'})
 
+@login_required
 def delete_tag(request, id):
 	tag = get_object_or_404(Tag, id=id)
 
@@ -520,6 +513,7 @@ def delete_tag(request, id):
 
 	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
 
+@login_required
 def export_data(request):
 	# Get resources
 	resources = Resource.objects.all().filter(is_active=True)
