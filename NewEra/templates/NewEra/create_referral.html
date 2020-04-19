@@ -105,6 +105,9 @@
                         {% for r in resources %}
                             <input type="hidden" name="resources[]" value="{{ r.id }}">
                         {% endfor %}
+
+                        <label><b>Name:</b></label>
+                        <input type="text" name="name" class="form-input" placeholder="Add name..."><br>
                         
                         <label><b>Phone:</b></label>
                         <input type="tel" name="phone" placeholder="3152965004" class="form-input" minlength="10" maxlength="10" pattern="[0-9]{10}" required><br>

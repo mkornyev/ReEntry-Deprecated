@@ -19,12 +19,13 @@ MAX_UPLOAD_SIZE = 2500000
 
 class CaseLoadUserForm(forms.ModelForm):
 	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	nickname = forms.CharField(max_length=100, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	# Email currently is mandatory - need to change that
 	# email = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES), required=False)
 
 	class Meta:
 		model = CaseLoadUser
-		fields = ['first_name', 'last_name', 'email', 'phone', 'notes', 'is_active', 'user']
+		fields = ['first_name', 'last_name', 'nickname', 'email', 'phone', 'notes', 'is_active', 'user']
 		exclude = (
 			'user',
 		)

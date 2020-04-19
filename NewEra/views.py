@@ -202,11 +202,16 @@ def create_referral(request):
 		if 'resources[]' in request.POST and 'user_id' in request.POST and 'carrier' in request.POST and 'notes' in request.POST: 
 			caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
+			if caseload_user.nickname:
+				nameInput = caseload_user.nickname
+			else:
+				nameInput = caseload_user.first_name
 			referral = Referral(email=caseload_user.email, phone=caseload_user.phone, notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
 		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and len(phoneInput) == 10: 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
+			nameInput = request.POST['name']
 			
 		else: 
 			# REQUIRES "MESSAGE" IN TEMPLATE 
@@ -225,8 +230,8 @@ def create_referral(request):
 			raise Http404
 		
 		referralTimeStamp = str(referral.referral_date)
-		referral.sendEmail(referralTimeStamp)
-		referral.sendSMS(carrier, referralTimeStamp)
+		referral.sendEmail(referralTimeStamp, nameInput)
+		referral.sendSMS(carrier, referralTimeStamp, nameInput)
 
 	return redirect(reverse('Resources'))
 
