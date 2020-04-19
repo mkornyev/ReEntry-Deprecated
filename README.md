@@ -34,8 +34,8 @@ The following will set up a python environment **in the same directory** as the 
 ###### Populate 
 
 * `python manage.py populate`
-* Creates an sow user (**is_staff**): User(username='sow', first_name='Max', last_name='K', email='mkornyev@gmail.com', password='sow')
-* And an admin (**is_superuser**): User(username='admin', first_name='Taili', last_name='T', email='admin@gmail.com', password='admin')
+* Creates an sow user (**is_staff**): User(username='sow', password='sow')
+* And an admin (**is_superuser**): User(username='admin', password='admin')
 
 ###### Drop
 

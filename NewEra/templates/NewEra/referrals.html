@@ -50,8 +50,9 @@
                         <td>&#10060;</td>
                         {% endif %}
 
-                        <td style="padding: 2px;"><a href="{% url 'Show Referral' id=referral.id %}" class="btn-sm btn-primary">Details</a></td>
+                        <td class="button-cell"><a href="{% url 'Show Referral' id=referral.id %}" class="btn btn-primary">Details</a></td>
                         <td style="padding: 2px;"><a href="{% url 'Edit Referral Notes' id=referral.id %}" class="btn-sm btn-warning">Edit Notes</a></td>
+                        
                     </tr>
                 {% endfor %}
             </table>
@@ -62,5 +63,6 @@
                 <em><p style="margin: auto;">You have not made any referrals yet.</p></em>
             {% endif %}
         {% endif %}
+        <br>
     </div>
 {% endblock %}

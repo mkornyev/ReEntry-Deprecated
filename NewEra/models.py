@@ -101,7 +101,7 @@ class Referral(models.Model):
 
 	# Methods
 	def sendEmail(self, referralTimeStamp, clientName):
-		if (not self.email or self.email == '') and (not self.caseUser.email or self.caseUser.email == ''): 
+		if (not self.email or self.email == '') and (not self.caseUser or not self.caseUser.email or self.caseUser.email == ''): 
 			return 
 
 		strArgs = [ r.name + ',  ' for r in self.resource_set.all() ]
@@ -116,13 +116,13 @@ class Referral(models.Model):
 		from_email = settings.EMAIL_HOST_USER
 		
 		to = self.email
-		if self.email == '':
+		if to == None or to == '':
 			to = self.caseUser.email
 
 		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=True)
 
 	def sendSMS(self, smsCarrier, referralTimeStamp, clientName): 
-		if (not self.phone or self.phone == '') and (not self.caseUser.phone or self.caseUser.phone == ''):
+		if (not self.phone or self.phone == '') and (not self.caseUser or not self.caseUser.phone or self.caseUser.phone == ''):
 			return
 
 		userName = self.user.first_name + ' ' + self.user.last_name

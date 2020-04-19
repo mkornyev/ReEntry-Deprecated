@@ -28,15 +28,21 @@
 			#filter-card ul {
 				list-style: none;
 			}
+
+			.button-cell {
+				padding: 2px;
+			}
 		</style>
 		<!-- Material Icons CSS -->
 		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	</head>
 
 	<body>
-        {% include 'NewEra/_navbar.html' %}
+		{% include 'NewEra/_navbar.html' %}
+		
+		<!-- Django Messages Framework -->
         {% if messages %}
-		<ul class="messages">
+		<ul id="backend-messages" class="messages">
 		    {% for msg in messages %}       
 		    <li>
 		        <div class="alert alert-{{msg.level_tag}}" role="alert">
