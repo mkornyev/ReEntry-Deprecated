@@ -418,7 +418,7 @@ def edit_resource(request, id):
 				try: 
 					# Edge case where revalidated file is a FieldFile type (and not an Image)
 					resource.content_type = form.cleaned_data['image'].content_type
-					deleteImage(oldImage)
+					deleteImage(request, oldImage)
 				except: 
 					pass
 
@@ -436,7 +436,7 @@ def delete_resource(request, id):
 
 	if request.method == 'POST':
 		if (resource.referrals.count() == 0):
-			deleteImage(resource.image)
+			deleteImage(request, resource.image)
 			resource.delete()
 			messages.success(request, 'Resource successfully deleted.')
 			return redirect('Resources')
@@ -449,7 +449,7 @@ def delete_resource(request, id):
 
 # Deletes the given image if it exists
 @login_required
-def deleteImage(oldImage):
+def deleteImage(request, oldImage):
 	if oldImage: 
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImage.name)

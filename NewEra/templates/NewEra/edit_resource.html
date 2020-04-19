@@ -1,5 +1,7 @@
 {% extends "NewEra/base.html" %}
 
+{% block page_specific_styles %}{% endblock %}
+
 {% block title %}{% block navtitle %}
 	Edit Resource
 {% endblock %}{% endblock %}
@@ -19,4 +21,11 @@
         </table>
         <button class="btn btn-primary" type="submit">Save Resource</button>
     </form>
+{% endblock %}
+
+{% block page_specific_scripts %}
+<script>
+    $('#image-clear_id').css('display', 'none');
+    $('label[for="image-clear_id"]').css('display', 'none');
+</script>
 {% endblock %}
