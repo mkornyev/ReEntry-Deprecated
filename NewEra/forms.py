@@ -6,7 +6,7 @@ from django.db import models
 import re # Regex matching
 import django_filters
 
-from NewEra.models import User, CaseLoadUser, Resource, Tag
+from NewEra.models import User, CaseLoadUser, Resource, Tag, Referral
 # Help from: https://chase-seibert.github.io/blog/2010/05/20/django-manytomanyfield-on-modelform-as-checkbox-widget.html
 from django.forms.widgets import CheckboxSelectMultiple
 
@@ -247,7 +247,7 @@ class CreateResourceForm(forms.ModelForm):
 
 
 class TagForm(forms.ModelForm):
-	name = forms.CharField(max_length=20)
+	name = forms.CharField(max_length=30)
 
 	class Meta:
 		model = Tag
@@ -261,3 +261,12 @@ class ResourceFilter(django_filters.FilterSet):
 	class Meta:
 		model = Resource
 		fields = ('tags',)
+
+
+# Form only used to edit notes
+class EditReferralNotesForm(forms.ModelForm):
+	notes = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=STYLE_ATTR))
+
+	class Meta:
+		model = Referral
+		fields = ('notes',)

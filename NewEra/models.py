@@ -51,7 +51,7 @@ class User(AbstractUser):
 		return Referral.objects.filter(user=self)
 
 	class Meta:
-		ordering = ['is_superuser', 'is_staff', 'is_active', 'username', 'first_name', 'last_name']
+		ordering = ['-is_active', 'is_superuser', 'is_staff', 'username', 'first_name', 'last_name']
 
 # Model for individuals on the case load
 class CaseLoadUser(models.Model):

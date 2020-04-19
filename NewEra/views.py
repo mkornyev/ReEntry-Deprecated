@@ -23,7 +23,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
-from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
+from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter, EditReferralNotesForm
 
 # VIEW ACTIONS 
 
@@ -170,7 +170,7 @@ def create_resource(request):
 			form.save()
 			resource.save()
 
-			messages.success(request, 'Form submission successful')
+			messages.success(request, 'Resource successfully created.')
 
 			return redirect('Resources')
 	else:
@@ -233,6 +233,8 @@ def create_referral(request):
 		referral.sendEmail(referralTimeStamp, nameInput)
 		referral.sendSMS(carrier, referralTimeStamp, nameInput)
 
+	messages.success(request, 'Referral submitted!')
+
 	return redirect(reverse('Resources'))
 
 def referrals(request):
@@ -253,6 +255,23 @@ def get_referral(request, id):
 	referral = get_object_or_404(Referral, id=id)
 	context = { 'referral': referral, 'resources': Resource.objects.all().filter(referrals=referral) }
 	return render(request, 'NewEra/get_referral.html', context)
+
+def edit_referral_notes(request, id):
+	referral = get_object_or_404(Referral, id=id)
+
+	if request.method == "POST":
+		form = EditReferralNotesForm(request.POST, instance=referral)
+    
+		if form.is_valid():
+
+			form.save()
+			referral.save()
+
+			messages.success(request, 'Referral notes updated.')
+			return redirect('Show Referral', id=referral.id)
+	else:
+		form = EditReferralNotesForm(instance=referral)
+	return render(request, 'NewEra/edit_referral_notes.html', {'form': form, 'referral': referral, 'action': 'Edit'})
 
 def case_load(request):
 	users = [] 
@@ -299,6 +318,7 @@ def edit_case_load_user(request, id):
 			form.save()
 			case_load_user.save()
 
+			messages.success(request, case_load_user.get_full_name() + ' successfully edited.')
 			return redirect('Show Case Load User', id=case_load_user.id)
 	else:
 		form = CaseLoadUserForm(instance=case_load_user)
@@ -315,7 +335,7 @@ def delete_case_load_user(request, id):
 		else:
 			case_load_user.is_active = False
 			case_load_user.save()
-			messages.success(request, 'case_load_user.get_full_name was made inactive.')
+			messages.success(request, case_load_user.get_full_name() + ' was made inactive.')
 			return redirect('Show Case Load User', id=case_load_user.id)
 	return render(request, 'NewEra/delete_case_load_user.html', {'case_load_user': case_load_user})
 
@@ -369,6 +389,7 @@ def edit_user(request, id):
 			form.save()
 			user.save()
 
+			messages.success(request, str(user) + ' successfully edited.')
 			return redirect('Manage Users')
 	else:
 		if user == request.user:
@@ -443,6 +464,7 @@ def edit_resource(request, id):
 			form.save()
 			resource.save()
 
+			messages.success(request, resource.name + ' successfully edited.')
 			return redirect('Show Resource', id=resource.id)
 	else:
 		form = CreateResourceForm(instance=resource)
@@ -510,6 +532,7 @@ def edit_tag(request, id):
 			form.save()
 			tag.save()
 
+			messages.success(request, tag.name + ' successfully edited.')
 			return redirect('Tags')
 	else:
 		form = TagForm(instance=tag)

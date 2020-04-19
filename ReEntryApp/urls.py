@@ -51,6 +51,7 @@ urlpatterns = [
     # Referral actions
     path('referrals/', views.referrals, name='Referrals'),
     path('referrals/<int:id>/', views.get_referral, name='Show Referral'),
+    path('referrals/<int:id>/edit/', views.edit_referral_notes, name='Edit Referral Notes'),
     # Case load actions
     path('case_load/<int:id>', views.get_case_load_user, name='Show Case Load User'),
     path('case_load/<int:id>/edit/', views.edit_case_load_user, name='Edit Case Load User'),
