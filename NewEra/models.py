@@ -51,13 +51,14 @@ class User(AbstractUser):
 		return Referral.objects.filter(user=self)
 
 	class Meta:
-		ordering = ['is_superuser', 'is_staff', 'is_active', 'username', 'first_name', 'last_name']
+		ordering = ['-is_active', 'is_superuser', 'is_staff', 'username', 'first_name', 'last_name']
 
 # Model for individuals on the case load
 class CaseLoadUser(models.Model):
 	# Attributes
 	first_name = models.CharField(max_length=35, blank=False, null=False)
 	last_name = models.CharField(max_length=35, blank=False, null=False)
+	nickname = models.CharField(max_length=100, default='')
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
 	email = models.EmailField(max_length=254)
 	phone = models.CharField(max_length=11)
@@ -99,17 +100,18 @@ class Referral(models.Model):
 	caseUser = models.ForeignKey(CaseLoadUser, on_delete=models.PROTECT, blank=True, null=True)
 
 	# Methods
-	def sendEmail(self, referralTimeStamp):
+	def sendEmail(self, referralTimeStamp, clientName):
 		if (not self.email or self.email == '') and (not self.caseUser or not self.caseUser.email or self.caseUser.email == ''): 
 			return 
 
 		strArgs = [ r.name + ',  ' for r in self.resource_set.all() ]
 		strArgs.append('and other resources.')
 		resources = [ r for r in self.resource_set.all() ]
+		
 		userName = self.user.first_name + ' ' + self.user.last_name
 
 		subject = 'NewERA412 Referral from {}: {}'.format(userName, ''.join(strArgs))
-		html_message = render_to_string('NewEra/referral_mailer.html', {'resources': resources, 'userName': userName, 'notes': self.notes, 'timeStamp': referralTimeStamp })
+		html_message = render_to_string('NewEra/referral_mailer.html', {'resources': resources, 'userName': userName, 'notes': self.notes, 'timeStamp': referralTimeStamp, 'clientName': clientName })
 		plain_message = strip_tags(html_message)
 		from_email = settings.EMAIL_HOST_USER
 		
@@ -119,7 +121,7 @@ class Referral(models.Model):
 
 		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=True)
 
-	def sendSMS(self, smsCarrier, referralTimeStamp): 
+	def sendSMS(self, smsCarrier, referralTimeStamp, clientName): 
 		if (not self.phone or self.phone == '') and (not self.caseUser or not self.caseUser.phone or self.caseUser.phone == ''):
 			return
 
@@ -131,7 +133,10 @@ class Referral(models.Model):
 			to = self.caseUser.phone
 		to = to + SMS_CARRIERS[smsCarrier]
 
-		messageIntro = '\n {} \n We\'ll send you another text with some links. --{}'.format(self.notes, userName)
+		if (clientName):
+			messageIntro = '\n Hi {}, \n {} \n We\'ll send you another text with some links. --{}'.format(clientName, self.notes, userName)
+		else:
+			messageIntro = '\n {} \n We\'ll send you another text with some links. --{}'.format(self.notes, userName)
 		mail.send_mail('NewERA Referral', messageIntro, from_email, [to], fail_silently=False)
 
 		queryString = '?key=' + referralTimeStamp

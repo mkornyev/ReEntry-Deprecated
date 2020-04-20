@@ -51,6 +51,8 @@
                         {% endif %}
 
                         <td class="button-cell"><a href="{% url 'Show Referral' id=referral.id %}" class="btn btn-primary">Details</a></td>
+                        <td style="padding: 2px;"><a href="{% url 'Edit Referral Notes' id=referral.id %}" class="btn-sm btn-warning">Edit Notes</a></td>
+                        
                     </tr>
                 {% endfor %}
             </table>

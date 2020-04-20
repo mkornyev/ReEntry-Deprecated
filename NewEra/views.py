@@ -23,7 +23,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
-from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
+from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter, EditReferralNotesForm
 
 # VIEW ACTIONS 
 
@@ -147,6 +147,38 @@ def logout(request):
 def about(request):
 	return render(request, 'NewEra/about.html')
 
+def create_resource(request):
+	context = {}
+	form = CreateResourceForm()
+	context['form'] = form
+
+	if request.method == 'POST':
+		resource = Resource()
+		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
+		
+		if form.is_valid():
+			# Update content_type
+			pic = form.cleaned_data['image']
+			if pic and pic != '':
+				resource.content_type = form.cleaned_data['image'].content_type
+
+				# REMOVE OLD IMAGE (for edit action)
+				# if oldImageName: 
+				# 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+				# 	IMAGE_ROOT = os.path.join(BASE_DIR, 'socialnetwork/user_uploads/' + oldImageName.name)
+				# 	os.remove(IMAGE_ROOT)
+
+			form.save()
+			resource.save()
+
+			messages.success(request, 'Resource successfully created.')
+
+			return redirect('Resources')
+	else:
+		form = CreateResourceForm()
+
+	return render(request, 'NewEra/edit_resource.html', context)
+
 # SOW Actions 
 
 @login_required
@@ -172,11 +204,16 @@ def create_referral(request):
 		if 'resources[]' in request.POST and 'user_id' in request.POST and 'carrier' in request.POST and 'notes' in request.POST: 
 			caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
+			if caseload_user.nickname:
+				nameInput = caseload_user.nickname
+			else:
+				nameInput = caseload_user.first_name
 			referral = Referral(email=caseload_user.email, phone=caseload_user.phone, notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
 		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and len(phoneInput) == 10: 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
+			nameInput = request.POST['name']
 			
 		else: 
 			messages.error(request, 'Please fill out all fields.')
@@ -194,10 +231,10 @@ def create_referral(request):
 			raise Http404
 		
 		referralTimeStamp = str(referral.referral_date)
-		referral.sendEmail(referralTimeStamp)
-		referral.sendSMS(carrier, referralTimeStamp)
+		referral.sendEmail(referralTimeStamp, nameInput)
+		referral.sendSMS(carrier, referralTimeStamp, nameInput)
 
-		messages.success(request, 'Successfully created a new referral.')
+	messages.success(request, 'Successfully created a new referral.')
 
 	return redirect(reverse('Resources'))
 
@@ -221,6 +258,23 @@ def get_referral(request, id):
 	referral = get_object_or_404(Referral, id=id)
 	context = { 'referral': referral, 'resources': Resource.objects.all().filter(referrals=referral) }
 	return render(request, 'NewEra/get_referral.html', context)
+
+def edit_referral_notes(request, id):
+	referral = get_object_or_404(Referral, id=id)
+
+	if request.method == "POST":
+		form = EditReferralNotesForm(request.POST, instance=referral)
+    
+		if form.is_valid():
+
+			form.save()
+			referral.save()
+
+			messages.success(request, 'Referral notes updated.')
+			return redirect('Show Referral', id=referral.id)
+	else:
+		form = EditReferralNotesForm(instance=referral)
+	return render(request, 'NewEra/edit_referral_notes.html', {'form': form, 'referral': referral, 'action': 'Edit'})
 
 @login_required
 def case_load(request):
@@ -273,6 +327,7 @@ def edit_case_load_user(request, id):
 			form.save()
 			case_load_user.save()
 
+			messages.success(request, '{} successfully edited.'.format(case_load_user.get_full_name()))
 			return redirect('Show Case Load User', id=case_load_user.id)
 	else:
 		form = CaseLoadUserForm(instance=case_load_user)
@@ -285,12 +340,12 @@ def delete_case_load_user(request, id):
 	if request.method == 'POST':
 		if (case_load_user.get_referrals().count() == 0):
 			case_load_user.delete()
-			messages.success(request, 'Case Load User successfully deleted.')
+			messages.success(request, '{} successfully deleted.'.format(case_load_user.get_full_name()))
 			return redirect('Case Load')
 		else:
 			case_load_user.is_active = False
 			case_load_user.save()
-			messages.success(request, 'case_load_user.get_full_name was made inactive.')
+			messages.success(request, '{} was made inactive.'.format(case_load_user.get_full_name()))
 			return redirect('Show Case Load User', id=case_load_user.id)
 	return render(request, 'NewEra/delete_case_load_user.html', {'case_load_user': case_load_user})
 
@@ -348,6 +403,7 @@ def edit_user(request, id):
 			form.save()
 			user.save()
 
+			messages.success(request, '{} successfully edited.'.format(str(user)))
 			return redirect('Manage Users')
 	else:
 		if user == request.user:
@@ -368,7 +424,7 @@ def delete_user(request, id):
 		else:
 			user.is_active = False
 			user.save()
-			messages.success(request, 'user.get_full_name was made inactive.')
+			messages.success(request, '{} was made inactive.'.format(user.get_full_name()))
 			return redirect('Manage Users')
 	return render(request, 'NewEra/delete_user.html', {'user': user})
 
@@ -425,6 +481,7 @@ def edit_resource(request, id):
 			form.save()
 			resource.save()
 
+			messages.success(request, '{} successfully edited.'.format(resource.name))
 			return redirect('Show Resource', id=resource.id)
 	else:
 		form = CreateResourceForm(instance=resource)
@@ -438,12 +495,12 @@ def delete_resource(request, id):
 		if (resource.referrals.count() == 0):
 			deleteImage(request, resource.image)
 			resource.delete()
-			messages.success(request, 'Resource successfully deleted.')
+			messages.success(request, '{} successfully deleted.'.format(resource.name))
 			return redirect('Resources')
 		else:
 			resource.is_active = False
 			resource.save()
-			messages.success(request, 'Resource was made inactive.')
+			messages.success(request, '{} was made inactive.'.format(resource.name))
 			return redirect('Show Resource', id=resource.id)
 	return render(request, 'NewEra/delete_resource.html', {'resource': resource})
 
@@ -497,6 +554,7 @@ def edit_tag(request, id):
 			form.save()
 			tag.save()
 
+			messages.success(request, '{} successfully edited.'.format(tag.name))
 			return redirect('Tags')
 	else:
 		form = TagForm(instance=tag)
@@ -508,7 +566,7 @@ def delete_tag(request, id):
 
 	if request.method == 'POST':
 		tag.delete()
-		messages.success(request, 'Tag successfully deleted.')
+		messages.success(request, '{} successfully deleted.'.format(tag.name))
 		return redirect('Tags')
 
 	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
