@@ -69,7 +69,7 @@
                             {% endfor %}
 
                             <label><b class="inline-label">Select User:</b>
-                                <select name="user_id">
+                                <select name="user_id" class="form-control">
                                     {% for r in recipients %}
                                     <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
                                     {% endfor %}
@@ -78,7 +78,7 @@
 
                             <label>
                                 <b class="inline-label">Select Carrier:</b>
-                                <select name="carrier">
+                                <select name="carrier" class="form-control">
                                     {% for c in carriers %}
                                     <option value="{{ c }}">{{ c }}</option>
                                     {% endfor %}
@@ -86,7 +86,7 @@
                             </label><br>
 
                             <label><b>Add Notes:</b></label><br>
-                            <textarea type="text" name="notes" class="form-input" placeholder=" Add a notification note..."></textarea><br><br>
+                            <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
                             {% csrf_token %}
                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -107,14 +107,14 @@
                         {% endfor %}
 
                         <label><b>Name:</b></label>
-                        <input type="text" name="name" class="form-input" placeholder="Add name..."><br>
+                        <input type="text" name="name" class="form-control" placeholder="Add name...">
                         
                         <label><b>Phone:</b></label>
-                        <input type="tel" name="phone" placeholder="3152965004" class="form-input" minlength="10" maxlength="10" pattern="[0-9]{10}"><br>
+                        <input type="tel" name="phone" placeholder="Enter a phone number..." class="form-control" minlength="10" maxlength="10" pattern="[0-9]{10}">
 
                         <label>
                             <b class="inline-label">Select Carrier:</b>
-                            <select name="carrier">
+                            <select name="carrier"  class="form-control">
                                 {% for c in carriers %}
                                 <option value="{{ c }}">{{ c }}</option>
                                 {% endfor %}
@@ -122,10 +122,10 @@
                         </label><br>
 
                         <label><b>Email:&nbsp;&nbsp;</b></label>
-                        <input type="email" name="email" placeholder="email@gmail.com" class="form-input"><br>
+                        <input type="email" name="email" placeholder="example@email.com" class="form-control">
 
                         <label><b>Add Notes:</b></label><br>
-                        <textarea type="text" name="notes" class="form-input" placeholder=" Add a notification note..."></textarea><br><br>
+                        <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary">Submit</button>

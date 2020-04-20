@@ -184,17 +184,17 @@ def create_resource(request):
 @login_required
 def create_referral(request):
 	resources = request.GET.get('resources', None)	
+	recipients = [] 
+	carriers = list(SMS_CARRIERS.keys())
+	
+	if request.user.is_superuser: 
+		recipients = CaseLoadUser.objects.filter(is_active=True).all()
+	elif request.user.is_staff: 
+		recipients = CaseLoadUser.objects.filter(is_active=True).filter(user=request.user)
 
 	if request.method == 'GET' and resources:
 		resources = [digit.strip() for digit in ast.literal_eval(resources)] # Safely parse array
 		resources = [ get_object_or_404(Resource, id=resourceId) for resourceId in resources ]
-
-		recipients = [] 
-		carriers = list(SMS_CARRIERS.keys())
-		if request.user.is_superuser: 
-			recipients = CaseLoadUser.objects.filter(is_active=True).all()
-		elif request.user.is_staff: 
-			recipients = recipients = CaseLoadUser.objects.filter(is_active=True).filter(user=request.user)
 
 		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
 
