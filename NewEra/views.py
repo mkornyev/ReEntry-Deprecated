@@ -13,6 +13,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect #, JsonRespo
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.db.models import Q
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
@@ -44,8 +45,14 @@ def resources(request):
 	context['filter'] = ResourceFilter(request.GET, queryset=context['resources'])
 
 	if request.method == 'GET':
-		context['active_resources'] = context['filter'].qs.filter(is_active=True)
-		context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
+		query = request.GET.get('query')
+
+		if query:
+			context['active_resources'] = context['filter'].qs.filter( Q(is_active=True) & (Q(name__icontains=query) | Q(description__icontains=query)) )
+			context['inactive_resources'] = context['filter'].qs.filter( Q(is_active=False) & (Q(name__icontains=query) | Q(description__icontains=query)) )
+		else: 
+			context['active_resources'] = context['filter'].qs.filter(is_active=True)
+			context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
 
 	return render(request, 'NewEra/resources.html', context)
 
