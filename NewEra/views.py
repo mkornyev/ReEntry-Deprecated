@@ -14,6 +14,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
@@ -26,6 +27,11 @@ from django.utils import timezone
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
 from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter, EditReferralNotesForm
 
+# CONSTANTS 
+
+RESOURCE_PAGINATION_COUNT = 20
+REFERRAL_PAGINATION_COUNT = 20
+
 # VIEW ACTIONS 
 
 def home(request): 
@@ -35,16 +41,17 @@ def home(request):
 def resources(request):
 	all_resources = Resource.objects.all()
 
-	context = {
-		'resources': all_resources,
-		'active_resources': all_resources.filter(is_active=True),
-		'inactive_resources': all_resources.filter(is_active=False),
-		'tags': Tag.objects.all()
-	}
+	# context = {
+	# 	'resources': all_resources,
+	# 	'active_resources': all_resources.filter(is_active=True),
+	# 	'inactive_resources': all_resources.filter(is_active=False),
+	# 	'tags': Tag.objects.all()
+	# }
 
-	context['filter'] = ResourceFilter(request.GET, queryset=context['resources'])
+	context = { 'filter': ResourceFilter(request.GET, queryset=all_resources) }
 
 	if request.method == 'GET':
+		# SEARCH QUERY
 		query = request.GET.get('query')
 
 		if query:
@@ -53,6 +60,19 @@ def resources(request):
 		else: 
 			context['active_resources'] = context['filter'].qs.filter(is_active=True)
 			context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
+
+		# PAGINATION
+		page = request.GET.get('page', 1)
+		paginator = Paginator(context['active_resources'], RESOURCE_PAGINATION_COUNT)
+		
+		try:
+			activeResources = paginator.page(page)
+		except PageNotAnInteger:
+			activeResources = paginator.page(1)
+		except EmptyPage:
+			activeResources = paginator.page(paginator.num_pages)
+
+		context['active_resources'] = activeResources
 
 	return render(request, 'NewEra/resources.html', context)
 
@@ -253,6 +273,17 @@ def referrals(request):
 		referrals = Referral.objects.all().order_by('-referral_date')
 	elif (request.user.is_staff):
 		referrals = Referral.objects.all().filter(user=request.user).order_by('-referral_date')
+
+	# PAGINATION
+	page = request.GET.get('page', 1)
+	paginator = Paginator(referrals, REFERRAL_PAGINATION_COUNT)
+	
+	try:
+		referrals = paginator.page(page)
+	except PageNotAnInteger:
+		referrals = paginator.page(1)
+	except EmptyPage:
+		referrals = paginator.page(paginator.num_pages)
 
 	context = {
 		'referrals': referrals
