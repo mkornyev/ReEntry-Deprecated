@@ -36,7 +36,7 @@ REFERRAL_PAGINATION_COUNT = 20
 
 def home(request): 
 	markReferralAsSeen(request)
-	return render(request, 'NewEra/index.html', {})
+	return render(request, 'NewEra/home.html', {})
 
 def resources(request):
 	all_resources = Resource.objects.all()
@@ -81,7 +81,7 @@ def get_resource(request, id):
 	context = { 'resource': resource, 'tags': resource.tags.all() }
 	response = render(request, 'NewEra/get_resource.html', context)
 	
-	# Update clicks
+	# Update the resource clicks
 	if isUniqueVisit(request, response, id):
 		resource.clicks = resource.clicks + 1
 		resource.save()
@@ -113,14 +113,16 @@ def isUniqueVisit(request, response, id):
 	
 	return False 
 
-	
-
 # Function to update the referral given a GET request with a querystring timestamp
 def markReferralAsSeen(request):
 	if 'key' not in request.GET:
 		return 
 
-	keyDate = datetime.strptime(request.GET['key'], '%Y-%m-%d %H:%M:%S.%f')
+	try:
+		keyDate = datetime.strptime(request.GET['key'], '%Y-%m-%d %H:%M:%S.%f')
+	except: 
+		return 
+
 	referrals = Referral.objects.filter(referral_date=keyDate)
 	
 	if referrals.count() == 1:
@@ -237,7 +239,7 @@ def create_referral(request):
 				nameInput = caseload_user.first_name
 			referral = Referral(email=caseload_user.email, phone=caseload_user.phone, notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
-		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and len(phoneInput) == 10: 
+		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and (len(phoneInput) == 10 or len(phoneInput) == 0): 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
 			nameInput = request.POST['name']
@@ -549,6 +551,15 @@ def deleteImage(request, oldImage):
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImage.name)
 		os.remove(IMAGE_ROOT)
+
+@login_required
+def resetViews(request):
+	if request.method == 'POST':
+		Resource.objects.all().update(clicks=0)
+		messages.success(request, 'Reset all resource views')
+		return redirect(reverse('Manage Users'))
+	return render(request, 'NewEra/reset_view_counts.html', {})
+
 
 # Creates tags
 @login_required

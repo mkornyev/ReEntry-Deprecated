@@ -57,5 +57,6 @@ urlpatterns = [
     path('case_load/<int:id>/edit/', views.edit_case_load_user, name='Edit Case Load User'),
     path('case_load/<int:id>/delete/', views.delete_case_load_user, name='Delete Case Load User'),
     # Resource data export action
-    path('export', views.export_data, name='Export Data')
+    path('export', views.export_data, name='Export Data'),
+    path('resetViews', views.resetViews, name='Reset Views')
 ]
