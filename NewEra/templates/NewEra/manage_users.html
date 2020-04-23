@@ -11,12 +11,12 @@
 
 {% block content %}
     <h1 style="margin: auto; margin-top: 50px; text-align: center;">
-        Manage Users
+        Admin Dashboard
     </h1>
 
-    <div class="container">
-        
+    <div class="container">    
         <hr>
+
         <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#collapseUser" aria-expanded="false" aria-controls="collapseUser"><i class="material-icons">person_add</i>Create New User</button>
         <br>
 
@@ -107,6 +107,13 @@
         {% else %}
             <em><p style="margin: auto;">There are no SOWs in the system.</p></em>
         {% endif %}
+
+        <hr>
+            <br>
+            <h2>Data Management:</h2><br>
+
+            <a href="{% url 'Export Data' %}" class="btn btn-success"><i class="material-icons">get_app</i>Download Data Spreadsheet</a>
+            <a href="{% url 'Reset Views' %}" class="btn btn-danger">Reset Resource Clicks</a>
         
         <br><br>
 

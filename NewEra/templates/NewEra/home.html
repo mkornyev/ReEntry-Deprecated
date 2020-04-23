@@ -16,13 +16,6 @@
 			Reintegrating previously incarcerated citizens into society.
 		</p>
 		<a href="{% url 'Resources' %}"><button type="button" class="btn btn-info">See Resources</button></a>
-		{% if perms.resource.create_resource %}
-			<br/>
-			<br/>
-			<div class="d-flex justify-content-center">
-				<a href="{% url 'Export Data' %}" class="btn btn-success"><i class="material-icons">get_app</i>Download Data Spreadsheet</a>
-			</div>
-		{% endif %}
 	</div>
 
 	<div class="secondary-content">
