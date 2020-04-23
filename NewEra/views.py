@@ -64,15 +64,20 @@ def resources(request):
 		# PAGINATION
 		page = request.GET.get('page', 1)
 		paginator = Paginator(context['active_resources'], RESOURCE_PAGINATION_COUNT)
+		inactive_paginator = Paginator(context['inactive_resources'], RESOURCE_PAGINATION_COUNT)
 		
 		try:
 			activeResources = paginator.page(page)
+			inactiveResources = inactive_paginator.page(page)
 		except PageNotAnInteger:
 			activeResources = paginator.page(1)
+			inactiveResources = inactive_paginator.page(1)
 		except EmptyPage:
 			activeResources = paginator.page(paginator.num_pages)
+			inactiveResources = inactive_paginator.page(inactive_paginator.num_pages)
 
 		context['active_resources'] = activeResources
+		context['inactive_resources'] = inactiveResources
 
 	return render(request, 'NewEra/resources.html', context)
 
@@ -797,7 +802,7 @@ def export_data(request):
 		# Organize and count by email
 		if r.email:
 			referrals_dict, accessed_referrals_dict, case_load_dict, last_referral_dict = export_attribute(r.email, emails, referrals_dict, accessed_referrals_dict, case_load_dict, last_referral_dict, r)
-	
+
 	for p in phones:
 		# Write to the Excel file
 		ws.append([p, case_load_dict[p], referrals_dict[p], accessed_referrals_dict[p], last_referral_dict[p]])
