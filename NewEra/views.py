@@ -757,12 +757,11 @@ def export_data(request):
 	ws.column_dimensions[get_column_letter(4)].width = 20
 
 
-	# Export case load data
-
+	# Export referral data by phone
 	ws3 = wb.create_sheet("By Referred Phone")
 	ws = ws3
 
-	# Create Header row
+	# Create header row
 	ws['A1'].font = bold
 	ws['B1'].font = bold
 	ws['C1'].font = bold
@@ -778,45 +777,58 @@ def export_data(request):
 	# Get referrals
 	referrals = Referral.objects.all().order_by('-referral_date')
 
-	# Set to keep track of phones seen
+	# Sets to keep track of phones and emails seen
 	phones = set()
+	emails = set()
 	case_load_dict = dict()
 	referrals_dict = dict()
 	accessed_referrals_dict = dict()
 	last_referral_dict = dict()
 
 	for r in referrals:
-		# Format phone number
-		if (len(r.phone) == 10):
-			phone_number = "(" + r.phone[0:3] + ") " + r.phone[3:6] + "-" + r.phone[6:10]
-		else:
-			phone_number = r.phone[0] + " (" + r.phone[1:4] + ") " + r.phone[4:7] + "-" + r.phone[7:11]
-
-		# Add phone to set
-		if (phone_number not in phones):
-			phones.add(phone_number)
-			referrals_dict[phone_number] = 0
-			accessed_referrals_dict[phone_number] = 0
-
-		# Add the case load user to the dictionary
-		if (r.caseUser):
-			case_load_dict[phone_number] = r.caseUser.get_full_name()
-		else:
-			case_load_user = "-"
-
-		# Add referrals given to this phone number
-		referrals_dict[phone_number] += 1
-
-		if (r.date_accessed):
-			# Add accessed referrals
-			accessed_referrals_dict[phone_number] += 1
-
-		# Get the last referral made
-		last_referral_dict[phone_number] = r.referral_date.strftime('%m-%d-%Y')
-
+		# Organize and count by phone
+		if r.phone:
+			# Format phone number
+			if (len(r.phone) == 10):
+				phone_number = "(" + r.phone[0:3] + ") " + r.phone[3:6] + "-" + r.phone[6:10]
+			else:
+				phone_number = r.phone[0] + " (" + r.phone[1:4] + ") " + r.phone[4:7] + "-" + r.phone[7:11]
+			referrals_dict, accessed_referrals_dict, case_load_dict, last_referral_dict = export_attribute(phone_number, phones, referrals_dict, accessed_referrals_dict, case_load_dict, last_referral_dict, r)
+		# Organize and count by email
+		if r.email:
+			referrals_dict, accessed_referrals_dict, case_load_dict, last_referral_dict = export_attribute(r.email, emails, referrals_dict, accessed_referrals_dict, case_load_dict, last_referral_dict, r)
+	
 	for p in phones:
 		# Write to the Excel file
 		ws.append([p, case_load_dict[p], referrals_dict[p], accessed_referrals_dict[p], last_referral_dict[p]])
+
+	ws.column_dimensions[get_column_letter(1)].width = 30
+	ws.column_dimensions[get_column_letter(2)].width = 20
+	ws.column_dimensions[get_column_letter(3)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+	ws.column_dimensions[get_column_letter(4)].width = 20
+
+
+	# Export referral data by phone
+	ws4 = wb.create_sheet("By Referred Email")
+	ws = ws4
+
+	# Create header row
+	ws['A1'].font = bold
+	ws['B1'].font = bold
+	ws['C1'].font = bold
+	ws['D1'].font = bold
+	ws['E1'].font = bold
+
+	ws['A1'] = "Email"
+	ws['B1'] = "Case Load User"
+	ws['C1'] = "# Referrals"
+	ws['D1'] = "# Accessed Referrals"
+	ws['E1'] = "Date of Last Referral"
+
+	for e in emails:
+		# Write to the Excel file
+		ws.append([e, case_load_dict[e], referrals_dict[e], accessed_referrals_dict[e], last_referral_dict[e]])
 
 	ws.column_dimensions[get_column_letter(1)].width = 30
 	ws.column_dimensions[get_column_letter(2)].width = 20
@@ -830,3 +842,29 @@ def export_data(request):
 	wb.save(response)
 
 	return response
+
+# Helper method to export attributes in a sheet
+def export_attribute(attr, attr_set, referrals_dict, accessed_referrals_dict, case_load_dict, last_referral_dict, r):
+	# Add email to set
+	if (attr not in attr_set):
+		attr_set.add(attr)
+		referrals_dict[attr] = 0
+		accessed_referrals_dict[attr] = 0
+
+	# Add the case load user to the dictionary
+	if (r.caseUser):
+		case_load_dict[attr] = r.caseUser.get_full_name()
+	else:
+		case_load_dict[attr] = "-"
+
+	# Add referrals given to this phone number
+	referrals_dict[attr] += 1
+
+	if (r.date_accessed):
+		# Add accessed referrals
+		accessed_referrals_dict[attr] += 1
+
+	# Get the last referral made
+	last_referral_dict[attr] = r.referral_date.strftime('%m-%d-%Y')
+
+	return referrals_dict, accessed_referrals_dict, case_load_dict, last_referral_dict

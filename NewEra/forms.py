@@ -16,10 +16,12 @@ MAX_UPLOAD_SIZE = 2500000
 # Model Forms
 
 class CaseLoadUserForm(forms.ModelForm):
-	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	nickname = forms.CharField(max_length=100, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	# Email currently is mandatory - need to change that
-	# email = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES), required=False)
+	first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	last_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES), required=False)
+	email = forms.EmailField(max_length=254, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES), required=False)
+	nickname = forms.CharField(max_length=100, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES), required=False)
+	notes = forms.CharField(max_length=1000, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES), required=False)
 
 	class Meta:
 		model = CaseLoadUser
@@ -33,10 +35,6 @@ class CaseLoadUserForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		super(CaseLoadUserForm, self).__init__(*args, **kwargs)
-		self.fields['first_name'].widget.attrs=INPUT_ATTRIBUTES
-		self.fields['last_name'].widget.attrs=INPUT_ATTRIBUTES
-		self.fields['email'].widget.attrs=INPUT_ATTRIBUTES
-		self.fields['notes'].widget.attrs=INPUT_ATTRIBUTES
 		self.fields['is_active'].widget.attrs=INPUT_ATTRIBUTES
 		
 		# https://stackoverflow.com/questions/55994307/exclude-fields-for-django-model-only-on-creation
@@ -54,12 +52,24 @@ class CaseLoadUserForm(forms.ModelForm):
 
 		return cleaned_phone
 
+	# Ensure that for a case load entry, the SOW has inputted values for either the phone or the email, or both
+	def clean(self):
+		# cleaned_data is necessary to get the fields after they've already been cleaned
+		cleaned_data = super().clean()
+		phone = cleaned_data.get('phone')
+		email = cleaned_data.get('email')
+		# Raise an error if neither field is valid
+		if not (phone or email):
+			raise forms.ValidationError('You must input either a phone number or an email address for this user.')
+
+		return cleaned_data
+
 
 # Standard Validation Forms 
 
 class LoginForm(forms.Form):
-	username = forms.CharField(max_length = 50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	password = forms.CharField(max_length = 50, widget=forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
+	username = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
 
 	def clean(self):
 		cleaned_data = super().clean()
@@ -75,12 +85,12 @@ class LoginForm(forms.Form):
 
 
 class RegistrationForm(forms.Form):
-	username   = forms.CharField(max_length = 50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	password  = forms.CharField(max_length = 50, label='Password', widget = forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
-	confirm_password  = forms.CharField(max_length = 50, label='Confirm Password', widget = forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
-	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
-	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	username   = forms.CharField(max_length=150, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	password  = forms.CharField(max_length=50, label='Password', widget=forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
+	confirm_password  = forms.CharField(max_length=50, label='Confirm Password', widget=forms.PasswordInput(attrs=INPUT_ATTRIBUTES))
+	email      = forms.EmailField(max_length=254, widget=forms.EmailInput(attrs=INPUT_ATTRIBUTES))
+	first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	last_name  = forms.CharField(max_length=150, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
 	class Meta:
@@ -118,9 +128,9 @@ class RegistrationForm(forms.Form):
 
 
 class EditUserForm(forms.ModelForm):
-	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
-	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	email      = forms.EmailField(max_length=254, widget=forms.EmailInput(attrs=INPUT_ATTRIBUTES))
+	first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	last_name  = forms.CharField(max_length=150, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	is_active = forms.BooleanField(required=False)
 
@@ -145,9 +155,9 @@ class EditUserForm(forms.ModelForm):
 
 
 class EditSelfUserForm(forms.ModelForm):
-	email      = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES))
-	first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
-	last_name  = forms.CharField(max_length=50, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	email      = forms.EmailField(max_length=254, widget=forms.EmailInput(attrs=INPUT_ATTRIBUTES))
+	first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	last_name  = forms.CharField(max_length=150, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	
 	class Meta:
@@ -175,7 +185,7 @@ class CreateResourceForm(forms.ModelForm):
 	description = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
 	is_active = forms.BooleanField(required=False)
 	hours = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
-	email = forms.EmailField(max_length=254, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	email = forms.EmailField(max_length=254, required=False, widget=forms.EmailInput(attrs=INPUT_ATTRIBUTES))
 	phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	extension = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	street = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
@@ -185,7 +195,7 @@ class CreateResourceForm(forms.ModelForm):
 	state = forms.CharField(max_length=2, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	url = forms.URLField(required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
-	contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	contact_name = forms.CharField(max_length=181, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	contact_position = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	# Assuming fax number is like a phone number
 	fax_number = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
