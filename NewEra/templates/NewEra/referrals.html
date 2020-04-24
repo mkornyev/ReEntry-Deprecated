@@ -16,6 +16,7 @@
     <div class="container">
         <hr/>
         {% if referrals.count > 0 %}
+            <div style="overflow-x: auto">
             <table>
                 <tr>
                     <th>Referral Date</th>
@@ -56,6 +57,7 @@
                     </tr>
                 {% endfor %}
             </table>
+            </div>
         {% else %}
             {% if perms.resource.edit_resource %}
                 <em><p style="margin: auto;">No referrals have been made yet.</p></em>
@@ -64,5 +66,6 @@
             {% endif %}
         {% endif %}
         <br>
+        <p>If you want to create a referral, go to the resources page and start a referral.</p>
     </div>
 {% endblock %}

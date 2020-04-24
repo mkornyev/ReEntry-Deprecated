@@ -43,6 +43,7 @@
         <br>
 
         <h2>Admins:</h2>
+        <div style="overflow-x: auto">
         <table>
             <tr>
                 <th>Username</th>
@@ -71,12 +72,14 @@
             </tr>
             {% endfor %}
         </table>
+        </div>
         
         <br><hr></br>
 
         <h2>SOWs:</h2>
 
         {% if sows.count > 0 %}
+            <div style="overflow-x: auto;">
             <table>
                 <tr>
                     <th>Username</th>
@@ -103,6 +106,7 @@
                 </tr>
                 {% endfor %}
             </table>
+            </div>
             
         {% else %}
             <em><p style="margin: auto;">There are no SOWs in the system.</p></em>

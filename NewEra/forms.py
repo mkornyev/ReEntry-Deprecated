@@ -248,7 +248,7 @@ class CreateResourceForm(forms.ModelForm):
 
 
 class TagForm(forms.ModelForm):
-	name = forms.CharField(max_length=30)
+	name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
 	class Meta:
 		model = Tag
