@@ -43,7 +43,7 @@
             {% if user.is_superuser %}
               <li class="nav-item">
                 {% url 'Manage Users' as manage_users_url %}
-                <a class="nav-link {% if request.path == manage_users_url %}active{% endif %}" href="{{ manage_users_url }}">Manage Users</a>
+                <a class="nav-link {% if request.path == manage_users_url %}active{% endif %}" href="{{ manage_users_url }}">Dashboard</a>
               </li>
             {% endif %}
 

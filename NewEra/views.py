@@ -13,6 +13,8 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect #, JsonRespo
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
@@ -25,27 +27,52 @@ from django.utils import timezone
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
 from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter, EditReferralNotesForm
 
+# CONSTANTS 
+
+RESOURCE_PAGINATION_COUNT = 20
+REFERRAL_PAGINATION_COUNT = 20
+
 # VIEW ACTIONS 
 
 def home(request): 
 	markReferralAsSeen(request)
-	return render(request, 'NewEra/index.html', {})
+	return render(request, 'NewEra/home.html', {})
 
 def resources(request):
 	all_resources = Resource.objects.all()
 
-	context = {
-		'resources': all_resources,
-		'active_resources': all_resources.filter(is_active=True),
-		'inactive_resources': all_resources.filter(is_active=False),
-		'tags': Tag.objects.all()
-	}
+	# context = {
+	# 	'resources': all_resources,
+	# 	'active_resources': all_resources.filter(is_active=True),
+	# 	'inactive_resources': all_resources.filter(is_active=False),
+	# 	'tags': Tag.objects.all()
+	# }
 
-	context['filter'] = ResourceFilter(request.GET, queryset=context['resources'])
+	context = { 'filter': ResourceFilter(request.GET, queryset=all_resources) }
 
 	if request.method == 'GET':
-		context['active_resources'] = context['filter'].qs.filter(is_active=True)
-		context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
+		# SEARCH QUERY
+		query = request.GET.get('query')
+
+		if query:
+			context['active_resources'] = context['filter'].qs.filter( Q(is_active=True) & (Q(name__icontains=query) | Q(description__icontains=query)) )
+			context['inactive_resources'] = context['filter'].qs.filter( Q(is_active=False) & (Q(name__icontains=query) | Q(description__icontains=query)) )
+		else: 
+			context['active_resources'] = context['filter'].qs.filter(is_active=True)
+			context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
+
+		# PAGINATION
+		page = request.GET.get('page', 1)
+		paginator = Paginator(context['active_resources'], RESOURCE_PAGINATION_COUNT)
+		
+		try:
+			activeResources = paginator.page(page)
+		except PageNotAnInteger:
+			activeResources = paginator.page(1)
+		except EmptyPage:
+			activeResources = paginator.page(paginator.num_pages)
+
+		context['active_resources'] = activeResources
 
 	return render(request, 'NewEra/resources.html', context)
 
@@ -54,7 +81,7 @@ def get_resource(request, id):
 	context = { 'resource': resource, 'tags': resource.tags.all() }
 	response = render(request, 'NewEra/get_resource.html', context)
 	
-	# Update clicks
+	# Update the resource clicks
 	if isUniqueVisit(request, response, id):
 		resource.clicks = resource.clicks + 1
 		resource.save()
@@ -86,14 +113,16 @@ def isUniqueVisit(request, response, id):
 	
 	return False 
 
-	
-
 # Function to update the referral given a GET request with a querystring timestamp
 def markReferralAsSeen(request):
 	if 'key' not in request.GET:
 		return 
 
-	keyDate = datetime.strptime(request.GET['key'], '%Y-%m-%d %H:%M:%S.%f')
+	try:
+		keyDate = datetime.strptime(request.GET['key'], '%Y-%m-%d %H:%M:%S.%f')
+	except: 
+		return 
+
 	referrals = Referral.objects.filter(referral_date=keyDate)
 	
 	if referrals.count() == 1:
@@ -210,7 +239,7 @@ def create_referral(request):
 				nameInput = caseload_user.first_name
 			referral = Referral(email=caseload_user.email, phone=caseload_user.phone, notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
-		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and len(phoneInput) == 10: 
+		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and (len(phoneInput) == 10 or len(phoneInput) == 0): 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
 			nameInput = request.POST['name']
@@ -246,6 +275,17 @@ def referrals(request):
 		referrals = Referral.objects.all().order_by('-referral_date')
 	elif (request.user.is_staff):
 		referrals = Referral.objects.all().filter(user=request.user).order_by('-referral_date')
+
+	# PAGINATION
+	page = request.GET.get('page', 1)
+	paginator = Paginator(referrals, REFERRAL_PAGINATION_COUNT)
+	
+	try:
+		referrals = paginator.page(page)
+	except PageNotAnInteger:
+		referrals = paginator.page(1)
+	except EmptyPage:
+		referrals = paginator.page(paginator.num_pages)
 
 	context = {
 		'referrals': referrals
@@ -511,6 +551,15 @@ def deleteImage(request, oldImage):
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImage.name)
 		os.remove(IMAGE_ROOT)
+
+@login_required
+def resetViews(request):
+	if request.method == 'POST':
+		Resource.objects.all().update(clicks=0)
+		messages.success(request, 'Reset all resource views')
+		return redirect(reverse('Manage Users'))
+	return render(request, 'NewEra/reset_view_counts.html', {})
+
 
 # Creates tags
 @login_required

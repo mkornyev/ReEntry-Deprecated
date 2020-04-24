@@ -15,7 +15,7 @@
     </h1>
     <div class="container">
         <hr/>
-        {% if referrals.count > 0 %}
+        {% if referrals.paginator.count > 0 %}
             <div style="overflow-x: auto">
             <table>
                 <tr>
@@ -57,7 +57,42 @@
                     </tr>
                 {% endfor %}
             </table>
+
+            <br>
+            <!-- Referral Pagination -->
+            {% if referrals.has_other_pages %}
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if referrals.has_previous %}
+                <li class="page-item">
+                    <a href="?page={{ referrals.previous_page_number }}" class="page-link" aria-label="Previous">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                {% endif %}
+                {% for i in referrals.paginator.page_range %}
+                    {% if referrals.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if referrals.has_next %}
+                <li class="page-item">
+                    <a href="?page={{ referrals.next_page_number }}" class="page-link" aria-label="Previous">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">Next</span></li>
+                {% endif %}
+            </ul>
+            </nav>
+            {% endif %}
             </div>
+
         {% else %}
             {% if perms.resource.edit_resource %}
                 <em><p style="margin: auto;">No referrals have been made yet.</p></em>
