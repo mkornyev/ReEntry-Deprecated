@@ -16,6 +16,7 @@
     <div class="container">
         <hr/>
         {% if referrals.paginator.count > 0 %}
+            <div style="overflow-x: auto">
             <table>
                 <tr>
                     <th>Referral Date</th>
@@ -90,6 +91,7 @@
             </ul>
             </nav>
             {% endif %}
+            </div>
 
         {% else %}
             {% if perms.resource.edit_resource %}
@@ -99,5 +101,6 @@
             {% endif %}
         {% endif %}
         <br>
+        <p>If you want to create a referral, go to the resources page and start a referral.</p>
     </div>
 {% endblock %}
