@@ -242,8 +242,8 @@ class CreateResourceForm(forms.ModelForm):
 		phone = self.cleaned_data['phone']
 		cleaned_phone = ''.join(digit for digit in phone if digit.isdigit())
 
-		if phone and (len(cleaned_phone) != 10 and not (len(cleaned_phone) == 11 and cleaned_phone[0] == '1')):
-			raise forms.ValidationError('The phone number must be either exactly 10 digits or a 1 followed by 10 digits.')
+		if phone and (len(cleaned_phone) != 10 and not (len(cleaned_phone) == 11 and cleaned_phone[0] == '1') and not (len(cleaned_phone) == 3 and cleaned_phone[1] == '1' and cleaned_phone[2] == '1')):
+			raise forms.ValidationError('The phone number must be either exactly 10 digits, a 1 followed by 10 digits, or an N-1-1 code of 3 digits.')
 
 		return cleaned_phone
 

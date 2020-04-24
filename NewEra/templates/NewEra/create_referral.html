@@ -25,13 +25,13 @@
         <div class="row">
         <h4 class="text-left"><b>Let's finish the referral:</b></h4>
         </div>
-        <br /><br />
+        <br/><br/>
 
         <div class="text-left">
 
             <h4>Referrals</h4>
             <p style="font-size: 1.15em">First, verify that the correct referrals have been selected:</p>
-            <br />
+            <br/>
             {% for r in resources %}
                 <div class="row">
                     <div class="col">
@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 <input type="hidden" name="resources[]" value="{{ r.id }}">
-                <br />
+                <br/>
             {% endfor %}
 
             <h4>Recipient Info</h4>
@@ -71,10 +71,14 @@
                             <label><b class="inline-label">Select User:</b>
                                 <select name="user_id" class="form-control">
                                     {% for r in recipients %}
-                                    <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
+                                        {% if r.user == request.user and r.nickname %}
+                                            <option value="{{ r.id }}">{{ '('|add:r.nickname|add:')'|add:' '|add:r.first_name|add:' '|add:r.last_name }}</option>
+                                        {% else %}
+                                            <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
-                            </label><br>
+                            </label><br/>
 
                             <label>
                                 <b class="inline-label">Select Carrier:</b>
@@ -83,7 +87,7 @@
                                     <option value="{{ c }}">{{ c }}</option>
                                     {% endfor %}
                                 </select>
-                            </label><br>
+                            </label><br/>
 
                             <label><b>Add Notes:</b></label><br>
                             <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
@@ -119,7 +123,7 @@
                                 <option value="{{ c }}">{{ c }}</option>
                                 {% endfor %}
                             </select>
-                        </label><br>
+                        </label><br/>
 
                         <label><b>Email:&nbsp;&nbsp;</b></label>
                         <input type="email" name="email" placeholder="example@email.com" class="form-control">
@@ -132,7 +136,6 @@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 

@@ -30,7 +30,7 @@
                         <label><b>User:</b></label><br>
                         <select name="staff_id">
                             {% for user in staff %}
-                            <option value="{{ user.id }}">{{ user.first_name|add:' '|add:user.last_name }}</option>
+                                <option value="{{ user.id }}">{{ user.first_name|add:' '|add:user.last_name }}</option>
                             {% endfor %}
                         </select>
                     </div><br>
@@ -69,7 +69,7 @@
                     <td>{{ caseload_user.email }}</td>
                     <td>{{ caseload_user.phone }}</td>
                     {% if user.is_superuser %}
-                    <td>{{ caseload_user.user.first_name|add:' '|add:caseload_user.user.last_name }}</td>
+                        <td>{{ caseload_user.user.first_name|add:' '|add:caseload_user.user.last_name }}</td>
                     {% endif %}
                     <td class="button-cell"><a href="{% url 'Show Case Load User' id=caseload_user.id %}" class="btn btn-sm btn-primary"><i class="material-icons">description</i>Details</a></td>
                     <td class="button-cell"><a href="{% url 'Edit Case Load User' id=caseload_user.id %}" class="btn btn-sm btn-warning"><i class="material-icons">edit</i>Edit</a></td>
