@@ -1,22 +1,38 @@
 {% extends "NewEra/base.html" %}
 
+{% block page_specific_styles %}{% endblock %}
+
 {% block title %}{% block navtitle %}
 	Edit Resource
 {% endblock %}{% endblock %}
 
 {% block content %}
-	<h3 style="margin: auto; margin-top: 50px; text-align: center;">
-		{{ action }} Resource
-	</h3>
+<div class="container ">
+    <div class="row">
+        <div class="col">
 
-    <!-- Using "clear" does not actually delete the image from the MEDIA_ROOT -->
-    <style>#image-clear_id { display: none; }</style>
+            <h3 style="margin: auto; margin-top: 50px; text-align: center;">
+                {{ action }} Resource
+            </h3>
 
-    <form method="POST" enctype="multipart/form-data" class="resource-form">
-        {% csrf_token %}
-        <table>
-        	{{ form }}
-        </table>
-        <button class="btn btn-primary" type="submit">Save Resource</button>
-    </form>
+            <!-- Using "clear" does not actually delete the image from the MEDIA_ROOT -->
+            <style>#image-clear_id { display: none; }</style>
+
+            <form method="POST" enctype="multipart/form-data" class="resource-form">
+                {% csrf_token %}
+                <table>
+                    {{ form }}
+                </table>
+                <button class="btn btn-primary" type="submit">Save Resource</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_specific_scripts %}
+<script>
+    $('#image-clear_id').css('display', 'none');
+    $('label[for="image-clear_id"]').css('display', 'none');
+</script>
 {% endblock %}

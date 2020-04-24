@@ -30,8 +30,9 @@ class Command(BaseCommand):
                     phone_extension = ''
 
                 phone_formatted = ''.join(list(filter(str.isdigit, phone_list[0])))
+                fax_formatted = row[6].replace('(', '').replace(')', '').replace(' ', '').replace('-', '')
 
-                r = Resource.objects.create(name=row[0], url=row[2], contact_name=row[3], contact_position=row[4], phone=phone_formatted, extension=phone_extension, fax_number=row[6], contact_email=row[7], email=row[7], street=row[8], city=row[9], state=row[10], zip_code=row[11], street_secondary=row[12], description=row[13])
+                r = Resource.objects.create(name=row[0], url=row[2], contact_name=row[3], contact_position=row[4], phone=phone_formatted, extension=phone_extension, fax_number=fax_formatted, contact_email=row[7], email=row[7], street=row[8], city=row[9], state=row[10], zip_code=row[11], street_secondary=row[12], description=row[13])
                 r.tags.add(tag)
                 r.save()
 

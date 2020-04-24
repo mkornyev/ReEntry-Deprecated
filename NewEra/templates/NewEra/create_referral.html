@@ -11,26 +11,24 @@
 
     <div id="del-confirm" class="modal">
         <div class="container text-center">
-            <h3 class="text-white">Are you sure you want to delete this resource?</h3>
+            <h3 class="text-white">Are you sure you want to remove this resource?</h3>
             <p class="text-white">Note: If this is the last resource, it will redirect you out of this page!</p>
             <div class="clearfix">
                 <button type="button" onclick="cancel()" class="btn btn-light">Cancel</button>
-                <button type="button" onclick="confirmDelete()" class="btn btn-danger">Delete</button>
+                <button type="button" onclick="confirmDelete()" class="btn btn-danger">Remove</button>
             </div>
         </div>
     </div>
 
 
     <div class="container" style="padding-top: 5%; padding-bottom: 5%;">
-        <div class="row">
         <h4 class="text-left"><b>Let's finish the referral:</b></h4>
-        </div>
         <br /><br />
 
         <div class="text-left">
 
             <h4>Referrals</h4>
-            <p style="font-size: 1.15em">First, verify that the correct referrals have been selected:</p>
+            <p style="font-size: 1.15em">First, verify that the correct referrals have been selected. You can delete any if necessary:</p>
             <br />
             {% for r in resources %}
                 <div class="row">
@@ -41,7 +39,7 @@
                             <p class="card-text">{{r.description|truncatewords:35}}</p>
                             <a href="{{r.url}}" class="read-link">{{r.url}}</a>
                             <br><br>
-                            <a id="{{r.id}}-del" href="#!" class="delete-link" onclick="deleteResource({{r.id}})"><b>Delete</b></a>
+                            <a id="{{r.id}}-del" href="#!" class="delete-link" onclick="deleteResource({{r.id}})"><b>Remove</b></a>
                         </div>  
                     </div>
                     </div>
@@ -51,16 +49,16 @@
             {% endfor %}
 
             <h4>Recipient Info</h4>
-            <p style="font-size: 1.15em;">We just need a few more details about the recipient.</p>
+            <p style="font-size: 1.15em;">We just need a few more details about the recipient. Are they in your case load or an out of system referral? Click one:</p>
 
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link active" id="nav-caseload-tab" data-toggle="tab" href="#nav-caseload" role="tab" aria-controls="nav-caseload" aria-selected="true">Select From Caseload</a>
+                    <a class="nav-item nav-link" id="nav-caseload-tab" data-toggle="tab" href="#nav-caseload" role="tab" aria-controls="nav-caseload" aria-selected="true">Select From Caseload</a>
                     <a class="nav-item nav-link" id="nav-new-tab" data-toggle="tab" href="#nav-new" role="tab" aria-controls="nav-new" aria-selected="false">Create an Out of System Referral</a>
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane fade show active" id="nav-caseload" role="tabpanel" aria-labelledby="nav-caseload-tab">
+                <div class="tab-pane fade show" id="nav-caseload" role="tabpanel" aria-labelledby="nav-caseload-tab">
                     <br/>
                     {% if recipients.count > 0 %}
                         <form action="{% url 'Create Referral' %}" method="POST">
@@ -69,7 +67,7 @@
                             {% endfor %}
 
                             <label><b class="inline-label">Select User:</b>
-                                <select name="user_id">
+                                <select name="user_id" class="form-control">
                                     {% for r in recipients %}
                                     <option value="{{ r.id }}">{{ r.first_name|add:' '|add:r.last_name }}</option>
                                     {% endfor %}
@@ -78,7 +76,7 @@
 
                             <label>
                                 <b class="inline-label">Select Carrier:</b>
-                                <select name="carrier">
+                                <select name="carrier" class="form-control">
                                     {% for c in carriers %}
                                     <option value="{{ c }}">{{ c }}</option>
                                     {% endfor %}
@@ -86,7 +84,7 @@
                             </label><br>
 
                             <label><b>Add Notes:</b></label><br>
-                            <textarea type="text" name="notes" class="form-input" placeholder=" Add a notification note..."></textarea><br><br>
+                            <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
                             {% csrf_token %}
                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -105,13 +103,16 @@
                         {% for r in resources %}
                             <input type="hidden" name="resources[]" value="{{ r.id }}">
                         {% endfor %}
+
+                        <label><b>Name:</b></label>
+                        <input type="text" name="name" class="form-control" placeholder="Add name...">
                         
                         <label><b>Phone:</b></label>
-                        <input type="tel" name="phone" placeholder="3152965004" class="form-input" minlength="10" maxlength="10" pattern="[0-9]{10}" required><br>
+                        <input type="tel" name="phone" placeholder="Enter a phone number..." class="form-control" minlength="10" maxlength="10" pattern="[0-9]{10}">
 
                         <label>
                             <b class="inline-label">Select Carrier:</b>
-                            <select name="carrier">
+                            <select name="carrier"  class="form-control">
                                 {% for c in carriers %}
                                 <option value="{{ c }}">{{ c }}</option>
                                 {% endfor %}
@@ -119,10 +120,10 @@
                         </label><br>
 
                         <label><b>Email:&nbsp;&nbsp;</b></label>
-                        <input type="email" name="email" placeholder="email@gmail.com" class="form-input" required><br>
+                        <input type="email" name="email" placeholder="example@email.com" class="form-control">
 
                         <label><b>Add Notes:</b></label><br>
-                        <textarea type="text" name="notes" class="form-input" placeholder=" Add a notification note..."></textarea><br><br>
+                        <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary">Submit</button>

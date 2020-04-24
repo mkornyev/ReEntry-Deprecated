@@ -6,28 +6,30 @@ from django.db import models
 import re # Regex matching
 import django_filters
 
-from NewEra.models import User, CaseLoadUser, Resource, Tag
+from NewEra.models import User, CaseLoadUser, Resource, Tag, Referral
 # Help from: https://chase-seibert.github.io/blog/2010/05/20/django-manytomanyfield-on-modelform-as-checkbox-widget.html
 from django.forms.widgets import CheckboxSelectMultiple
 
-# INPUT_ATTRIBUTES = {'style' : 'border: 1px solid gray; border-radius: 5px;'}
-INPUT_ATTRIBUTES = {'class' : 'form-input'}
-STYLE_ATTR = {'class' : 'form-control'}
+INPUT_ATTRIBUTES = {'class' : 'form-control'}
 MAX_UPLOAD_SIZE = 2500000
 
 # Model Forms
 
 class CaseLoadUserForm(forms.ModelForm):
 	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	nickname = forms.CharField(max_length=100, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	# Email currently is mandatory - need to change that
 	# email = forms.CharField(max_length=50, widget = forms.EmailInput(attrs=INPUT_ATTRIBUTES), required=False)
 
 	class Meta:
 		model = CaseLoadUser
-		fields = ['first_name', 'last_name', 'email', 'phone', 'notes', 'is_active', 'user']
+		fields = ['first_name', 'last_name', 'nickname', 'email', 'phone', 'notes', 'is_active', 'user']
 		exclude = (
 			'user',
 		)
+		widgets = {
+            'notes': forms.Textarea(attrs={'cols': 120, 'rows': 30}),
+        }
 
 	def __init__(self, *args, **kwargs):
 		super(CaseLoadUserForm, self).__init__(*args, **kwargs)
@@ -169,26 +171,26 @@ class EditSelfUserForm(forms.ModelForm):
 
 
 class CreateResourceForm(forms.ModelForm):
-	name = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs=STYLE_ATTR))
-	description = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=STYLE_ATTR))
+	name = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	description = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
 	is_active = forms.BooleanField(required=False)
-	hours = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=STYLE_ATTR))
-	email = forms.EmailField(max_length=254, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	extension = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	street = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	street_secondary = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	city = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	zip_code = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	state = forms.CharField(max_length=2, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	url = forms.URLField(required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	hours = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
+	email = forms.EmailField(max_length=254, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	extension = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	street = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	street_secondary = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	city = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	zip_code = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	state = forms.CharField(max_length=2, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	url = forms.URLField(required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
-	contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
-	contact_position = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	contact_position = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	# Assuming fax number is like a phone number
-	fax_number = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	fax_number = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	# This may or may not be different from the organizational email
-	contact_email = forms.EmailField(max_length=254, required=False, widget=forms.TextInput(attrs=STYLE_ATTR))
+	contact_email = forms.EmailField(max_length=254, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
 	class Meta:
 		model = Resource
@@ -246,7 +248,7 @@ class CreateResourceForm(forms.ModelForm):
 
 
 class TagForm(forms.ModelForm):
-	name = forms.CharField(max_length=20)
+	name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
 	class Meta:
 		model = Tag
@@ -260,3 +262,12 @@ class ResourceFilter(django_filters.FilterSet):
 	class Meta:
 		model = Resource
 		fields = ('tags',)
+
+
+# Form only used to edit notes
+class EditReferralNotesForm(forms.ModelForm):
+	notes = forms.CharField(max_length=1000, required=False, widget=forms.Textarea(attrs=INPUT_ATTRIBUTES))
+
+	class Meta:
+		model = Referral
+		fields = ('notes',)

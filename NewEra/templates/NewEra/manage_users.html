@@ -10,33 +10,40 @@
 {% endblock %}
 
 {% block content %}
-    <div style="width: 80%; margin: auto; padding-top: 10vh;">
-        <div class="">
-            <h1>User Management:</h1>
+    <h1 style="margin: auto; margin-top: 50px; text-align: center;">
+        Manage Users
+    </h1>
 
-            <!-- {% if form.errors %}
-                <div>{{ form.errors }}</div>
-            {% endif %} -->
+    <div class="container">
+        
+        <hr>
+        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#collapseUser" aria-expanded="false" aria-controls="collapseUser"><i class="material-icons">person_add</i>Create New User</button>
+        <br>
 
-            <form method="POST" action="{% url 'Manage Users' %}">
-                <table>
-                    {{form}}
-                </table>
+        <div class="collapse {{ modalStatus }}" id="collapseUser">
+            <br>
+            <div class="card card-body">
+                <form method="POST" action="{% url 'Manage Users' %}">
+                    <table>
+                        {{form}}
+                    </table>
 
-                <label><b>User Type:</b></label><br>
-            
-                <input type="radio" id="sow" name="user_type" value="sow" checked="checked">
-                <label for="sow">SOW</label><br>
-                <input type="radio" id="admin" name="user_type" value="admin">
-                <label for="admin">Admin</label><br>
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary"><i class="material-icons">person_add</i>Create User</button>
-            </form>
+                    <label><b>User Type:</b></label><br>
+                
+                    <input type="radio" id="sow" name="user_type" value="sow" checked="checked">
+                    <label for="sow">SOW</label><br>
+                    <input type="radio" id="admin" name="user_type" value="admin">
+                    <label for="admin">Admin</label><br>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary"><i class="material-icons">person_add</i>Submit</button>
+                </form>
+            </div>
         </div>
 
-        <br><hr></br>
+        <br>
 
         <h2>Admins:</h2>
+        <div style="overflow-x: auto">
         <table>
             <tr>
                 <th>Username</th>
@@ -58,19 +65,21 @@
                 {% else %}
                 <td>&#10060;</td>
                 {% endif %}
-                <td><a href="{% url 'Edit User' id=admin.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
+                <td class="button-cell"><a href="{% url 'Edit User' id=admin.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
                 {% if admin.id != user.id %}
-                    <td><a href="{% url 'Delete User' id=admin.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
+                <td class="button-cell"><a href="{% url 'Delete User' id=admin.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
                 {% endif %}
             </tr>
             {% endfor %}
         </table>
+        </div>
         
         <br><hr></br>
 
         <h2>SOWs:</h2>
 
         {% if sows.count > 0 %}
+            <div style="overflow-x: auto;">
             <table>
                 <tr>
                     <th>Username</th>
@@ -92,11 +101,12 @@
                     {% else %}
                     <td>&#10060;</td>
                     {% endif %}
-                    <td><a href="{% url 'Edit User' id=sow.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
-                    <td><a href="{% url 'Delete User' id=sow.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
+                    <td class="button-cell"><a href="{% url 'Edit User' id=sow.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
+                    <td class="button-cell"><a href="{% url 'Delete User' id=sow.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
                 </tr>
                 {% endfor %}
             </table>
+            </div>
             
         {% else %}
             <em><p style="margin: auto;">There are no SOWs in the system.</p></em>

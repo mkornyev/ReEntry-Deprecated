@@ -7,7 +7,12 @@
 {% block content %}
     <div style="width: 80%; margin: auto; padding-top: 10vh;">
         <div class="">
-            <h1>{{ case_load_user.get_full_name }}</h1>
+
+            {% if case_load_user.nickname %}
+                <h1>{{ case_load_user.get_full_name }} ({{ case_load_user.nickname }})</h1>
+            {% else %}
+                <h1>{{ case_load_user.get_full_name }}</h1>
+            {% endif %}
 
             {% if perms.case_load_user.edit_case_load_user %}
                 {% if case_load_user.is_active %}

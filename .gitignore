@@ -9,3 +9,4 @@ NewEra/user_uploads/*
 NewEra/__pycache__
 ReEntryApp/__pycache__
 NewEra/migrations/__pycache__
+newera_dev/*

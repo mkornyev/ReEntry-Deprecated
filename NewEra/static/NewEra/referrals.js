@@ -1,8 +1,9 @@
 var stagedDeleteId = null;
 
 $(document).ready(function() {
-    $('#make-referral').attr('state', 'off')
-    $('#make-referral').click(toggleSelect)
+    $('#make-referral').attr('state', 'off');
+    $('#make-referral').click(toggleSelect);
+    $('#referral-ins').css('display', 'none');
 });
 
 cancel = () => {
@@ -57,7 +58,10 @@ function toggleSelect () {
 
         $(this).html('Cancel')
         $(this).attr('state', 'on')
-        $('#commit-referral').css('display', 'block')
+        $('#commit-referral').css('display', 'block');
+        let refCount = 0;
+        document.getElementById("commit-referral").innerHTML = "Select Resources " + "(" + refCount + ")"
+        $('#referral-ins').css('display', 'block')
     } else if ($(this).attr('state') === 'on') {
         $('.resource-card').each(function() {
             $(this).unbind('click')
@@ -71,6 +75,7 @@ function toggleSelect () {
         $(this).html('Make Referral')
         $(this).attr('state', 'off')
         $('#commit-referral').css('display', 'none')
+        $('#referral-ins').css('display', 'none')
     }
 }
 
@@ -91,51 +96,28 @@ function toggleItem(event) {
         $(this).attr('state','out');
         $(this).addClass("border-0");
         $(this).removeClass("border-success");
+        $(this).removeClass("border-3");
         stagedResources = stagedResources.filter((inId) => inId != id);
 
     } else if (state === 'out') {
         $(this).attr('state','in');
         $(this).removeClass("border-0");
+        $(this).addClass("border-3")
         $(this).addClass("border-success");
 
         stagedResources.push(id);
 
     }
 
+    let refCount = stagedResources.length
+    document.getElementById("commit-referral").innerHTML = "Select Resources " + "(" + refCount + ")"
+
     localStorage.stagedResources = JSON.stringify(stagedResources);
 }
-
-// Func to get login token from cookie
-// function getCSRFToken() {
-//     var cookies = document.cookie.split(";");
-//     for (var i = 0; i < cookies.length; i++) {
-//         c = cookies[i].trim();
-//         if (c.startsWith("csrftoken=")) {
-//             return c.substring("csrftoken=".length, c.length);
-//         }
-//     }
-//     return "unknown";
-// }
 
 function commitReferrals() {
     stagedResources = window.localStorage.stagedResources
     if (stagedResources === "[]") return; 
 
     document.location.href = '/create_referral?resources=' + stagedResources;
-
-    // var req = new XMLHttpRequest();
-    // req.onreadystatechange = function() {
-    //     if (req.readyState != 4) return
-    //     if (req.status != 200) return
-    //     var response = JSON.parse(req.responseText)
-    //     if (response['error'] != null) {
-    //         // displayError(response.error);
-    //         alert('Error when sending axaj')
-    //     } else {
-    //         document.location.href = response['redirect'];
-    //     }
-    // }
-    // req.open("POST", "/stage_referrals/", true);
-    // req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    // req.send("payload=" + JSON.stringify(stagedResources) + "&csrfmiddlewaretoken="+getCSRFToken());
 }

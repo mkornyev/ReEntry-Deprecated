@@ -23,7 +23,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
-from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter
+from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter, EditReferralNotesForm
 
 # VIEW ACTIONS 
 
@@ -136,6 +136,7 @@ def login(request):
 							password=form.cleaned_data['password'])
 
 	auth_login(request, user)
+	messages.success(request, 'Logged in as {} {}.'.format(user.first_name, user.last_name))
 	return redirect(reverse('Home'))
 
 @login_required
@@ -170,7 +171,7 @@ def create_resource(request):
 			form.save()
 			resource.save()
 
-			messages.success(request, 'Form submission successful')
+			messages.success(request, 'Resource successfully created.')
 
 			return redirect('Resources')
 	else:
@@ -180,19 +181,20 @@ def create_resource(request):
 
 # SOW Actions 
 
+@login_required
 def create_referral(request):
 	resources = request.GET.get('resources', None)	
+	recipients = [] 
+	carriers = list(SMS_CARRIERS.keys())
+	
+	if request.user.is_superuser: 
+		recipients = CaseLoadUser.objects.filter(is_active=True).all()
+	elif request.user.is_staff: 
+		recipients = CaseLoadUser.objects.filter(is_active=True).filter(user=request.user)
 
 	if request.method == 'GET' and resources:
 		resources = [digit.strip() for digit in ast.literal_eval(resources)] # Safely parse array
 		resources = [ get_object_or_404(Resource, id=resourceId) for resourceId in resources ]
-
-		recipients = [] 
-		carriers = list(SMS_CARRIERS.keys())
-		if request.user.is_superuser: 
-			recipients = CaseLoadUser.objects.filter(is_active=True).all()
-		elif request.user.is_staff: 
-			recipients = recipients = CaseLoadUser.objects.filter(is_active=True).filter(user=request.user)
 
 		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
 
@@ -202,16 +204,20 @@ def create_referral(request):
 		if 'resources[]' in request.POST and 'user_id' in request.POST and 'carrier' in request.POST and 'notes' in request.POST: 
 			caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
+			if caseload_user.nickname:
+				nameInput = caseload_user.nickname
+			else:
+				nameInput = caseload_user.first_name
 			referral = Referral(email=caseload_user.email, phone=caseload_user.phone, notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
 		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and len(phoneInput) == 10: 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
+			nameInput = request.POST['name']
 			
 		else: 
-			# REQUIRES "MESSAGE" IN TEMPLATE 
-			msg = 'Please fill out all fields.'
-			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers, 'message': msg })
+			messages.error(request, 'Please fill out all fields.')
+			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
 		
 		referral.save()
 
@@ -225,11 +231,14 @@ def create_referral(request):
 			raise Http404
 		
 		referralTimeStamp = str(referral.referral_date)
-		referral.sendEmail(referralTimeStamp)
-		referral.sendSMS(carrier, referralTimeStamp)
+		referral.sendEmail(referralTimeStamp, nameInput)
+		referral.sendSMS(carrier, referralTimeStamp, nameInput)
+
+	messages.success(request, 'Successfully created a new referral.')
 
 	return redirect(reverse('Resources'))
 
+@login_required
 def referrals(request):
 	if (request.user.is_superuser):
 		# https://stackoverflow.com/questions/4236226/ordering-a-django-queryset-by-a-datetimes-month-day
@@ -244,11 +253,30 @@ def referrals(request):
 
 	return render(request, 'NewEra/referrals.html', context)
 
+@login_required
 def get_referral(request, id):
 	referral = get_object_or_404(Referral, id=id)
 	context = { 'referral': referral, 'resources': Resource.objects.all().filter(referrals=referral) }
 	return render(request, 'NewEra/get_referral.html', context)
 
+def edit_referral_notes(request, id):
+	referral = get_object_or_404(Referral, id=id)
+
+	if request.method == "POST":
+		form = EditReferralNotesForm(request.POST, instance=referral)
+    
+		if form.is_valid():
+
+			form.save()
+			referral.save()
+
+			messages.success(request, 'Referral notes updated.')
+			return redirect('Show Referral', id=referral.id)
+	else:
+		form = EditReferralNotesForm(instance=referral)
+	return render(request, 'NewEra/edit_referral_notes.html', {'form': form, 'referral': referral, 'action': 'Edit'})
+
+@login_required
 def case_load(request):
 	users = [] 
 	context = {} 
@@ -269,20 +297,25 @@ def case_load(request):
 
 		if not form.is_valid():
 			context['form'] = form 
+			context['caseload_users'] = users
+			context['modalStatus'] = 'show'
 			return render(request, 'NewEra/case_load.html', context)
 
 		form.save()
 		load_user.save() 
+		messages.success(request, 'Successfully added {} {} to the CaseLoad.'.format(load_user.first_name, load_user.last_name))
 
 	context['caseload_users'] = users
 	context['form'] = CaseLoadUserForm()
 	return render(request, 'NewEra/case_load.html', context)
 
+@login_required
 def get_case_load_user(request, id):
 	case_load_user = get_object_or_404(CaseLoadUser, id=id)
 	context = { 'case_load_user': case_load_user }
 	return render(request, 'NewEra/get_case_load_user.html', context)
 
+@login_required
 def edit_case_load_user(request, id):
 	case_load_user = get_object_or_404(CaseLoadUser, id=id)
 
@@ -294,29 +327,32 @@ def edit_case_load_user(request, id):
 			form.save()
 			case_load_user.save()
 
+			messages.success(request, '{} successfully edited.'.format(case_load_user.get_full_name()))
 			return redirect('Show Case Load User', id=case_load_user.id)
 	else:
 		form = CaseLoadUserForm(instance=case_load_user)
 	return render(request, 'NewEra/edit_case_load_user.html', {'form': form, 'case_load_user': case_load_user, 'action': 'Edit'})
 
+@login_required
 def delete_case_load_user(request, id):
 	case_load_user = get_object_or_404(CaseLoadUser, id=id)
 
 	if request.method == 'POST':
 		if (case_load_user.get_referrals().count() == 0):
 			case_load_user.delete()
-			messages.success(request, 'Case Load User successfully deleted.')
+			messages.success(request, '{} successfully deleted.'.format(case_load_user.get_full_name()))
 			return redirect('Case Load')
 		else:
 			case_load_user.is_active = False
 			case_load_user.save()
-			messages.success(request, 'case_load_user.get_full_name was made inactive.')
+			messages.success(request, '{} was made inactive.'.format(case_load_user.get_full_name()))
 			return redirect('Show Case Load User', id=case_load_user.id)
 	return render(request, 'NewEra/delete_case_load_user.html', {'case_load_user': case_load_user})
 
 
 # ADMIN actions 
 
+@login_required
 def manage_users(request): 
 	if not request.user.is_superuser:
 		raise Http404
@@ -330,6 +366,7 @@ def manage_users(request):
 		context['form'] = form
 
 		if not form.is_valid():
+			context['modalStatus'] = 'show'
 			return render(request, 'NewEra/manage_users.html', context)
 
 		user = User.objects.create_user(username=form.cleaned_data['username'], 
@@ -346,10 +383,12 @@ def manage_users(request):
 			user.is_superuser = True
 
 		user.save()
+		messages.success(request, 'Added a new user to the system.')
 	
 	context['form'] = RegistrationForm()
 	return render(request, 'NewEra/manage_users.html', context)
 
+@login_required
 def edit_user(request, id):
 	user = get_object_or_404(User, id=id)
 
@@ -364,6 +403,7 @@ def edit_user(request, id):
 			form.save()
 			user.save()
 
+			messages.success(request, '{} successfully edited.'.format(str(user)))
 			return redirect('Manage Users')
 	else:
 		if user == request.user:
@@ -372,6 +412,7 @@ def edit_user(request, id):
 			form = EditUserForm(instance=user)
 	return render(request, 'NewEra/edit_user.html', {'form': form, 'user': user, 'action': 'Edit'})
 
+@login_required
 def delete_user(request, id):
 	user = get_object_or_404(User, id=id)
 
@@ -383,10 +424,11 @@ def delete_user(request, id):
 		else:
 			user.is_active = False
 			user.save()
-			messages.success(request, 'user.get_full_name was made inactive.')
+			messages.success(request, '{} was made inactive.'.format(user.get_full_name()))
 			return redirect('Manage Users')
 	return render(request, 'NewEra/delete_user.html', {'user': user})
 
+@login_required
 def create_resource(request):
 	context = {}
 	form = CreateResourceForm()
@@ -415,6 +457,7 @@ def create_resource(request):
 
 	return render(request, 'NewEra/edit_resource.html', context)
 
+@login_required
 def edit_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
 	oldImage = resource.image
@@ -431,48 +474,53 @@ def edit_resource(request, id):
 				try: 
 					# Edge case where revalidated file is a FieldFile type (and not an Image)
 					resource.content_type = form.cleaned_data['image'].content_type
-					deleteImage(oldImage)
+					deleteImage(request, oldImage)
 				except: 
 					pass
 
 			form.save()
 			resource.save()
 
+			messages.success(request, '{} successfully edited.'.format(resource.name))
 			return redirect('Show Resource', id=resource.id)
 	else:
 		form = CreateResourceForm(instance=resource)
 	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource, 'action': 'Edit'})
 
+@login_required
 def delete_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
 
 	if request.method == 'POST':
 		if (resource.referrals.count() == 0):
-			deleteImage(resource.image)
+			deleteImage(request, resource.image)
 			resource.delete()
-			messages.success(request, 'Resource successfully deleted.')
+			messages.success(request, '{} successfully deleted.'.format(resource.name))
 			return redirect('Resources')
 		else:
 			resource.is_active = False
 			resource.save()
-			messages.success(request, 'Resource was made inactive.')
+			messages.success(request, '{} was made inactive.'.format(resource.name))
 			return redirect('Show Resource', id=resource.id)
 	return render(request, 'NewEra/delete_resource.html', {'resource': resource})
 
 # Deletes the given image if it exists
-def deleteImage(oldImage):
+@login_required
+def deleteImage(request, oldImage):
 	if oldImage: 
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImage.name)
 		os.remove(IMAGE_ROOT)
 
 # Creates tags
+@login_required
 def tags(request):
 	context = {
 		'tags': Tag.objects.all()
 	}
 	return render(request, 'NewEra/tags.html', context)
 
+@login_required
 def create_tag(request):
 	context = {}
 	form = TagForm()
@@ -495,6 +543,7 @@ def create_tag(request):
 
 	return render(request, 'NewEra/edit_tag.html', context)
 
+@login_required
 def edit_tag(request, id):
 	tag = get_object_or_404(Tag, id=id)
 
@@ -505,21 +554,24 @@ def edit_tag(request, id):
 			form.save()
 			tag.save()
 
+			messages.success(request, '{} successfully edited.'.format(tag.name))
 			return redirect('Tags')
 	else:
 		form = TagForm(instance=tag)
 	return render(request, 'NewEra/edit_tag.html', {'form': form, 'tag': tag, 'action': 'Edit'})
 
+@login_required
 def delete_tag(request, id):
 	tag = get_object_or_404(Tag, id=id)
 
 	if request.method == 'POST':
 		tag.delete()
-		messages.success(request, 'Tag successfully deleted.')
+		messages.success(request, '{} successfully deleted.'.format(tag.name))
 		return redirect('Tags')
 
 	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
 
+@login_required
 def export_data(request):
 	# Get resources
 	resources = Resource.objects.all().filter(is_active=True)

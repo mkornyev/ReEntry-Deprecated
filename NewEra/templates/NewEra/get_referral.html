@@ -11,10 +11,18 @@
 
             <h3>SOW</h3>
             <p>{{ referral.user }}</p>
+            <p></p>
 
-            {% if caseUser %}
+            {% if referral.caseUser %}
                 <h3>Case Load User</h3>
-                <p><!--a href="{% url 'Show Case Load User' id=caseUser.id %}"-->{{ referral.caseUser }}<!--/a--></p>
+                {% if referral.caseUser.nickname %}
+                    {{ referral.caseUser.get_full_name }} ({{ referral.caseUser.nickname }})
+                {% else %}
+                    {{ referral.caseUser.get_full_name }}
+                {% endif %}
+                </p>
+                <a class="read-link" href="{% url 'Show Case Load User' id=referral.caseUser.id %}"><b>Read More</b></a>
+                <br/><br/>
             {% endif %}
 
             <h3>Phone</h3>

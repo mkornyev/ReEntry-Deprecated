@@ -60,8 +60,8 @@
                         <h3 style="margin: auto;">
                             Hours of Operation
                         </h3>
-                        {% if resource.start_date != None  %}
-                            <p>{{ resource.start_date }} - {{ resource.end_date }}</p>
+                        {% if resource.hours  %}
+                            <p>{{ resource.hours }}</p>
                         {% else %}
                             <p>N/A</p>
                         {% endif %}
