@@ -29,7 +29,7 @@ from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUser
 
 # CONSTANTS 
 
-RESOURCE_PAGINATION_COUNT = 4
+RESOURCE_PAGINATION_COUNT = 20
 REFERRAL_PAGINATION_COUNT = 20
 
 # VIEW ACTIONS 

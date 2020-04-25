@@ -31,7 +31,7 @@
             <h3>Email</h3>
             <p>{{ referral.email }}</p>
 
-            <h3>Notes</h3>
+            <h3>Notes <a href="{% url 'Edit Referral Notes' id=referral.id %}" class="btn btn-sm btn-warning">Edit Notes</a></h3>
             <p>{{ referral.notes }}</p>
             
             <h3>Date Created:</h3>
