@@ -11,12 +11,14 @@
 
     <!-- Using "clear" does not actually delete the image from the MEDIA_ROOT -->
     <style>#image-clear_id { display: none; }</style>
-
-    <form method="POST" enctype="multipart/form-data" class="resource-form">
-        {% csrf_token %}
-        <table>
-        	{{ form }}
-        </table>
-        <button class="btn btn-primary" type="submit">Save Tag</button>
-    </form>
+    <div class="container">
+        <form method="POST" enctype="multipart/form-data" class="resource-form">
+            {% csrf_token %}
+            <table>
+            	{{ form }}
+            </table>
+            <br>
+            <button class="btn btn-primary" type="submit">Save Tag</button>
+        </form>
+    </div>
 {% endblock %}

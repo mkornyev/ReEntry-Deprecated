@@ -142,3 +142,7 @@ a:hover {
      width: 100%;
   }
 }
+
+.border-3 {
+    border-width: 3px !important;
+}
