@@ -58,7 +58,7 @@
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane fade show" id="nav-caseload" role="tabpanel" aria-labelledby="nav-caseload-tab">
+                <div id="nav-caseload" class="tab-pane fade show" role="tabpanel" aria-labelledby="nav-caseload-tab">
                     <br/>
                     {% if recipients.count > 0 %}
                         <form action="{% url 'Create Referral' %}" method="POST">
@@ -97,18 +97,19 @@
                         {% endif %}
                     {% endif %}
                 </div>
-                <div class="tab-pane fade" id="nav-new" role="tabpanel" aria-labelledby="nav-new-tab">
+
+                <div id="nav-new" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-new-tab">
                     <br/>
-                    <form action="{% url 'Create Referral' %}" method="POST">
+                    <form id="outOfSystemForm" action="{% url 'Create Referral' %}" method="POST">
                         {% for r in resources %}
                             <input type="hidden" name="resources[]" value="{{ r.id }}">
                         {% endfor %}
 
                         <label><b>Name:</b></label>
-                        <input type="text" name="name" class="form-control" placeholder="Add name...">
+                        <input type="text" name="name" class="form-control" placeholder="Enter a name...">
                         
                         <label><b>Phone:</b></label>
-                        <input type="tel" name="phone" placeholder="Enter a phone number..." class="form-control" minlength="10" maxlength="10" pattern="[0-9]{10}">
+                        <input id="outOfSystemPhone" type="tel" name="phone" placeholder="Enter a phone number..." class="form-control" minlength="10" maxlength="10" pattern="[0-9]{10}">
 
                         <label>
                             <b class="inline-label">Select Carrier:</b>
@@ -120,13 +121,13 @@
                         </label><br>
 
                         <label><b>Email:&nbsp;&nbsp;</b></label>
-                        <input type="email" name="email" placeholder="example@email.com" class="form-control">
+                        <input id="outOfSystemEmail" type="email" name="email" placeholder="Enter an email..." class="form-control">
 
                         <label><b>Add Notes:</b></label><br>
                         <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button onsubmit="return validateOutOfSystemForm();" type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
             </div>
@@ -136,6 +137,7 @@
 
 {% endblock %}
 {% block page_specific_scripts %}
+
 {% if user.is_staff %}{%load static %}
 <script src="{% static 'NewEra/referrals.js' %}" type="text/javascript"></script>
 {% endif %}

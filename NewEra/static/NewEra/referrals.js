@@ -1,9 +1,28 @@
+// THIS FILE IS LINKED FROM THE FOLLOWING LOCATIONS: 
+// resources.html
+// create_referral.html
+
 var stagedDeleteId = null;
 
 $(document).ready(function() {
+    # 
     $('#make-referral').attr('state', 'off');
     $('#make-referral').click(toggleSelect);
     $('#referral-ins').css('display', 'none');
+
+    // Validation to require ONE of: { phone, email }
+    $('#outOfSystemForm').on('submit', function(e){
+        var phone = $('#outOfSystemPhone').val()
+        var email = $('#outOfSystemEmail').val()
+
+        if( (phone == null || phone == '') && (email == null || email == '') ){ 
+            alert("Please enter a phone number or email.")
+            e.preventDefault()
+            return false 
+        }
+
+        return true 
+    })
 });
 
 cancel = () => {

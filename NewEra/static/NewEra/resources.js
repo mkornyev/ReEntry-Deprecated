@@ -1,3 +1,7 @@
+// THIS FILE IS LINKED FROM THE FOLLOWING LOCATIONS: 
+// resources.html
+
+
 // -------- FILTER ACTION --------
 
 // Uncheck all filters
