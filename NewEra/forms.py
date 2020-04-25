@@ -227,7 +227,7 @@ class CreateResourceForm(forms.ModelForm):
 		image = self.cleaned_data['image']
 
 		if image:
-			if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
+			if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif', '.pdf')):
 				raise forms.ValidationError('File type is not image')
 
 			try:
