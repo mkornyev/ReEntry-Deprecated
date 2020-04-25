@@ -183,6 +183,7 @@ class CreateResourceForm(forms.ModelForm):
 	city = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	zip_code = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 	state = forms.CharField(max_length=2, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
+	image = forms.FileField(label=('Image'),required=False, widget=forms.FileInput)
 	url = forms.URLField(required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))
 
 	contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES))

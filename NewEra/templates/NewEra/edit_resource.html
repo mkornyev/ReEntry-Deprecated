@@ -16,7 +16,7 @@
             </h3>
 
             <!-- Using "clear" does not actually delete the image from the MEDIA_ROOT -->
-            <style>#image-clear_id { display: none; }</style>
+            
 
             <form method="POST" enctype="multipart/form-data" class="resource-form">
                 {% csrf_token %}
@@ -25,14 +25,11 @@
                 </table>
                 <button class="btn btn-primary" type="submit">Save Resource</button>
             </form>
+            <br><br>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block page_specific_scripts %}
-<script>
-    $('#image-clear_id').css('display', 'none');
-    $('label[for="image-clear_id"]').css('display', 'none');
-</script>
 {% endblock %}
