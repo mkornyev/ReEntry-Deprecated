@@ -56,8 +56,8 @@ class User(AbstractUser):
 # Model for individuals on the case load
 class CaseLoadUser(models.Model):
 	# Attributes
-	first_name = models.CharField(max_length=35, blank=False, null=False)
-	last_name = models.CharField(max_length=35, blank=False, null=False)
+	first_name = models.CharField(max_length=30, blank=False, null=False)
+	last_name = models.CharField(max_length=150, blank=False, null=False)
 	nickname = models.CharField(max_length=100, default='')
 	# https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
 	email = models.EmailField(max_length=254)
@@ -193,7 +193,7 @@ class Resource(models.Model):
 	clicks = models.IntegerField(default=0)
 	is_active = models.BooleanField(default=True)
 
-	contact_name = models.CharField(max_length=100)
+	contact_name = models.CharField(max_length=181)
 	contact_position = models.CharField(max_length=100)
 	# Assuming fax number is like a phone number
 	fax_number = models.CharField(max_length=10)

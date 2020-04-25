@@ -19,23 +19,23 @@
 	{% if tags.count > 0 %}
 		<div class="container">
 			<div class="row">
-			{% for t in tags %}
-				<div class="col-sm-4 mb-3">
-					<div class="card border-0 shadow">
-                      <div class="card-body">
-						<h4 class="card-title">{{ t.name }}</h4>
-						<span>
-								{% if perms.tag.edit_tag %}
-									<a href="{% url 'Edit Tag' t.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
-								{% endif %}
-								{% if perms.tag.delete_tag %}
-							        <a href="{% url 'Delete Tag' t.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a>
-							    {% endif %}
-						</span>
-                      </div>
+				{% for t in tags %}
+					<div class="col-sm-4 mb-3">
+						<div class="card border-0 shadow">
+			                <div class="card-body">
+								<h4 class="card-title">{{ t.name }}</h4>
+								<span>
+									{% if perms.tag.edit_tag %}
+										<a href="{% url 'Edit Tag' t.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
+									{% endif %}
+									{% if perms.tag.delete_tag %}
+								        <a href="{% url 'Delete Tag' t.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a>
+								    {% endif %}
+								</span>
+			               	</div>
+						</div>
 					</div>
-				</div>
-			{% endfor %}
+				{% endfor %}
 			</div>
 		</div>
 
