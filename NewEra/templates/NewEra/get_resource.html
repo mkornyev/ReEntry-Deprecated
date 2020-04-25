@@ -47,19 +47,25 @@
                             <h3>Contact</h3>
                         {% endif %}
                         {% if resource.url %}
-                            <p><a href="{{resource.url}}" class="read-link"><i class="material-icons">link</i>{{ resource.url }}</a></p>
+                            <p><a href="{{resource.url}}" class="read-link"><i class="material-icons">link</i>&nbsp;&nbsp;{{ resource.url }}</a></p>
                         {% endif %}
 
                         {% if resource.phone and resource.extension %}
-                            <p><a href="tel:{{resource.phone}}p{{resource.extension}}" class="read-link"><i class="material-icons">phone</i>{{ resource.phone }}x{{resource.extension}}</a></p>
+                            <p><a href="tel:{{resource.phone}}p{{resource.extension}}" class="read-link"><i class="material-icons">phone</i>&nbsp;&nbsp;{{ resource.phone }}x{{resource.extension}}</a></p>
                         {% else %}
                             {% if resource.phone %}
-                                <p><a href="tel:{{resource.phone}}" class="read-link"><i class="material-icons">phone</i>{{ resource.phone }}</a></p>
+                                <p><a href="tel:{{resource.phone}}" class="read-link"><i class="material-icons">phone</i>&nbsp;&nbsp;{{ resource.phone }}</a></p>
                             {% endif %}
                         {% endif %}
 
                         {% if resource.email %}
-                            <p><a href="mailto:{{resource.email}}" class="read-link"><i class="material-icons">email</i>{{ resource.email }}</a></p>
+                            <p><a href="mailto:{{resource.email}}" class="read-link"><i class="material-icons">email</i>&nbsp;&nbsp;{{ resource.email }}</a></p>
+                        {% endif %}
+
+                        {% if resource.fax_number %}
+                            <p><a href="tel:{{resource.phone}}" class="read-link"><i class="material-icons">print</i>&nbsp;&nbsp;{{ resource.fax_number }}</a></p>
+                        {% else %}
+                            <p>&nbsp;</p>
                         {% endif %}
 
                         {% if resource.contact_name %}
