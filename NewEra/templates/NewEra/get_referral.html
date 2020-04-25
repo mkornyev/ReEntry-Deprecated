@@ -33,10 +33,13 @@
 
             <h3>Notes</h3>
             <p>{{ referral.notes }}</p>
+            
+            <h3>Date Created:</h3>
+            <p>{{ referral.referral_date }}</p>
 
             <h3>Accessed:</h3>
             {% if referral.date_accessed %}
-            <p>Yes</p>
+            <p>Yes, on {{ referral.date_accessed }}</p>
             {% else %}
             <p>No</p>
             {% endif %}

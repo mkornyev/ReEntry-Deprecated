@@ -29,7 +29,7 @@ from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUser
 
 # CONSTANTS 
 
-RESOURCE_PAGINATION_COUNT = 20
+RESOURCE_PAGINATION_COUNT = 4
 REFERRAL_PAGINATION_COUNT = 20
 
 # VIEW ACTIONS 
@@ -62,18 +62,23 @@ def resources(request):
 			context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
 
 		# PAGINATION
-		page = request.GET.get('page', 1)
+		active_page = request.GET.get('a_page', 1)
+		inactive_page = request.GET.get('i_page', 1)
 		paginator = Paginator(context['active_resources'], RESOURCE_PAGINATION_COUNT)
 		inactive_paginator = Paginator(context['inactive_resources'], RESOURCE_PAGINATION_COUNT)
 		
 		try:
-			activeResources = paginator.page(page)
-			inactiveResources = inactive_paginator.page(page)
+			activeResources = paginator.page(active_page)
 		except PageNotAnInteger:
 			activeResources = paginator.page(1)
-			inactiveResources = inactive_paginator.page(1)
 		except EmptyPage:
 			activeResources = paginator.page(paginator.num_pages)
+
+		try:
+			inactiveResources = inactive_paginator.page(inactive_page)
+		except PageNotAnInteger:
+			inactiveResources = inactive_paginator.page(1)
+		except EmptyPage:
 			inactiveResources = inactive_paginator.page(inactive_paginator.num_pages)
 
 		context['active_resources'] = activeResources
