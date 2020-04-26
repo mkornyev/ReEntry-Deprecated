@@ -1,5 +1,7 @@
 
-# IMPORTS 
+###################################### 
+#              IMPORTS 
+######################################
 
 import ast
 import os
@@ -27,27 +29,104 @@ from django.utils import timezone
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
 from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter, EditReferralNotesForm
 
-# CONSTANTS 
+
+###################################### 
+#              CONSTANTS 
+######################################
 
 RESOURCE_PAGINATION_COUNT = 20
 REFERRAL_PAGINATION_COUNT = 20
 
-# VIEW ACTIONS 
+
+###################################### 
+#              MISC ACTIONS  
+######################################
 
 def home(request): 
 	markReferralAsSeen(request)
 	return render(request, 'NewEra/home.html', {})
 
+def login(request):
+	if request.user.is_authenticated:
+		return redirect(reverse('Home'))
+
+	context = {
+		'resources': Resource.objects.all(),
+		'active_resources': Resource.objects.all().filter(is_active=True),
+		'inactive_resources': Resource.objects.all().filter(is_active=False)
+	}
+	if request.method == 'GET':
+		context['form'] = LoginForm()
+		return render(request, 'NewEra/login.html', context)
+
+	form = LoginForm(request.POST)
+	context['form'] = form
+
+	if not form.is_valid():
+		return render(request, 'NewEra/login.html', context)
+
+	user = authenticate(username=form.cleaned_data['username'],
+							password=form.cleaned_data['password'])
+
+	auth_login(request, user)
+	messages.success(request, 'Logged in as {} {}.'.format(user.first_name, user.last_name))
+	return redirect(reverse('Home'))
+
+@login_required
+def logout(request):
+	auth_logout(request)
+	return redirect(reverse('Login'))
+
+def about(request):
+	return render(request, 'NewEra/about.html')
+
+# Function to update the referral given a GET request (to a resource) with a querystring timestamp
+def markReferralAsSeen(request):
+	if 'key' not in request.GET:
+		return 
+
+	try:
+		keyDate = datetime.strptime(request.GET['key'], '%Y-%m-%d %H:%M:%S.%f')
+	except: 
+		return 
+
+	referrals = Referral.objects.filter(referral_date=keyDate)
+	
+	if referrals.count() == 1:
+		referral = referrals.first()
+		referral.date_accessed = datetime.now()
+		referral.save()
+
+# Function to check visitor cookie, and see if they accessed the resource
+def isUniqueVisit(request, response, id): 
+	siteStaff = request.COOKIES.get('siteStaff', '')
+
+	if request.user.is_authenticated or siteStaff == 'true':
+		response.set_cookie('siteStaff', 'true')
+		return False 
+
+	visitedResources = request.COOKIES.get('visitedResources', '').split(';')
+
+	if visitedResources == ['']:
+		response.set_cookie('visitedResources', str(id))
+		return True 
+	elif str(id) in visitedResources:
+		return False
+	else: 
+		val = ';'.join(visitedResources)
+		val = val + ';' + str(id)
+		response.set_cookie('visitedResources', val)
+		return True 
+	
+	return False 
+
+
+###################################### 
+#              RESOURCES  
+######################################
+
 def resources(request):
 	all_resources = Resource.objects.all()
-
-	# context = {
-	# 	'resources': all_resources,
-	# 	'active_resources': all_resources.filter(is_active=True),
-	# 	'inactive_resources': all_resources.filter(is_active=False),
-	# 	'tags': Tag.objects.all()
-	# }
-
 	context = { 'filter': ResourceFilter(request.GET, queryset=all_resources) }
 
 	if request.method == 'GET':
@@ -100,46 +179,6 @@ def get_resource(request, id):
 
 	return response
 
-# Function to check visitor cookie, and see if they accessed the resource
-def isUniqueVisit(request, response, id): 
-	siteStaff = request.COOKIES.get('siteStaff', '')
-
-	if request.user.is_authenticated or siteStaff == 'true':
-		response.set_cookie('siteStaff', 'true')
-		return False 
-
-	visitedResources = request.COOKIES.get('visitedResources', '').split(';')
-
-	if visitedResources == ['']:
-		response.set_cookie('visitedResources', str(id))
-		return True 
-	elif str(id) in visitedResources:
-		return False
-	else: 
-		val = ';'.join(visitedResources)
-		val = val + ';' + str(id)
-		response.set_cookie('visitedResources', val)
-		return True 
-	
-	return False 
-
-# Function to update the referral given a GET request with a querystring timestamp
-def markReferralAsSeen(request):
-	if 'key' not in request.GET:
-		return 
-
-	try:
-		keyDate = datetime.strptime(request.GET['key'], '%Y-%m-%d %H:%M:%S.%f')
-	except: 
-		return 
-
-	referrals = Referral.objects.filter(referral_date=keyDate)
-	
-	if referrals.count() == 1:
-		referral = referrals.first()
-		referral.date_accessed = datetime.now()
-		referral.save()
-
 # ***** Note about images *****
 # They are uploaded to the system as type .JPEG or .PNG etc.
 # And then saved as type django.FileField() 
@@ -152,65 +191,36 @@ def get_resource_image(request, id):
 
 	return HttpResponse(resource.image, content_type=resource.content_type)
 
-def login(request):
-	if request.user.is_authenticated:
-		return redirect(reverse('Home'))
-
-	context = {
-		'resources': Resource.objects.all(),
-		'active_resources': Resource.objects.all().filter(is_active=True),
-		'inactive_resources': Resource.objects.all().filter(is_active=False)
-	}
-	if request.method == 'GET':
-		context['form'] = LoginForm()
-		return render(request, 'NewEra/login.html', context)
-
-	form = LoginForm(request.POST)
-	context['form'] = form
-
-	if not form.is_valid():
-		return render(request, 'NewEra/login.html', context)
-
-	user = authenticate(username=form.cleaned_data['username'],
-							password=form.cleaned_data['password'])
-
-	auth_login(request, user)
-	messages.success(request, 'Logged in as {} {}.'.format(user.first_name, user.last_name))
-	return redirect(reverse('Home'))
+# Deletes the given image if it exists
+@login_required
+def deleteImage(request, oldImage):
+	if oldImage: 
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImage.name)
+		os.remove(IMAGE_ROOT)
 
 @login_required
-def logout(request):
-	auth_logout(request)
-	return redirect(reverse('Login'))
-
-def about(request):
-	return render(request, 'NewEra/about.html')
-
 def create_resource(request):
 	context = {}
 	form = CreateResourceForm()
 	context['form'] = form
+	context['action'] = 'Create'
 
 	if request.method == 'POST':
 		resource = Resource()
 		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
 		
 		if form.is_valid():
-			# Update content_type
+			# Update the Resource content_type MANUALLY 
 			pic = form.cleaned_data['image']
 			if pic and pic != '':
+				print('Uploaded image: {} (type={})'.format(pic, type(pic)))
 				resource.content_type = form.cleaned_data['image'].content_type
-
-				# REMOVE OLD IMAGE (for edit action)
-				# if oldImageName: 
-				# 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-				# 	IMAGE_ROOT = os.path.join(BASE_DIR, 'socialnetwork/user_uploads/' + oldImageName.name)
-				# 	os.remove(IMAGE_ROOT)
 
 			form.save()
 			resource.save()
 
-			messages.success(request, 'Resource successfully created.')
+			messages.success(request, 'Resource successfully created!')
 
 			return redirect('Resources')
 	else:
@@ -218,7 +228,68 @@ def create_resource(request):
 
 	return render(request, 'NewEra/edit_resource.html', context)
 
-# SOW Actions 
+@login_required
+def edit_resource(request, id):
+	resource = get_object_or_404(Resource, id=id)
+	oldImage = resource.image
+
+	if request.method == "POST":
+		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
+    
+		if form.is_valid():
+
+			pic = form.cleaned_data['image']
+			if pic and pic != '':
+				
+				# Update content type & remove old image
+				try: 
+					# THE FOLLOWING LINE MAY THROW:
+					# After being set, the resource image is saved as a FileField type (and not an Image)
+					# As a result, it will not have a content_type attribute the way image files will
+
+					resource.content_type = form.cleaned_data['image'].content_type
+					deleteImage(request, oldImage)
+				except: 
+					pass
+
+			form.save()
+			resource.save()
+
+			messages.success(request, '{} successfully edited.'.format(resource.name))
+			return redirect('Show Resource', id=resource.id)
+	else:
+		form = CreateResourceForm(instance=resource)
+	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource, 'action': 'Edit'})
+
+@login_required
+def delete_resource(request, id):
+	resource = get_object_or_404(Resource, id=id)
+
+	if request.method == 'POST':
+		if (resource.referrals.count() == 0):
+			deleteImage(request, resource.image)
+			resource.delete()
+			messages.success(request, '{} successfully deleted.'.format(resource.name))
+			return redirect('Resources')
+		else:
+			resource.is_active = False
+			resource.save()
+			messages.success(request, '{} was made inactive.'.format(resource.name))
+			return redirect('Show Resource', id=resource.id)
+	return render(request, 'NewEra/delete_resource.html', {'resource': resource})
+
+@login_required
+def resetViews(request):
+	if request.method == 'POST':
+		Resource.objects.all().update(clicks=0)
+		messages.success(request, 'Reset all resource views')
+		return redirect(reverse('Manage Users'))
+	return render(request, 'NewEra/reset_view_counts.html', {})
+
+
+###################################### 
+#              REFERRALS  
+######################################
 
 @login_required
 def create_referral(request):
@@ -280,8 +351,6 @@ def create_referral(request):
 @login_required
 def referrals(request):
 	if (request.user.is_superuser):
-		# https://stackoverflow.com/questions/4236226/ordering-a-django-queryset-by-a-datetimes-month-day
-		# referrals = Referral.objects.all().extra(select={'year': 'YEAR(referral_date)', 'month': 'MONTH(referral_date)', 'day': 'DAY(referral_date)'}, order_by=['year', 'month', 'day'])
 		referrals = Referral.objects.all().order_by('-referral_date')
 	elif (request.user.is_staff):
 		referrals = Referral.objects.all().filter(user=request.user).order_by('-referral_date')
@@ -297,9 +366,7 @@ def referrals(request):
 	except EmptyPage:
 		referrals = paginator.page(paginator.num_pages)
 
-	context = {
-		'referrals': referrals
-	}
+	context = { 'referrals': referrals }
 
 	return render(request, 'NewEra/referrals.html', context)
 
@@ -325,6 +392,11 @@ def edit_referral_notes(request, id):
 	else:
 		form = EditReferralNotesForm(instance=referral)
 	return render(request, 'NewEra/edit_referral_notes.html', {'form': form, 'referral': referral, 'action': 'Edit'})
+
+
+###################################### 
+#              CASE LOAD  
+######################################
 
 @login_required
 def case_load(request):
@@ -400,7 +472,9 @@ def delete_case_load_user(request, id):
 	return render(request, 'NewEra/delete_case_load_user.html', {'case_load_user': case_load_user})
 
 
-# ADMIN actions 
+###################################### 
+#              USER MANAGEMENT  
+######################################
 
 @login_required
 def manage_users(request): 
@@ -478,100 +552,11 @@ def delete_user(request, id):
 			return redirect('Manage Users')
 	return render(request, 'NewEra/delete_user.html', {'user': user})
 
-@login_required
-def create_resource(request):
-	context = {}
-	form = CreateResourceForm()
-	context['form'] = form
-	context['action'] = 'Create'
 
-	if request.method == 'POST':
-		resource = Resource()
-		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
-		
-		if form.is_valid():
-			# Update content_type
-			pic = form.cleaned_data['image']
-			if pic and pic != '':
-				print('Uploaded image: {} (type={})'.format(pic, type(pic)))
-				resource.content_type = form.cleaned_data['image'].content_type
+###################################### 
+#              TAGS 
+######################################
 
-			form.save()
-			resource.save()
-
-			messages.success(request, 'Resource successfully created!')
-
-			return redirect('Resources')
-	else:
-		form = CreateResourceForm()
-
-	return render(request, 'NewEra/edit_resource.html', context)
-
-@login_required
-def edit_resource(request, id):
-	resource = get_object_or_404(Resource, id=id)
-	oldImage = resource.image
-
-	if request.method == "POST":
-		form = CreateResourceForm(request.POST, request.FILES, instance=resource)
-    
-		if form.is_valid():
-
-			pic = form.cleaned_data['image']
-			if pic and pic != '':
-				
-				# Update content type, remove old image
-				try: 
-					# Edge case where revalidated file is a FieldFile type (and not an Image)
-					resource.content_type = form.cleaned_data['image'].content_type
-					deleteImage(request, oldImage)
-				except: 
-					pass
-
-			form.save()
-			resource.save()
-
-			messages.success(request, '{} successfully edited.'.format(resource.name))
-			return redirect('Show Resource', id=resource.id)
-	else:
-		form = CreateResourceForm(instance=resource)
-	return render(request, 'NewEra/edit_resource.html', {'form': form, 'resource': resource, 'action': 'Edit'})
-
-@login_required
-def delete_resource(request, id):
-	resource = get_object_or_404(Resource, id=id)
-
-	if request.method == 'POST':
-		if (resource.referrals.count() == 0):
-			deleteImage(request, resource.image)
-			resource.delete()
-			messages.success(request, '{} successfully deleted.'.format(resource.name))
-			return redirect('Resources')
-		else:
-			resource.is_active = False
-			resource.save()
-			messages.success(request, '{} was made inactive.'.format(resource.name))
-			return redirect('Show Resource', id=resource.id)
-	return render(request, 'NewEra/delete_resource.html', {'resource': resource})
-
-# Deletes the given image if it exists
-@login_required
-def deleteImage(request, oldImage):
-	if oldImage: 
-		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-		IMAGE_ROOT = os.path.join(BASE_DIR, 'NewEra/user_uploads/' + oldImage.name)
-		os.remove(IMAGE_ROOT)
-
-@login_required
-def resetViews(request):
-	if request.method == 'POST':
-		Resource.objects.all().update(clicks=0)
-		messages.success(request, 'Reset all resource views')
-		return redirect(reverse('Manage Users'))
-	return render(request, 'NewEra/reset_view_counts.html', {})
-
-
-# Creates tags
 @login_required
 def tags(request):
 	context = {
@@ -629,6 +614,11 @@ def delete_tag(request, id):
 		return redirect('Tags')
 
 	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
+
+
+###################################### 
+# KPI SPREADSHEET EXPORT 
+######################################
 
 @login_required
 def export_data(request):

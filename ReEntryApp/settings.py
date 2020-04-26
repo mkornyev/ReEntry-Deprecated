@@ -82,10 +82,6 @@ DATABASES = {
     }
 }
 
-# Makes our custom user the base used for authentication
-AUTH_USER_MODEL = 'NewEra.User'
-
-
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -125,6 +121,9 @@ USE_TZ = True
 # AUTH 
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
+
+# Makes our custom user the base used for authentication (overrides django default)
+AUTH_USER_MODEL = 'NewEra.User'
 
 # EMAIL (Temporary credentials added below:)
 EMAIL_HOST = 'smtp.gmail.com'   
