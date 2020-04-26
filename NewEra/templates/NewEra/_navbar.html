@@ -47,6 +47,13 @@
               </li>
             {% endif %}
 
+            {% if user.is_staff %}
+              <li class="nav-item">
+                {% url 'password_change' as change_password %}
+                <a class="nav-link {% if request.path == manage_users_url %}active{% endif %}" href="{{ change_password }}">Change Password</a>
+              </li>
+            {% endif %}
+
             {% if user.is_authenticated %}
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'Logout' %}">Log Out</a>
