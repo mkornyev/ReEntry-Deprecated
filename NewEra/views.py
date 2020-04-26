@@ -571,7 +571,10 @@ def resetViews(request):
 	return render(request, 'NewEra/reset_view_counts.html', {})
 
 
-# Creates tags
+###################################### 
+# TAGS 
+######################################
+
 @login_required
 def tags(request):
 	context = {
@@ -629,6 +632,10 @@ def delete_tag(request, id):
 		return redirect('Tags')
 
 	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
+
+###################################### 
+# KPI SPREADSHEET EXPORT 
+######################################
 
 @login_required
 def export_data(request):

@@ -4,16 +4,25 @@
 	About
 {% endblock %}{% endblock %}
 
+{% block page_specific_styles %}
+<style>
+    a {
+        color: blue;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <div style="margin: auto; margin-top: 10%; width: 40%;">
-        <h3>About NewERA 412:</h3>
+    <div style="margin: auto; margin-top: 10%; width: 80%;hi bingham zheng :)">
+        <h3>About NewERA412:</h3>
         <hr/>
         <p>
-            A custom WebApp running on <em style="font-weight: bold;">Django 3.0</em>.<br/>built for Taili Thompson @ Carnegie Mellon University | &copy; 2019.
+            A custom WebApp running on <em style="font-weight: bold;">Django 3.0</em>.<br/>Built for Taili Thompson in 67-373, Information Systems Consulting Project @ Carnegie Mellon University.
         </p>
         <p>
             Contact the webmasters for additional info:<br/>
-            <a href="mailto:mkornyev@gmail.com">mkornyev@gmail.com</a> | <a href="https://mkornyev.github.io" target="_blank">another link</a>
+            <a href="https://github.com/mkornyev" target="_blank">Max Kornyev</a> | <a href="https://github.com/epiccrash" target="_blank">Joey Perrino</a> | <a href="https://github.com/brentthongg" target="_blank">Brent Hong</a>&nbsp;&copy; 2019 
         </p>
     </div>
 {% endblock %}

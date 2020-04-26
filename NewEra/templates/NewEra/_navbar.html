@@ -47,13 +47,6 @@
               </li>
             {% endif %}
 
-            {% if user.is_staff %}
-              <li class="nav-item">
-                {% url 'password_change' as change_password %}
-                <a class="nav-link {% if request.path == manage_users_url %}active{% endif %}" href="{{ change_password }}">Change Password</a>
-              </li>
-            {% endif %}
-
             {% if user.is_authenticated %}
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'Logout' %}">Log Out</a>
@@ -66,6 +59,13 @@
               <li class="nav-item">
                 {% url 'About' as about_url %}
                 <a class="nav-link {% if request.path == about_url %}active{% endif %}" href="{{ about_url }}">About</a>
+              </li>
+            {% endif %}
+
+            {% if user.is_staff %}
+              <li class="nav-item">
+                {% url 'password_change' as change_password_url %}
+                <a class="nav-link {% if request.path == change_password_url %}active{% endif %}" href="{{ change_password_url }}"><i class="material-icons" style="font-size: 20px;">settings</i></a>
               </li>
             {% endif %}
           </ul>
