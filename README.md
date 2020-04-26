@@ -41,3 +41,10 @@ The following will set up a python environment **in the same directory** as the 
 
 * `python manage.py drop`
 * Destroys created objects
+
+###### Load Tags and Resources
+
+* `python manage.py load_tags_and_resources`
+* Loads the values and initial sets of tags and resources from a CSV ("Northside PD Service Providers.csv" in the root directory)
+	* Loads a resource with a name, tag, website, contact name, contact position, phone number, fax number, contact email, address, city, state, zip code, second address line, and/or description, should they be provided
+	* Tags are loaded with the resources
