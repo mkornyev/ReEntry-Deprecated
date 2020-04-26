@@ -12,7 +12,11 @@
 		Resources
 	</h1>
 
-    <p id="referral-ins" style="margin: auto; text-align: center;">Click the resources to select the resources for your referral and they will highlight green.</p>
+	{% if request.user.is_authenticated %}
+    	<p id="referral-ins" style="margin: auto; text-align: center;">Click the resources to select the resources for your referral and they will highlight green.</p>
+    {% else %}
+    	<p></p>
+    {% endif %}
 
 	<div class="container">
 		<hr/>
