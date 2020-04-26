@@ -3,7 +3,7 @@ var stagedDeleteId = null;
 $(document).ready(function() {
     $('#make-referral').attr('state', 'off');
     $('#make-referral').click(toggleSelect);
-    $('#referral-ins').css('display', 'none');
+    // $('#referral-ins').css('display', 'none');
 });
 
 cancel = () => {

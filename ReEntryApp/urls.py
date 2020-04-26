@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path
 from NewEra import views
 
@@ -58,5 +59,16 @@ urlpatterns = [
     path('case_load/<int:id>/delete/', views.delete_case_load_user, name='Delete Case Load User'),
     # Resource data export action
     path('export', views.export_data, name='Export Data'),
-    path('resetViews', views.resetViews, name='Reset Views')
+    path('resetViews', views.resetViews, name='Reset Views'),
+    # https://www.youtube.com/watch?v=qjlZWBbX7-o
+    # https://www.youtube.com/watch?v=sFPcd6myZrY
+    # Password change
+    path('change_password/', auth_views.PasswordChangeView.as_view(template_name='NewEra/password_change.html'), name='password_change'),
+    path('change_password/done/', auth_views.PasswordChangeDoneView.as_view(template_name='NewEra/password_change_done.html'), name='password_change_done'),
+    # path('change_password/complete/', auth_views.PasswordChangeCompleteView.as_view(template_name='NewEra/password_change_complete.html'), name='password_change_complete'),
+    # Password reset
+    path('reset_password/', auth_views.PasswordResetView.as_view(template_name='NewEra/password_reset.html'), name='reset_password'),
+    path('reset_password/done/', auth_views.PasswordResetDoneView.as_view(template_name='NewEra/password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='NewEra/password_reset_form.html'), name='password_reset_confirm'),
+    path('reset_password/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='NewEra/password_reset_complete.html'), name='password_reset_complete'),
 ]
