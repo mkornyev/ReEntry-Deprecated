@@ -14,7 +14,7 @@
 
 	<!-- Display referral information -->
 	{% if request.user.is_authenticated %}
-    	<p id="referral-ins" style="margin: auto; text-align: center;">Click the resources to select the resources for your referral and they will highlight green.</p>
+    	<p id="referral-ins" class="px-1" style="margin: auto; text-align: center;">Click "Make Referral" and click the resources to stage them for your referral.</p>
     {% else %}
     	<p></p>
     {% endif %}
@@ -31,13 +31,6 @@
 				<!-- Search Filter  -->
 				<a id="searchFilter" class="btn btn-primary dropdown-toggle"  data-toggle="collapse" href="#filterDropdown" role="button" aria-expanded="false" aria-controls="filterDropdown">Filter Resources</a>
 			</form>
-
-			{% if perms.resource.create_resource %}
-				<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
-			{% endif %}
-			{% if not user.is_staff and not user.is_staff %}
-				<br>
-			{% endif %}
 		</div>
 
 		<div class="collapse" id="filterDropdown">
@@ -71,7 +64,8 @@
 		{% if active_resources.paginator.count > 0 or inactive_resources.count > 0 %}
 			{% if perms.resource.edit_resource %}
 				<h3>Active Resources</h3>
-				<br>
+				<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
+				<br><br>
 			{% endif %}
 
 			<!-- Active resource listing and pagination; seen by all users and visitors -->
@@ -161,7 +155,7 @@
 					<div class="row">
 	                    {% for r in inactive_resources %}
 	                    <div class="col-lg-4 mb-3">
-	                        <div id="resource-{{ r.id }}" class="card resource-card border-0 shadow">
+	                        <div id="resource-{{ r.id }}" class="card border-0 shadow">
 	                            {% if r.image %}
 	                            	<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
 	                            {% endif %} 
@@ -243,9 +237,8 @@
 
 	<!-- SOWs can make referrals through the 'Make Referrals' button -->
     {% if user.is_staff %}
-    	<button id="make-referral" type="button" class="btn btn-light white-background" style="width: 300px; position: fixed; bottom: 20px; right: 10%;">Make Referral</button>
-
-    	<button id='commit-referral' onclick="commitReferrals()" class='btn btn-warning' style="display: none; width: 300px; position: fixed; bottom: 70px; right: 10%;"></button>
+    	<button id="make-referral" type="button" class="btn btn-light white-background">Make Referral</button>
+    	<button id='commit-referral' onclick="commitReferrals()" class='btn btn-warning'></button>
     {% endif %} 
 
     <p>&nbsp;</p>

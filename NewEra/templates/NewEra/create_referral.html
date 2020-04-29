@@ -48,7 +48,7 @@
                 <input type="hidden" name="resources[]" value="{{ r.id }}">
                 <br>
             {% endfor %}
-
+            <br>
             <h4>Recipient Info</h4>
             <p style="font-size: 1.15em;">We just need a few more details about the recipient. Are they in your case load or an out of system referral? Click one:</p>
 
@@ -96,7 +96,7 @@
                             <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-primary">Make Referral</button>
                         </form>
                     {% else %}
                         {% if perms.resource.edit_resource %}
@@ -138,7 +138,7 @@
 
                         {% csrf_token %}
                         <!-- Perform a validation check when the form is submitted -->
-                        <button onsubmit="return validateOutOfSystemForm();" type="submit" class="btn btn-primary">Submit</button>
+                        <button onsubmit="return validateOutOfSystemForm();" type="submit" class="btn btn-primary">Make Referral</button>
                     </form>
                 </div>
             </div>

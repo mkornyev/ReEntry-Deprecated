@@ -34,7 +34,7 @@ from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUser
 ######################################
 
 # Define the number of referrals or paginations shown on a page
-RESOURCE_PAGINATION_COUNT = 20
+RESOURCE_PAGINATION_COUNT = 30
 REFERRAL_PAGINATION_COUNT = 20
 
 ###################################### 
