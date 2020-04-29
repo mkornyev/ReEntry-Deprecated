@@ -5,7 +5,7 @@
 {% endblock %}{% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top: 10vh;">
+    <div class="container" style="padding-top: 10vh;">
         {% if resource.image %}
             <div class="text-center">
                 <img class="resource-img shadow" src="{% url 'Image' resource.id %}"></img>
@@ -13,7 +13,9 @@
             <br><br>
         {% endif %}
         
+        <!-- Display attributes depending on if they're provided -->
         <div class="row">
+            <!-- Main card -->
             <div class="col-lg-8 mb-3">
                 <div class="card border-0 shadow">
                     <div class="card-body">
@@ -34,13 +36,9 @@
 
                         {% if resource.description %}
                             <br>
-                            <h3 style="margin: auto;">
-                                Description
-                            </h3>
+                            <h3 style="margin: auto;">Description</h3>
                             <br>
-                            <p>
-                                {{ resource.description }}
-                            </p>
+                            <p>{{ resource.description }}</p>
                         {% endif %}
 
                         {% if resource.url or resource.phone or resource.email %}
@@ -76,11 +74,11 @@
                                 <p>{{ resource.contact_name }}</p>
                             {% endif %}
                         {% endif %}
-
                     </div>
                 </div>
             </div>
 
+            <!-- Display street address and hours of operation on a card to the side -->
             <div class="col-lg-4">
                 <div class="card border-0 shadow">
                     <div class="card-body">
@@ -95,9 +93,7 @@
                             <p>N/A</p>
                         {% endif %}
                         <br>
-                        <h3 style="margin: auto;">
-                            Hours of Operation
-                        </h3>
+                        <h3 style="margin: auto;">Hours of Operation</h3>
                         {% if resource.hours  %}
                             <p>{{ resource.hours }}</p>
                         {% else %}

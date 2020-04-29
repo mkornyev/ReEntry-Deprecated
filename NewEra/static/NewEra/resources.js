@@ -21,7 +21,7 @@ function searchFilters() {
         var filter = this.innerText.toUpperCase()
         var includesQuery = false
 
-        for (i=0; i<search.length; i++) {
+        for (i = 0; i < search.length; i++) {
             var query = search[i].toUpperCase()
 
             if (filter.includes(query)) {
