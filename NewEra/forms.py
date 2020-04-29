@@ -18,6 +18,7 @@ MAX_UPLOAD_SIZE = 2500000
 '''
 COMMON NOTES:
 - First names have a 30-digit maximum to match Django's maximum for first names
+- Last names have a 150-digit maximum to match Django's maximum for last names
 - Emails have a 254-digit maximum to reflect the IETF standard (https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address)
 - Phone numbers have an 11-digit maximum to match a 1 and 10 subsequent digits at maximum (methods check for a minimum of 10 digits)
 '''
