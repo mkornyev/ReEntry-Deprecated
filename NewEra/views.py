@@ -289,7 +289,7 @@ def resetViews(request):
 	if request.method == 'POST':
 		Resource.objects.all().update(clicks=0)
 		messages.success(request, 'Reset all resource views')
-		return redirect(reverse('Manage Users'))
+		return redirect(reverse('Dashboard'))
 	return render(request, 'NewEra/reset_view_counts.html', {})
 
 ###################################### 
@@ -490,7 +490,7 @@ def delete_case_load_user(request, id):
 ######################################
 
 @login_required
-def manage_users(request): 
+def dashboard(request): 
 	if not request.user.is_superuser:
 		raise Http404
 
@@ -504,7 +504,7 @@ def manage_users(request):
 
 		if not form.is_valid():
 			context['modalStatus'] = 'show'
-			return render(request, 'NewEra/manage_users.html', context)
+			return render(request, 'NewEra/dashboard.html', context)
 
 		user = User.objects.create_user(username=form.cleaned_data['username'], 
 										password=form.cleaned_data['password'],
@@ -523,7 +523,7 @@ def manage_users(request):
 		messages.success(request, 'Added a new user to the system.')
 	
 	context['form'] = RegistrationForm()
-	return render(request, 'NewEra/manage_users.html', context)
+	return render(request, 'NewEra/dashboard.html', context)
 
 @login_required
 def edit_user(request, id):
@@ -543,7 +543,7 @@ def edit_user(request, id):
 			user.save()
 
 			messages.success(request, '{} successfully edited.'.format(str(user)))
-			return redirect('Manage Users')
+			return redirect('Dashboard')
 	else:
 		# If a user is editing themselves, get the form for only that user
 		if user == request.user:
@@ -562,13 +562,13 @@ def delete_user(request, id):
 		if (user.get_referrals().count() == 0 and user.get_case_load().count() == 0):
 			user.delete()
 			messages.success(request, 'User successfully deleted.')
-			return redirect('Manage Users')
+			return redirect('Dashboard')
 		# Otherwise, deactivate the user
 		else:
 			user.is_active = False
 			user.save()
 			messages.success(request, '{} was made inactive.'.format(user.get_full_name()))
-			return redirect('Manage Users')
+			return redirect('Dashboard')
 	return render(request, 'NewEra/delete_user.html', {'user': user})
 
 ###################################### 
