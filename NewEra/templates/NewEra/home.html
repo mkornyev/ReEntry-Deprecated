@@ -10,17 +10,66 @@
 {% endblock %}{% endblock %}
 
 {% block content %}
-	<div class="heading-banner">
-		<h1>NewEra412</h1>
-		<p>
+    {% load static %}
+    <style>
+    .parallax {
+        position: relative;
+    }
+    .parallax {
+        /* Credit: https://www.w3schools.com/howto/howto_css_parallax.asp */
+        background-image: url("{% static 'NewEra/night_pgh.jpg' %}");
+        height: 300px;
+        padding-top: 12vh; 
+        padding-bottom: 7vh; 
+        text-align: center;
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .parallax-text {
+        background-color: rgba(0, 0, 0, .75);
+        padding: 0;
+    }
+
+    h1.parallax-text {
+        letter-spacing: 1px;
+    }
+
+    </style>
+
+	<div class="parallax">
+		<span class="parallax-text"><h1 class="text-white parallax-text">NewEra412</h1></span>
+		<p class="text-white parallax-text">
 			Reintegrating previously incarcerated citizens into society.
 		</p>
-		<a href="{% url 'Resources' %}"><button type="button" class="btn btn-info">See Resources</button></a>
+		<a href="{% url 'Resources' %}"><div class="parallax-text"><button type="button" class="btn btn-outline-light">See Resources</button></div></a>
 	</div>
 
-	<div class="secondary-content">
-		{% load static %}
-		<img src="{% static 'NewEra/reentry_logo.jpg' %}" width="280" height="264" class="" alt="ReEntry Logo">
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
-	</div>
+    <div class="container" style="padding-top: 7.5vh;">
+        <div class="row">
+            <div class="col-sm-6 mb-3">
+                {% load static %}
+                <img src="{% static 'NewEra/reentry_logo.jpg' %}" width="280" height="264" class="" alt="ReEntry Logo">
+            </div>
+
+            <div class="col-sm-6 mb-3 ">
+                <p>Realistic ReEntry is Pittsburgh's first restorative practice based  interim management firm for social service orginizations, governemnt agencies, employers, and foundations. Our award winning experts assist organizations who are undergoing major change, trying to implement a critical strategy or are looking to plug a critical management gap. </p>
+            </div>
+        </div>
+
+        <div class="row align-items-center" style="padding-top: 5vh;">
+            <div class="col-sm-6 mb-3">
+                <p>Our mission is to reduce the dissonance among social service efforts and that serve communities, while presenting the opportunity to truly diversify the human capital of social service organizations, government agencies, employers, and foundations. Realistic ReEntry emphasizes the historical context of relationships among society and those who offend in our project planning and design. We provide a restorative approach to promote solidarity and stability among organizations on the micro, mezzo, and macro systems level.</p>
+            </div>
+
+            <div class="col-sm-6 mb-3 text-right">
+                {% load static %}
+                <img src="{% static 'NewEra/reentry_logo.jpg' %}" width="280" height="264" class="" alt="ReEntry Logo">
+                
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

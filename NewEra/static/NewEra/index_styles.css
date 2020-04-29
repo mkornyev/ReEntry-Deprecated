@@ -15,16 +15,6 @@ div.heading-banner p {
 }
 
 div.secondary-content {
-    margin: auto;
-    width: 80%;
+    padding-top: 5vh;
 }
 
-div.secondary-content img {
-    float: left;
-    margin: 40px;
-}
-div.secondary-content p {
-    float: right;
-    margin: 40px;
-    width: 40%;
-}

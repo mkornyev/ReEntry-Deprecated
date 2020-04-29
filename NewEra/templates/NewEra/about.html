@@ -14,15 +14,54 @@
 {% endblock %}
 
 {% block content %}
-    <div style="margin: auto; margin-top: 10%; width: 80%;hi bingham zheng :)">
-        <h3>About NewERA412:</h3>
-        <hr/>
+    {% load static %}
+    <style>
+    .parallax {
+        position: relative;
+    }
+    .parallax {
+        /* Credit: https://www.w3schools.com/howto/howto_css_parallax.asp */
+        background-image: url("{% static 'NewEra/night_pgh.jpg' %}");
+        height: 300px;
+        padding-top: 16vh; 
+        padding-bottom: 7vh; 
+        text-align: center;
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .parallax-text {
+        background-color: rgba(0, 0, 0, .75);
+        padding: 0;
+    }
+
+    h1.parallax-text {
+        letter-spacing: 1px;
+    }
+    </style>
+
+    <div class="parallax">
+        <h1 class="text-white parallax-text">WHO WE ARE</h1>
+    </div>
+
+    <div class="container" style="padding-top: 5vh;">
+        <h2>What is Realistic ReEntry?</h2>
+        <br />
         <p>
-            A custom WebApp running on <em style="font-weight: bold;">Django 3.0</em>.<br/>Built for Taili Thompson in 67-373, Information Systems Consulting Project @ Carnegie Mellon University.
+        Realistic Reentry is Pittsburgh’s first restorative based consulting firm. We enhance human relationships & communication required to improve program and policy outputs in addition to providing a culturally competent top-down & bottom up perspective that will intensify the richness of ideas and problem-solving capabilities of your team.
         </p>
+        <br />
         <p>
-            Contact the webmasters for additional info:<br/>
-            <a href="https://github.com/mkornyev" target="_blank">Max Kornyev</a> | <a href="https://github.com/epiccrash" target="_blank">Joey Perrino</a> | <a href="https://github.com/brentthongg" target="_blank">Brent Hong</a>&nbsp;&copy; 2019 
+        Acknowledging the historical context of relationships among society and those who offend is the corner-stone of our work. We have extended the theoretical underpinnings of restorative practices to include: the delivery of services focused on authentic client engagement, increasing collaboration among organizations, and culturally competent perspective in the planning process.
         </p>
+        <br />
+        <p>
+        Our mission is to reduce the dissonance among social service efforts and that serve communities, while presenting the opportunity to truly diversify the human capital of social service organizations, government agencies, employers, and foundations.
+        </p>
+
+        <a href="https://www.realisticreentry.org/" target="_blank"><button type="button" class="btn btn-outline-dark">Realistic ReEntry</button></a>
+        <div style="padding-bottom: 5vh;"></div>
     </div>
 {% endblock %}
