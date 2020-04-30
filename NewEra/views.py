@@ -49,11 +49,7 @@ def login(request):
 	if request.user.is_authenticated:
 		return redirect(reverse('Home'))
 
-	context = {
-		'resources': Resource.objects.all(),
-		'active_resources': Resource.objects.all().filter(is_active=True),
-		'inactive_resources': Resource.objects.all().filter(is_active=False)
-	}
+	context = {}
 
 	if request.method == 'GET':
 		context['form'] = LoginForm()
@@ -141,6 +137,17 @@ def resources(request):
 			context['active_resources'] = context['filter'].qs.filter(is_active=True)
 			context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
 
+		# FILTER QUERY - build a query param for use in pagination links
+		filterParams = request.GET.getlist('tags', '')
+		filterQueryString = ''
+
+		if filterParams: 
+			for id in filterParams:
+				filterQueryString += '&tags='
+				filterQueryString += id
+
+		context['filterQuery'] = filterQueryString
+
 		# PAGINATION
 		active_page = request.GET.get('a_page', 1)
 		inactive_page = request.GET.get('i_page', 1)
@@ -163,7 +170,6 @@ def resources(request):
 		except EmptyPage:
 			inactiveResources = inactive_paginator.page(inactive_paginator.num_pages)
 
-		# Render the 
 		context['active_resources'] = activeResources
 		context['inactive_resources'] = inactiveResources
 

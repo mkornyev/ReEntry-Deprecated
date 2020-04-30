@@ -144,6 +144,7 @@ a:hover {
 /* Staging Buttons */
 
 #make-referral {
+    z-index: 100;
     width: 300px; 
     position: fixed; 
     bottom: 20px; 
@@ -153,6 +154,7 @@ a:hover {
 }
 
 #commit-referral {
+    z-index: 100;
     display: none; 
     width: 300px; 
     position: fixed; 
