@@ -1,3 +1,8 @@
+
+# IMPORTS 
+
+import os
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import authenticate
 from django.db import models
@@ -8,15 +13,7 @@ from django.utils.html import strip_tags
 from django.conf import settings
 
 from datetime import datetime
-
-# SMS carriers used for sending texts in a referral while deployed on Heroku
-# Not needed when Twilio is integrated into the app
-SMS_CARRIERS = {
-	'AT&T':    '@txt.att.net',
-	'TMobile':' @tmomail.net',
-	'Verizon':  '@vtext.com',
-	'Sprint':   '@page.nextel.com'
-}
+from twilio.rest import Client
 
 '''
 COMMON NOTES:
@@ -151,32 +148,28 @@ class Referral(models.Model):
 		if (not self.phone or self.phone == '') and (not self.caseUser or not self.caseUser.phone or self.caseUser.phone == ''):
 			return
 
-		# Create username string and set from_email
+		# Create username string
 		userName = self.user.get_full_name()
-		from_email = settings.EMAIL_HOST_USER
 
 		# Set recipient
 		to = self.phone
 		if to == None or to == '':
 			to = self.caseUser.phone
-		to = to + SMS_CARRIERS[smsCarrier]
 
 		# Set the message intro string based on whether the referral is to someone on the case load or out of the system
 		if (clientName):
-			messageIntro = '\n Hi {}, \n {} \n We\'ll send you another text with some links. --{}'.format(clientName, self.notes, userName)
+			messageIntro = '\n Hi {}, \n {} \n We\'ll send you another text with some links. --{} \n\n--------- '.format(clientName, self.notes, userName)
 		else:
-			messageIntro = '\n {} \n We\'ll send you another text with some links. --{}'.format(self.notes, userName)
-
-		# Send an initial message
-		mail.send_mail('NewERA Referral', messageIntro, from_email, [to], fail_silently=False)
+			messageIntro = '\n {} \n We\'ll send you another text with some links. --{} \n\n--------- '.format(self.notes, userName)
 
 		# Create the query string and the message body
 		queryString = '?key=' + referralTimeStamp
-		links = [ '\n' + r.name + ': https://newera-app.herokuapp.com/resources/' + str(r.id) + queryString + '\n' for r in self.resource_set.all() ]
-		messageBody = ''.join(links) + '--- \n See us online for more: newera-app.herokuapp.com'
+		queryString = queryString.replace(' ', '%20') # Make SMS links accessible 
+		links = [ '\n' + r.name + ': https://newera412.com/resources/' + str(r.id) + queryString + '\n' for r in self.resource_set.all() ]
+		messageBody = ''.join(links) + '--- \n See us online for more: www.newera412.com'
 		
-		# Send the actual text message
-		mail.send_mail('Links', messageBody, from_email, [to], fail_silently=True)
+		client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+		client.messages.create(from_=settings.TWILIO_PHONE_NUMBER, to=to, body= messageIntro + messageBody)
 	
 	# Basic string printing
 	def __str__(self):

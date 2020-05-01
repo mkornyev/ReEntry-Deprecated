@@ -83,15 +83,6 @@
                                 </select>
                             </label><br>
 
-                            <label>
-                                <b class="inline-label">Select Carrier:</b>
-                                <select name="carrier" class="form-control">
-                                    {% for c in carriers %}
-                                    <option value="{{ c }}">{{ c }}</option>
-                                    {% endfor %}
-                                </select>
-                            </label><br>
-
                             <label><b>Add Notes:</b></label><br>
                             <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
@@ -120,15 +111,6 @@
                         
                         <label><b>Phone:</b></label>
                         <input id="outOfSystemPhone" type="tel" name="phone" placeholder="Enter a phone number..." class="form-control" minlength="10" maxlength="10" pattern="[0-9]{10}">
-
-                        <label>
-                            <b class="inline-label">Select Carrier:</b>
-                            <select name="carrier"  class="form-control">
-                                {% for c in carriers %}
-                                <option value="{{ c }}">{{ c }}</option>
-                                {% endfor %}
-                            </select>
-                        </label><br>
 
                         <label><b>Email:&nbsp;&nbsp;</b></label>
                         <input id="outOfSystemEmail" type="email" name="email" placeholder="Enter an email..." class="form-control">
