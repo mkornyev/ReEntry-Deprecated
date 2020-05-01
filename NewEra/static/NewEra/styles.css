@@ -100,16 +100,15 @@ a:hover {
 }
 
 /* Resources */
-
+/*
 #resource-bg {
-    background-image: url('/static/NewEra/assets/pittsburgh_background.jpg');
     background-size: cover;
     background-position: 20% 20%;
     backdrop-filter: brightness(20%);
     height: 300px;
     width: 100%;
 }
-
+*/
 .white-background {
     background-color: white;
     box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.10), 0 3px 10px 0 rgba(0, 0, 0, 0.10);

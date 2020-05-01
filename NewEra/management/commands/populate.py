@@ -8,17 +8,18 @@ class Command(BaseCommand):
     help = 'Run this script to create sample users.'
 
     def _create_users(self):
+        """
         sow = User.objects.create_user(username='sow', password='sow', first_name='Max', last_name='K', email='mkornyev@gmail.com')
         sow.is_staff = True 
         sow.is_superuser = False
         sow.save()
-
-        admin = User.objects.create_user(username='admin', password='admin', first_name='Taili', last_name='T', email='admin@gmail.com')
+        """
+        admin = User.objects.create_user(username='admintaili', password='gy!e12uNAs', first_name='Taili', last_name='Thompson', email='bvbaseball42@gmail.com')
         admin.is_staff = True 
         admin.is_superuser = True
         admin.save()
-
-        print("\nAdmin and SOW users created.\n")
+        
+        print("\nAdmin has been created.\n")
 
     def handle(self, *args, **options):
         self._create_users()
