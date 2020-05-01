@@ -25,7 +25,7 @@ SECRET_KEY = 'rzg+4u-9t+24vbk0!=5w6)&^thk3q%!ouc53&4&e*bn$jc@45e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['newera-app.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['www.newera412.com', 'newera412.com', '67.205.174.6']
 
 # Application definition
 
@@ -74,6 +74,17 @@ WSGI_APPLICATION = 'ReEntryApp.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+
+DATABASES = {
+        'default' : {
+            'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+            'NAME' : 'NewEra',
+            'USER' : 'taili',
+            'PASSWORD' : 'VeChain3d3$$',
+            'HOST' : 'localhost',
+            'PORT' : '',
+        }
+}
 
 DATABASES = {
     'default': {
@@ -139,7 +150,7 @@ EMAIL_USE_SSL = False
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'NewEra/static'),
 )
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
