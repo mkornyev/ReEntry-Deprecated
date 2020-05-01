@@ -4,7 +4,7 @@
         <ul> 
         {% for r in resources %}
         <li>
-            <a href="https://newera-app.herokuapp.com/resources/{{ r.id }}?key={{ timeStamp }}">{{ r.name|add:': ' }}</a>
+            <a href="www.newera412.com/resources/{{ r.id }}?key={{ timeStamp }}">{{ r.name|add:': ' }}</a>
             {% if r.description %}
                 {{ r.description|slice:"0:45"|add:'...' }}
             {% endif %}
@@ -15,7 +15,7 @@
             Hi {{ clientName }},<br><br>
         {% endif %}
         {{ notes }}<br><br>
-        See our <a href='https://newera-app.herokuapp.com?key={{ timeStamp }}'>online resources</a> for more.
+        See our <a href="www.newera412.com?key={{ timeStamp }}">online resources</a> for more.
     </p>
     <p> {{ '--'|add:userName }}</p>
 </div>

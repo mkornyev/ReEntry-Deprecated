@@ -7,7 +7,6 @@ var stagedDeleteId = null;
 $(document).ready(function() {
     $('#make-referral').attr('state', 'off');
     $('#make-referral').click(toggleSelect);
-    // $('#referral-ins').css('display', 'none');
 
     // Validation to require ONE of: { phone, email }
     $('#outOfSystemForm').on('submit', function(e){
@@ -24,21 +23,23 @@ $(document).ready(function() {
     })
 });
 
+// Hide a referral's resource delete confirmation popup
 cancel = () => {
     var delModal = document.getElementById('del-confirm');
     delModal.style.display = "none";
 }
 
+// Remove a resource from the referral
 confirmDelete = () => {
     console.log(localStorage.stagedResources);
     if (stagedDeleteId == null) {
-        // Fail silently: just close the modal, however this
-        // should not happen.
+        // Fail silently: just close the modal, however this should not happen.
         var delModal = document.getElementById('del-confirm');
         delModal.style.display = "none";
         return;
     }
 
+    // Grab the resources staged so far and get the one to remove
     stagedResources = JSON.parse(localStorage.getItem("stagedResources"));
     leftoverResources = stagedResources.filter((id) => id != stagedDeleteId);
 
@@ -49,20 +50,22 @@ confirmDelete = () => {
 
     localStorage.stagedResources = JSON.stringify(leftoverResources)
 
+    // Generate a link based on the resources selected
     if (empty) {
         document.location.href = "/resources";
     }
-
     else {
         document.location.href = '/create_referral?resources=' + localStorage.stagedResources;
     }
 }
 
+// Remove a resource from the referral
 deleteResource = (id) => {
     stagedDeleteId = id;
     var delModal = document.getElementById('del-confirm');
     delModal.style.display = "block";
 }
+
 
 function toggleSelect () {
 
@@ -74,6 +77,7 @@ function toggleSelect () {
             $(this).click(toggleItem)
         }) 
 
+        // 
         $(this).html('Cancel')
         $(this).attr('state', 'on')
         $('#commit-referral').css('display', 'block');
@@ -97,6 +101,7 @@ function toggleSelect () {
     }
 }
 
+// Toggle a resource as being part of the referral when selected
 function toggleItem(event) {
     event.preventDefault();
     state = $(this).attr('state');;
@@ -111,13 +116,14 @@ function toggleItem(event) {
     stagedResources = JSON.parse(stagedResources);
 
     if (state === 'in') {
+        // Remove the border from the resource and remove it from the staged resources
         $(this).attr('state','out');
         $(this).addClass("border-0");
         $(this).removeClass("border-success");
         $(this).removeClass("border-3");
         stagedResources = stagedResources.filter((inId) => inId != id);
-
     } else if (state === 'out') {
+        // Add a border to the resource and add it to the staged resources
         $(this).attr('state','in');
         $(this).removeClass("border-0");
         $(this).addClass("border-3")
@@ -133,6 +139,7 @@ function toggleItem(event) {
     localStorage.stagedResources = JSON.stringify(stagedResources);
 }
 
+// Send the resources to the referral
 function commitReferrals() {
     stagedResources = window.localStorage.stagedResources
     if (stagedResources === "[]") return; 

@@ -12,39 +12,34 @@
 		Resources
 	</h1>
 
+	<!-- Display referral information -->
 	{% if request.user.is_authenticated %}
-    	<p id="referral-ins" style="margin: auto; text-align: center;">Click the resources to select the resources for your referral and they will highlight green.</p>
+    	<p id="referral-ins" class="px-1" style="margin: auto; text-align: center;">Click "Make Referral" and click the resources to stage them for your referral.</p>
     {% else %}
     	<p></p>
     {% endif %}
 
 	<div class="container">
-		<hr/>
+		<hr>
 
 		<div aria-label="Filter Controls">
-			<form  method="GET" action="">
+			<form method="GET" action="">
+				<!-- Text search bar -->
 				<input id="searchBar" name="query" value="{{ request.GET.query }}" class="form-control" type="search" placeholder="Search for a Resource" aria-label="Search">
 				<button id="searchBarButton" class="btn btn-primary" type="submit">Search</button>
 
 				<!-- Search Filter  -->
 				<a id="searchFilter" class="btn btn-primary dropdown-toggle"  data-toggle="collapse" href="#filterDropdown" role="button" aria-expanded="false" aria-controls="filterDropdown">Filter Resources</a>
 			</form>
-
-			{% if perms.resource.create_resource %}
-				<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
-			{% endif %}
-			{% if not user.is_staff and not user.is_staff %}
-				<br/>
-			{% endif %}
 		</div>
 
 		<div class="collapse" id="filterDropdown">
 			<br>
 			<div id="filter-card" class="card card-body">
+				<!-- Tag filter actions -->
 				<form action="" method="GET" class="tag-form">
 					<div class="form-goup">
 						<input id="filter-search" class="form-control" placeholder="Search for a tag" aria-label="Search" onkeyup="searchFilters(event);">
-						<!-- <button id="filter-search-btn" class="btn btn-primary" style="margin-top: -3px;">Search</button> -->
 					</div>
 
 					<hr style="margin-bottom: 0;">
@@ -61,9 +56,7 @@
 				</form>
 			</div>
 		</div>
-
-		<br/>
-		
+		<br>
 	</div>
 
 	<div class="container" style="position: relative;">
@@ -71,9 +64,11 @@
 		{% if active_resources.paginator.count > 0 or inactive_resources.count > 0 %}
 			{% if perms.resource.edit_resource %}
 				<h3>Active Resources</h3>
-				<br/>
+				<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
+				<br><br>
 			{% endif %}
 
+			<!-- Active resource listing and pagination; seen by all users and visitors -->
 			{% if active_resources.paginator.count > 0 %}
 				<div class="row">
                     {% for r in active_resources %}
@@ -88,9 +83,9 @@
 	                                {% if perms.resource.create_resource %}
 	                                    <p>Views: {{ r.clicks }}</p>
 	                                {% endif %}
-	                                <br/>
+	                                <br>
 	                                <a class="read-link" href="{% url 'Show Resource' id=r.id %}"><b>Read More</b></a>
-	                                <br/><br/>
+	                                <br><br>
 	                                <div class="row">
 	                                    <div class="col">
 	                                        {% if perms.resource.edit_resource %}
@@ -111,14 +106,15 @@
 
 				<div class="row">
 					<div class="col">
-						<br/>
+						<br>
 						<!-- Active Resource Pagination -->
 						{% if active_resources.has_other_pages %}
+
 							<nav aria-label="Page navigation">
 								<ul class="pagination justify-content-center">
 									{% if active_resources.has_previous %}
 										<li class="page-item">
-											<a href="?a_page={{ active_resources.previous_page_number }}&query={{ request.GET.query }}" class="page-link" aria-label="Previous">Previous</a>
+											<a href="?a_page={{ active_resources.previous_page_number }}&query={{ request.GET.query }}{{ filterQuery }}" class="page-link" aria-label="Previous">Previous</a>
 										</li>
 									{% else %}
 										<li class="page-item disabled"><span class="page-link">Previous</span></li>
@@ -130,19 +126,20 @@
 											</li>
 										{% else %}
 											<li class="page-item">
-												<a class="page-link" href="?a_page={{ i }}&query={{ request.GET.query }}">{{ i }}</a>
+												<a class="page-link" href="?a_page={{ i }}&query={{ request.GET.query }}{{ filterQuery }}">{{ i }}</a>
 											</li>
 										{% endif %}
 									{% endfor %}
 									{% if active_resources.has_next %}
 										<li class="page-item">
-											<a href="?a_page={{ active_resources.next_page_number }}&query={{ request.GET.query }}" class="page-link" aria-label="Previous">Next</a>
+											<a href="?a_page={{ active_resources.next_page_number }}&query={{ request.GET.query }}{{ filterQuery }}" class="page-link" aria-label="Previous">Next</a>
 										</li>
 									{% else %}
 										<li class="page-item disabled"><span class="page-link">Next</span></li>
 									{% endif %}
 								</ul>
 							</nav>
+
 						{% endif %}
 					</div>
 				</div>
@@ -151,15 +148,18 @@
 				<p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no active resources at this time.</em></p>
 			{% endif %}
 
+			<!-- Inactive resource listing and pagination; seen by only admins -->
 			{% if perms.resource.create_resource %}
-				<hr/>
+				<hr>
 				{% if inactive_resources.paginator.count > 0 %}
 					<h3>Inactive Resources</h3>
-					<br/>
+					<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
+					<br>
+					<br>
 					<div class="row">
 	                    {% for r in inactive_resources %}
 	                    <div class="col-lg-4 mb-3">
-	                        <div id="resource-{{ r.id }}" class="card resource-card border-0 shadow">
+	                        <div id="resource-{{ r.id }}" class="card border-0 shadow">
 	                            {% if r.image %}
 	                            	<img class="card-img-top" src="{% url 'Image' r.id %}" alt="Card image cap">
 	                            {% endif %} 
@@ -169,9 +169,9 @@
 	                                {% if perms.resource.create_resource %}
 	                                    <p>Views: {{ r.clicks }}</p>
 	                                {% endif %}
-	                                <br/>
+	                                <br>
 	                                <a class="read-link" href="{% url 'Show Resource' id=r.id %}"><b>Read More</b></a>
-	                                <br/><br/>
+	                                <br><br>
 	                                <div class="row">
 	                                    <div class="col">
 	                                        {% if perms.resource.edit_resource %}
@@ -195,11 +195,12 @@
 							<br>
 							<!-- Inactive Resource Pagination -->
 							{% if inactive_resources.has_other_pages %}
+
 								<nav aria-label="Page navigation">
 									<ul class="pagination justify-content-center">
 										{% if inactive_resources.has_previous %}
 											<li class="page-item">
-												<a href="?i_page={{ inactive_resources.previous_page_number }}&query={{ request.GET.query }}" class="page-link" aria-label="Previous">Previous</a>
+												<a href="?i_page={{ inactive_resources.previous_page_number }}&query={{ request.GET.query }}{{ filterQuery }}" class="page-link" aria-label="Previous">Previous</a>
 											</li>
 										{% else %}
 											<li class="page-item disabled"><span class="page-link">Previous</span></li>
@@ -211,19 +212,20 @@
 												</li>
 											{% else %}
 												<li class="page-item">
-													<a class="page-link" href="?i_page={{ i }}&query={{ request.GET.query }}">{{ i }}</a>
+													<a class="page-link" href="?i_page={{ i }}&query={{ request.GET.query }}{{ filterQuery }}">{{ i }}</a>
 												</li>
 											{% endif %}
 										{% endfor %}
 										{% if inactive_resources.has_next %}
 											<li class="page-item">
-												<a href="?i_page={{ inactive_resources.next_page_number }}&query={{ request.GET.query }}" class="page-link" aria-label="Previous">Next</a>
+												<a href="?i_page={{ inactive_resources.next_page_number }}&query={{ request.GET.query }}{{ filterQuery }}" class="page-link" aria-label="Previous">Next</a>
 											</li>
 										{% else %}
 											<li class="page-item disabled"><span class="page-link">Next</span></li>
 										{% endif %}
 									</ul>
 								</nav>
+
 							{% endif %}
 						</div>
 					</div>
@@ -234,15 +236,17 @@
 			{% endif %}
 
 		{% else %}
-			<p style="margin: auto; margin-top: 50px; text-align: center;"><em>There are no resources at this time.</em></p>
+			<a href="{% url 'Create Resource' %}" class="btn btn-primary"><i class="material-icons">add</i>Add Resource</a>
+			<br>
+			<p style="margin: auto; margin-top: 50px; text-align: center;"><em>No resources were found.</em></p>
 		{% endif %}
 
 	</div>
 
+	<!-- SOWs can make referrals through the 'Make Referrals' button -->
     {% if user.is_staff %}
-    	<button id="make-referral" type="button" class="btn btn-light white-background" style="width: 300px; position: fixed; bottom: 20px; right: 10%;">Make Referral</button>
-
-    	<button id='commit-referral' onclick="commitReferrals()" class='btn btn-warning' style="display: none; width: 300px; position: fixed; bottom: 70px; right: 10%;"></button>
+    	<button id="make-referral" type="button" class="btn btn-light white-background">Make Referral</button>
+    	<button id='commit-referral' onclick="commitReferrals()" class='btn btn-warning'></button>
     {% endif %} 
 
     <p>&nbsp;</p>
