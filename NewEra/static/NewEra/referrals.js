@@ -5,8 +5,18 @@
 var stagedDeleteId = null;
 
 $(document).ready(function() {
-    $('#make-referral').attr('state', 'off');
-    $('#make-referral').click(toggleSelect);
+    if (localStorage.inReferralMode == undefined || localStorage.inReferralMode.length === 0) {
+        $('#make-referral').attr('state', 'off');
+        $('#make-referral').click(toggleSelect);
+        localStorage.stagedResources = "[]";
+        localStorage.inReferralMode = "1";
+    } 
+
+    else {
+        $('#make-referral').attr('state', 'on');
+        $('#make-referral').click(toggleSelect);
+        getReferralsInLocal();
+    }
 
     // Validation to require ONE of: { phone, email }
     $('#outOfSystemForm').on('submit', function(e){
@@ -66,10 +76,44 @@ deleteResource = (id) => {
     delModal.style.display = "block";
 }
 
+highlightSelectedRefs = (stagedResources) => {
+    
+}
+
+getReferralsInLocal = () => {
+    document.getElementById('make-referral').innerHTML = "Cancel";
+    $('#commit-referral').css('display', 'block');
+
+    stagedResources = localStorage.getItem("stagedResources");
+
+    if (stagedResources.length === 0) {
+        stagedResources = "[]";
+    }
+
+    stagedResources = JSON.parse(stagedResources);
+    let refCount = stagedResources.length;
+    document.getElementById("commit-referral").innerHTML = "Select Resources " + "(" + refCount + ")";
+
+    $('.resource-card').each(function () {
+        id = $(this).attr('id').substring(9);
+        if (stagedResources.includes(id)) {
+            $(this).attr('state', 'in');
+            $(this).removeClass("border-0");
+            $(this).addClass("border-3")
+            $(this).addClass("border-success");
+        } else {
+            $(this).attr('state', 'out');
+        }
+        $(this).click(toggleItem)
+    }) 
+
+}
+
+
 
 function toggleSelect () {
 
-    localStorage.stagedResources = "[]";
+    // 
 
     if ($(this).attr('state') === 'off') {
         $('.resource-card').each(function() {
@@ -83,21 +127,20 @@ function toggleSelect () {
         $('#commit-referral').css('display', 'block');
         let refCount = 0;
         document.getElementById("commit-referral").innerHTML = "Select Resources " + "(" + refCount + ")"
-        $('#referral-ins').css('display', 'block')
     } else if ($(this).attr('state') === 'on') {
         $('.resource-card').each(function() {
             $(this).unbind('click')
             $(this).attr('state','out')
             $(this).addClass("border-0")
             $(this).removeClass("border-success");
-        }) 
+            localStorage.inReferralMode.length = "";
+            window.localStorage.stagedResources = "[]";
 
-        window.localStorage.stagedResources = "[]";
+        }) 
 
         $(this).html('Make Referral')
         $(this).attr('state', 'off')
         $('#commit-referral').css('display', 'none')
-        $('#referral-ins').css('display', 'none')
     }
 }
 
