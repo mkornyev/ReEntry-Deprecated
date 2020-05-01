@@ -8,22 +8,24 @@
     <div style="width: 80%; margin: auto; padding-top: 10vh;">
         <div class="">
 
+            <!-- Display the nickname of the case load user if they have one -->
             {% if case_load_user.nickname %}
                 <h1>{{ case_load_user.get_full_name }} ({{ case_load_user.nickname }})</h1>
             {% else %}
                 <h1>{{ case_load_user.get_full_name }}</h1>
             {% endif %}
 
-            {% if perms.case_load_user.edit_case_load_user %}
-                {% if case_load_user.is_active %}
-                    Status: <p class="text-success">Active</p>
-                {% else %}
-                    Status: <p class="text-danger">Inactive</p>
-                {% endif %}
+            <!-- Mark the case load user as active or inactive -->
+            {% if case_load_user.is_active %}
+                Status: <p class="text-success">Active</p>
+            {% else %}
+                Status: <p class="text-danger">Inactive</p>
             {% endif %}
 
-            <h3>SOW</h3>
-            <p>{{ case_load_user.user }}</p>
+            {% if request.user.is_superuser %}
+                <h3>SOW</h3>
+                <p>{{ case_load_user.user }}</p>
+            {% endif %}
 
             <h3>Phone</h3>
             <p><a href="tel:{{case_load_user.phone}}"><i class="material-icons">phone</i>{{ case_load_user.phone }}</a></p>
@@ -36,7 +38,7 @@
 
         </div>
 
-        <br><hr></br>
+        <br><hr><br>
 
         <a href="{% url 'Edit Case Load User' case_load_user.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
 

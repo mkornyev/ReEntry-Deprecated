@@ -144,6 +144,9 @@ EMAIL_HOST_PASSWORD = 'reentry412'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
+# For use in links sent in EMAIL/SMS notifications 
+# REFERRAL_LINK_ROOT = 'www.newera412.com'
+
 #####################################################
 
 # Misc Deployment Vars 

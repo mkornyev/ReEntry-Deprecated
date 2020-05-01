@@ -5,11 +5,11 @@
 
 import ast
 import os
+# Used to export to Excel spreadsheet
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 from datetime import datetime
-
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect #, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -29,14 +29,13 @@ from django.utils import timezone
 from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
 from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter, EditReferralNotesForm
 
-
 ###################################### 
 #              CONSTANTS 
 ######################################
 
-RESOURCE_PAGINATION_COUNT = 20
+# Define the number of referrals or paginations shown on a page
+RESOURCE_PAGINATION_COUNT = 30
 REFERRAL_PAGINATION_COUNT = 20
-
 
 ###################################### 
 #              MISC ACTIONS  
@@ -50,11 +49,8 @@ def login(request):
 	if request.user.is_authenticated:
 		return redirect(reverse('Home'))
 
-	context = {
-		'resources': Resource.objects.all(),
-		'active_resources': Resource.objects.all().filter(is_active=True),
-		'inactive_resources': Resource.objects.all().filter(is_active=False)
-	}
+	context = {}
+
 	if request.method == 'GET':
 		context['form'] = LoginForm()
 		return render(request, 'NewEra/login.html', context)
@@ -75,6 +71,7 @@ def login(request):
 @login_required
 def logout(request):
 	auth_logout(request)
+	messages.success(request, 'Successfully logged out.')
 	return redirect(reverse('Login'))
 
 def about(request):
@@ -120,7 +117,6 @@ def isUniqueVisit(request, response, id):
 	
 	return False 
 
-
 ###################################### 
 #              RESOURCES  
 ######################################
@@ -133,6 +129,7 @@ def resources(request):
 		# SEARCH QUERY
 		query = request.GET.get('query')
 
+		# Set context value based on if the filter is set on the resources page
 		if query:
 			context['active_resources'] = context['filter'].qs.filter( Q(is_active=True) & (Q(name__icontains=query) | Q(description__icontains=query)) )
 			context['inactive_resources'] = context['filter'].qs.filter( Q(is_active=False) & (Q(name__icontains=query) | Q(description__icontains=query)) )
@@ -140,12 +137,24 @@ def resources(request):
 			context['active_resources'] = context['filter'].qs.filter(is_active=True)
 			context['inactive_resources'] = context['filter'].qs.filter(is_active=False)
 
+		# FILTER QUERY - build a query param for use in pagination links
+		filterParams = request.GET.getlist('tags', '')
+		filterQueryString = ''
+
+		if filterParams: 
+			for id in filterParams:
+				filterQueryString += '&tags='
+				filterQueryString += id
+
+		context['filterQuery'] = filterQueryString
+
 		# PAGINATION
 		active_page = request.GET.get('a_page', 1)
 		inactive_page = request.GET.get('i_page', 1)
 		paginator = Paginator(context['active_resources'], RESOURCE_PAGINATION_COUNT)
 		inactive_paginator = Paginator(context['inactive_resources'], RESOURCE_PAGINATION_COUNT)
 		
+		# Render the user's selected page for active resources
 		try:
 			activeResources = paginator.page(active_page)
 		except PageNotAnInteger:
@@ -153,6 +162,7 @@ def resources(request):
 		except EmptyPage:
 			activeResources = paginator.page(paginator.num_pages)
 
+		# Render the user's selected page for inactive resources
 		try:
 			inactiveResources = inactive_paginator.page(inactive_page)
 		except PageNotAnInteger:
@@ -266,11 +276,13 @@ def delete_resource(request, id):
 	resource = get_object_or_404(Resource, id=id)
 
 	if request.method == 'POST':
+		# Delete the resource (and its image) only if it has never been referred
 		if (resource.referrals.count() == 0):
 			deleteImage(request, resource.image)
 			resource.delete()
 			messages.success(request, '{} successfully deleted.'.format(resource.name))
 			return redirect('Resources')
+		# Otherwise, deactivate the resource
 		else:
 			resource.is_active = False
 			resource.save()
@@ -283,9 +295,8 @@ def resetViews(request):
 	if request.method == 'POST':
 		Resource.objects.all().update(clicks=0)
 		messages.success(request, 'Reset all resource views')
-		return redirect(reverse('Manage Users'))
+		return redirect(reverse('Dashboard'))
 	return render(request, 'NewEra/reset_view_counts.html', {})
-
 
 ###################################### 
 #              REFERRALS  
@@ -311,15 +322,19 @@ def create_referral(request):
 	elif request.method == 'POST': 
 		phoneInput = ''.join(digit for digit in request.POST.get('phone', '') if digit.isdigit())
 		
+		# Referral to someone on a case load
 		if 'resources[]' in request.POST and 'user_id' in request.POST and 'carrier' in request.POST and 'notes' in request.POST: 
 			caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
+
+			# Change the message introduction depending on whether the case load user has a nickname or not
 			if caseload_user.nickname:
 				nameInput = caseload_user.nickname
 			else:
 				nameInput = caseload_user.first_name
 			referral = Referral(email=caseload_user.email, phone=caseload_user.phone, notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
+		# Out of system referral
 		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and (len(phoneInput) == 10 or len(phoneInput) == 0): 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
@@ -340,6 +355,7 @@ def create_referral(request):
 		if carrier not in carrierList: 
 			raise Http404
 		
+		# Send the referral via email and SMS
 		referralTimeStamp = str(referral.referral_date)
 		referral.sendEmail(referralTimeStamp, nameInput)
 		referral.sendSMS(carrier, referralTimeStamp, nameInput)
@@ -350,6 +366,7 @@ def create_referral(request):
 
 @login_required
 def referrals(request):
+	# Show admins all referrals, and SOWs only their referrals
 	if (request.user.is_superuser):
 		referrals = Referral.objects.all().order_by('-referral_date')
 	elif (request.user.is_staff):
@@ -359,6 +376,7 @@ def referrals(request):
 	page = request.GET.get('page', 1)
 	paginator = Paginator(referrals, REFERRAL_PAGINATION_COUNT)
 	
+	# Render the user's selected page for referrals
 	try:
 		referrals = paginator.page(page)
 	except PageNotAnInteger:
@@ -393,7 +411,6 @@ def edit_referral_notes(request, id):
 		form = EditReferralNotesForm(instance=referral)
 	return render(request, 'NewEra/edit_referral_notes.html', {'form': form, 'referral': referral, 'action': 'Edit'})
 
-
 ###################################### 
 #              CASE LOAD  
 ######################################
@@ -403,6 +420,7 @@ def case_load(request):
 	users = [] 
 	context = {} 
 
+	# Set users to show differently based on the current user logged in
 	if request.user.is_superuser: 
 		users = CaseLoadUser.objects.all()	
 		# Changed to account for inactive users
@@ -460,10 +478,12 @@ def delete_case_load_user(request, id):
 	case_load_user = get_object_or_404(CaseLoadUser, id=id)
 
 	if request.method == 'POST':
+		# Delete the case load user only if they have never been referred
 		if (case_load_user.get_referrals().count() == 0):
 			case_load_user.delete()
 			messages.success(request, '{} successfully deleted.'.format(case_load_user.get_full_name()))
 			return redirect('Case Load')
+		# Otherwise, delete the case load user
 		else:
 			case_load_user.is_active = False
 			case_load_user.save()
@@ -471,13 +491,12 @@ def delete_case_load_user(request, id):
 			return redirect('Show Case Load User', id=case_load_user.id)
 	return render(request, 'NewEra/delete_case_load_user.html', {'case_load_user': case_load_user})
 
-
 ###################################### 
 #              USER MANAGEMENT  
 ######################################
 
 @login_required
-def manage_users(request): 
+def dashboard(request): 
 	if not request.user.is_superuser:
 		raise Http404
 
@@ -491,7 +510,7 @@ def manage_users(request):
 
 		if not form.is_valid():
 			context['modalStatus'] = 'show'
-			return render(request, 'NewEra/manage_users.html', context)
+			return render(request, 'NewEra/dashboard.html', context)
 
 		user = User.objects.create_user(username=form.cleaned_data['username'], 
 										password=form.cleaned_data['password'],
@@ -510,15 +529,17 @@ def manage_users(request):
 		messages.success(request, 'Added a new user to the system.')
 	
 	context['form'] = RegistrationForm()
-	return render(request, 'NewEra/manage_users.html', context)
+	return render(request, 'NewEra/dashboard.html', context)
 
 @login_required
 def edit_user(request, id):
 	user = get_object_or_404(User, id=id)
 
 	if request.method == "POST":
+		# If a user is editing themselves, get the form for only that user
 		if user == request.user:
 			form = EditSelfUserForm(request.POST, instance=user)
+		# If an admin is editing someone else, get the appropriate form
 		else:
 			form = EditUserForm(request.POST, instance=user)
     
@@ -528,10 +549,12 @@ def edit_user(request, id):
 			user.save()
 
 			messages.success(request, '{} successfully edited.'.format(str(user)))
-			return redirect('Manage Users')
+			return redirect('Dashboard')
 	else:
+		# If a user is editing themselves, get the form for only that user
 		if user == request.user:
 			form = EditSelfUserForm(instance=user)
+		# If an admin is editing someone else, get the appropriate form
 		else:
 			form = EditUserForm(instance=user)
 	return render(request, 'NewEra/edit_user.html', {'form': form, 'user': user, 'action': 'Edit'})
@@ -541,17 +564,18 @@ def delete_user(request, id):
 	user = get_object_or_404(User, id=id)
 
 	if request.method == 'POST':
+		# Delete the user only if they have never made a referral and there is no one on their case load
 		if (user.get_referrals().count() == 0 and user.get_case_load().count() == 0):
 			user.delete()
 			messages.success(request, 'User successfully deleted.')
-			return redirect('Manage Users')
+			return redirect('Dashboard')
+		# Otherwise, deactivate the user
 		else:
 			user.is_active = False
 			user.save()
 			messages.success(request, '{} was made inactive.'.format(user.get_full_name()))
-			return redirect('Manage Users')
+			return redirect('Dashboard')
 	return render(request, 'NewEra/delete_user.html', {'user': user})
-
 
 ###################################### 
 #              TAGS 
@@ -615,11 +639,11 @@ def delete_tag(request, id):
 
 	return render(request, 'NewEra/delete_tag.html', {'tag': tag})
 
-
 ###################################### 
 # KPI SPREADSHEET EXPORT 
 ######################################
 
+# Export data on resources and referrals
 @login_required
 def export_data(request):
 	# Get resources

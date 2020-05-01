@@ -30,7 +30,7 @@ urlpatterns = [
     path('about/', views.about, name='About'),  # All users
 
     # Dashboard (previously Manage Users)
-    path('manage_users/', views.manage_users, name='Manage Users'), # Superuser only
+    path('dashboard/', views.dashboard, name='Dashboard'), # Superuser only
 
     # User actions
     path('users/<int:id>/edit', views.edit_user, name='Edit User'), # Staff only

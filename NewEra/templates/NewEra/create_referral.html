@@ -9,6 +9,7 @@
 
 {% block content %}
 
+    <!-- Modal that appears to confirm resource removal from referral; initially hidden -->
     <div id="del-confirm" class="modal">
         <div class="container text-center">
             <h3 class="text-white">Are you sure you want to remove this resource?</h3>
@@ -20,21 +21,20 @@
         </div>
     </div>
 
-
     <div class="container" style="padding-top: 5%; padding-bottom: 5%;">
         <h4 class="text-left"><b>Let's finish the referral:</b></h4>
-        <br/><br/>
+        <br><br>
 
         <div class="text-left">
-
             <h4>Referrals</h4>
             <p style="font-size: 1.15em">First, verify that the correct referrals have been selected. You can delete any if necessary:</p>
             <br />
 
+            <!-- Loop through the resources being referred and display their names, descriptions, URL, and a delete option -->
             {% for r in resources %}
                 <div class="row">
                     <div class="col">
-                    <div id="resource-{{r.id}}" class="card resource-card border-0 shadow"> 
+                    <div id="resource-{{r.id}}" class="card resource-card border-0 shadow">
                         <div class="card-body">
                             <h5 class="card-title">{{r.name}}</h5>
                             <p class="card-text">{{r.description|truncatewords:35}}</p>
@@ -46,21 +46,24 @@
                     </div>
                 </div>
                 <input type="hidden" name="resources[]" value="{{ r.id }}">
-                <br/>
+                <br>
             {% endfor %}
-
+            <br>
             <h4>Recipient Info</h4>
             <p style="font-size: 1.15em;">We just need a few more details about the recipient. Are they in your case load or an out of system referral? Click one:</p>
 
+            <!-- Referral options, displayed as tabs -->
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <a class="nav-item nav-link" id="nav-caseload-tab" data-toggle="tab" href="#nav-caseload" role="tab" aria-controls="nav-caseload" aria-selected="true">Select From Caseload</a>
                     <a class="nav-item nav-link" id="nav-new-tab" data-toggle="tab" href="#nav-new" role="tab" aria-controls="nav-new" aria-selected="false">Create an Out of System Referral</a>
                 </div>
             </nav>
+
+            <!-- Case load user referral -->
             <div class="tab-content" id="nav-tabContent">
                 <div id="nav-caseload" class="tab-pane fade show" role="tabpanel" aria-labelledby="nav-caseload-tab">
-                    <br/>
+                    <br>
                     {% if recipients.count > 0 %}
                         <form action="{% url 'Create Referral' %}" method="POST">
                             {% for r in resources %}
@@ -69,6 +72,7 @@
 
                             <label><b class="inline-label">Select User:</b>
                                 <select name="user_id" class="form-control">
+                                    <!-- Display stylized name listing based on whether the case load user has a nickname -->
                                     {% for r in recipients %}
                                         {% if r.user == request.user and r.nickname %}
                                             <option value="{{ r.id }}">{{ '('|add:r.nickname|add:')'|add:' '|add:r.first_name|add:' '|add:r.last_name }}</option>
@@ -77,7 +81,7 @@
                                         {% endif %}
                                     {% endfor %}
                                 </select>
-                            </label><br/>
+                            </label><br>
 
                             <label>
                                 <b class="inline-label">Select Carrier:</b>
@@ -86,13 +90,13 @@
                                     <option value="{{ c }}">{{ c }}</option>
                                     {% endfor %}
                                 </select>
-                            </label><br/>
+                            </label><br>
 
                             <label><b>Add Notes:</b></label><br>
                             <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-primary">Make Referral</button>
                         </form>
                     {% else %}
                         {% if perms.resource.edit_resource %}
@@ -103,8 +107,9 @@
                     {% endif %}
                 </div>
 
+                <!-- Out of system referral -->
                 <div id="nav-new" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-new-tab">
-                    <br/>
+                    <br>
                     <form id="outOfSystemForm" action="{% url 'Create Referral' %}" method="POST">
                         {% for r in resources %}
                             <input type="hidden" name="resources[]" value="{{ r.id }}">
@@ -123,7 +128,7 @@
                                 <option value="{{ c }}">{{ c }}</option>
                                 {% endfor %}
                             </select>
-                        </label><br/>
+                        </label><br>
 
                         <label><b>Email:&nbsp;&nbsp;</b></label>
                         <input id="outOfSystemEmail" type="email" name="email" placeholder="Enter an email..." class="form-control">
@@ -132,7 +137,8 @@
                         <textarea type="text" name="notes" class="form-control" placeholder=" Add a notification note..."></textarea><hr>
 
                         {% csrf_token %}
-                        <button onsubmit="return validateOutOfSystemForm();" type="submit" class="btn btn-primary">Submit</button>
+                        <!-- Perform a validation check when the form is submitted -->
+                        <button onsubmit="return validateOutOfSystemForm();" type="submit" class="btn btn-primary">Make Referral</button>
                     </form>
                 </div>
             </div>

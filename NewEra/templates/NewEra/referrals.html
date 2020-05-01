@@ -16,6 +16,7 @@
     <div class="container">
         <hr/>
 
+        <!-- Display referrals as tables split into groups across pages -->
         {% if referrals.paginator.count > 0 %}
             <div style="overflow-x: auto">
                 <table>
@@ -55,7 +56,7 @@
                     {% endfor %}
                 </table>
 
-                <br/>
+                <br>
                 <!-- Referral Pagination -->
                 {% if referrals.has_other_pages %}
                     <nav aria-label="Page navigation">
@@ -100,8 +101,8 @@
             {% endif %}
         {% endif %}
 
-        <br/>
+        <br>
         <p>To create a referral, go to the resources page and click "Make Referral".</p>
-        <br/>
+        <br>
     </div>
 {% endblock %}

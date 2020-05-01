@@ -1,0 +1,130 @@
+{% extends "NewEra/base.html" %}
+
+{% block page_specific_styles %}
+<!-- {% load static %}
+<link href="{% static 'NewEra/index_styles.css' %}" rel="stylesheet" type="text/css"> -->
+{% endblock %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block content %}
+    <h1 style="margin: auto; margin-top: 50px; text-align: center;">
+        Admin Dashboard
+    </h1>
+
+    <div class="container">    
+        <hr>
+
+        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#collapseUser" aria-expanded="false" aria-controls="collapseUser"><i class="material-icons">person_add</i>Create New User</button>
+        <br>
+
+        <div class="collapse {{ modalStatus }}" id="collapseUser">
+            <br>
+            <div class="card card-body">
+                <form method="POST" action="{% url 'Dashboard' %}">
+                    <table>
+                        {{form}}
+                    </table>
+
+                    <label><b>User Type:</b></label><br>
+                
+                    <!-- Radio button input for SOW/Admin selection on user creation -->
+                    <input type="radio" id="sow" name="user_type" value="sow" checked="checked">
+                    <label for="sow">SOW</label><br>
+                    <input type="radio" id="admin" name="user_type" value="admin">
+                    <label for="admin">Admin</label><br>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary"><i class="material-icons">person_add</i>Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <br>
+
+        <!-- Admin table display -->
+        <h2>Admins:</h2>
+        <div style="overflow-x: auto">
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Active?</th>
+                </tr>
+                {% for admin in admins %}
+                    <tr>
+                        <td>{{ admin.username }}</td>
+                        <td>{{ admin.first_name }}</td>
+                        <td>{{ admin.last_name }}</td>
+                        <td>{{ admin.email }}</td>
+                        <td>{{ admin.phone }}</td>
+                        {% if admin.is_active %}
+                            <td>&#10004;</td>
+                        {% else %}
+                            <td>&#10060;</td>
+                        {% endif %}
+                        <td class="button-cell"><a href="{% url 'Edit User' id=admin.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
+                        <!-- Hide a delete option for the admin already logged in -->
+                        {% if admin.id != user.id %}
+                            <td class="button-cell"><a href="{% url 'Delete User' id=admin.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        
+        <br><hr><br>
+
+        <!-- SOW table display -->
+        <h2>SOWs:</h2>
+        {% if sows.count > 0 %}
+            <div style="overflow-x: auto;">
+                <table>
+                    <tr>
+                        <th>Username</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Active?</th>
+                    </tr>
+                    {% for sow in sows %}
+                        <tr>
+                            <td>{{ sow.username }}</td>
+                            <td>{{ sow.first_name }}</td>
+                            <td>{{ sow.last_name }}</td>
+                            <td>{{ sow.email }}</td>
+                            <td>{{ sow.phone }}</td>
+                            {% if sow.is_active %}
+                                <td>&#10004;</td>
+                            {% else %}
+                                <td>&#10060;</td>
+                            {% endif %}
+                            <td class="button-cell"><a href="{% url 'Edit User' id=sow.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a></td>
+                            <td class="button-cell"><a href="{% url 'Delete User' id=sow.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            
+        {% else %}
+            <em><p style="margin: auto;">There are no SOWs in the system.</p></em>
+        {% endif %}
+
+        <hr>
+        <br>
+
+        <!-- Download spreadsheet or reset resource clicks -->
+        <h2>Data Management:</h2><br>
+
+        <a href="{% url 'Export Data' %}" class="btn btn-success"><i class="material-icons">get_app</i>Download Data Spreadsheet</a>
+        <a href="{% url 'Reset Views' %}" class="btn btn-danger">Reset Resource Clicks</a>
+        
+        <br><br>
+
+    </div>
+{% endblock %}
