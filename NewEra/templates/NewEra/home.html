@@ -10,41 +10,13 @@
 {% endblock %}{% endblock %}
 
 {% block content %}
-    {% load static %}
-    <style>
-    .parallax {
-        position: relative;
-    }
-    .parallax {
-        /* Credit: https://www.w3schools.com/howto/howto_css_parallax.asp */
-        background-image: url("{% static 'NewEra/night_pgh.jpg' %}");
-        height: 300px;
-        padding-top: 12vh; 
-        padding-bottom: 7vh; 
-        text-align: center;
-        background-attachment: fixed;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
-
-    .parallax-text {
-        background-color: rgba(0, 0, 0, .75);
-        padding: 0;
-    }
-
-    h1.parallax-text {
-        letter-spacing: 1px;
-    }
-
-    </style>
 
 	<div class="parallax">
 		<span class="parallax-text"><h1 class="text-white parallax-text">NewEra412</h1></span>
-		<p class="text-white parallax-text">
-			Reintegrating previously incarcerated citizens into society.
+		<p class="text-white parallax-text subtitle">
+			Using tech to deliver resources to returning citizens.
 		</p>
-		<a href="{% url 'Resources' %}"><div class="parallax-text"><button type="button" class="btn btn-outline-light">See Resources</button></div></a>
+		<a href="{% url 'Resources' %}"><div class="parallax-text"><button id="resource-btn" type="button" class="btn btn-light">See Resources</button></div></a>
 	</div>
 
     <div class="container" style="padding-top: 7.5vh;">
