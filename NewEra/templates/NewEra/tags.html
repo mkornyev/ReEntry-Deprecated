@@ -24,13 +24,13 @@
 					<div class="col-sm-4 mb-3">
 						<div class="card border-0 shadow">
 			                <div class="card-body">
-								<h4 class="card-title">{{ t.name }}</h4>
-								<span>
+								<p style="display: inline;" class="card-title">{{ t.name }}</p>
+								<span style="float: right; display: inline;">
 									{% if perms.tag.edit_tag %}
-										<a href="{% url 'Edit Tag' t.id %}" class="btn btn-warning"><i class="material-icons">edit</i>Edit</a>
+										<a href="{% url 'Edit Tag' t.id %}" class="btn btn-sm btn-warning"><i class="material-icons">edit</i></a>
 									{% endif %}
 									{% if perms.tag.delete_tag %}
-								        <a href="{% url 'Delete Tag' t.id %}" class="btn btn-danger"><i class="material-icons">delete</i>Delete</a>
+								        <a href="{% url 'Delete Tag' t.id %}" class="btn btn-sm btn-danger"><i class="material-icons">delete</i></a>
 								    {% endif %}
 								</span>
 			               	</div>

@@ -40,6 +40,18 @@ a:hover {
     margin: 0px; 
 }
 
+.form-control {
+    margin: 4px;
+}
+
+.material-icons {
+    vertical-align: middle;
+    line-height: 0 !important;
+    position: relative;
+    top: -2px;
+    margin-right: 1px;
+}
+
 /* Resource Filters / Search */
 
 #searchBar {
@@ -57,6 +69,34 @@ a:hover {
     display: inline-block;
     width: 200px;
     font-size: 1.2em;
+}
+
+/* Filter */
+
+#filter-search {
+    display: inline-block;
+    width: 95%;
+}
+
+#filter-card .scroll-section {
+    max-height: 45vh;
+    overflow-y: scroll;
+}
+
+#filter-card ul {
+    list-style: none;
+}
+
+@media screen and (max-width: 600px) {
+    #searchFilter {
+        display: block;
+        margin-top: 10px;
+    }
+
+    #searchBar {
+        display: inline-block;
+        width: calc(100% - 120px);
+    }
 }
 
 /* Resources */
@@ -101,6 +141,34 @@ a:hover {
     cursor: pointer;  
 }
 
+/* Staging Buttons */
+
+#make-referral {
+    z-index: 100;
+    width: 300px; 
+    position: fixed; 
+    bottom: 20px; 
+    right: 10%;
+    border: 1px solid rgb(191, 191, 191);
+    background-image: linear-gradient(to bottom, rgb(255, 255, 255) 30%, rgb(223, 223, 223) 100%)
+}
+
+#commit-referral {
+    z-index: 100;
+    display: none; 
+    width: 300px; 
+    position: fixed; 
+    bottom: 70px; 
+    right: 10%;
+    border: 1px solid #d8a700;
+    background-image: linear-gradient(to bottom, #fac000 30%, #d8a700 100%)
+}
+
+/* Referrals  */
+
+.button-cell {
+    padding: 2px;
+}
 
 /* Modal Styling */
 

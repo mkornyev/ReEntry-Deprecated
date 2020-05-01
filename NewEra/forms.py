@@ -11,6 +11,7 @@ from NewEra.models import User, CaseLoadUser, Resource, Tag, Referral
 from django.forms.widgets import CheckboxSelectMultiple
 
 INPUT_ATTRIBUTES = {'class' : 'form-control'}
+TEXTAREA_ATTRIBUTES = { 'class': 'form-control', 'style': 'height: 200px; overflow-y: scroll;', 'cols': 40, 'rows': 40}
 MAX_UPLOAD_SIZE = 2500000
 
 # Model Forms
@@ -31,7 +32,7 @@ class CaseLoadUserForm(forms.ModelForm):
 	phone = forms.CharField(max_length=11, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES), required=False)
 	email = forms.EmailField(max_length=254, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES), required=False)
 	nickname = forms.CharField(max_length=100, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES), required=False)
-	notes = forms.CharField(max_length=1000, widget=forms.TextInput(attrs=INPUT_ATTRIBUTES), required=False)
+	notes = forms.CharField(max_length=1000, widget=forms.Textarea(attrs=TEXTAREA_ATTRIBUTES), required=False)
 
 	# Define the model and fields to include/exclude
 	class Meta:
@@ -40,10 +41,6 @@ class CaseLoadUserForm(forms.ModelForm):
 		exclude = (
 			'user',
 		)
-		# Textarea widget used to more easily enter notes
-		widgets = {
-            'notes': forms.Textarea(attrs={'cols': 120, 'rows': 30}),
-        }
 
 	def __init__(self, *args, **kwargs):
 		super(CaseLoadUserForm, self).__init__(*args, **kwargs)

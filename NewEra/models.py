@@ -118,6 +118,7 @@ class Referral(models.Model):
 	# Methods
 	# Sends an email to the referral recipient containing the referred resources
 	def sendEmail(self, referralTimeStamp, clientName):
+
 		# Do not send an email if the field is empty
 		if (not self.email or self.email == '') and (not self.caseUser or not self.caseUser.email or self.caseUser.email == ''): 
 			return 
