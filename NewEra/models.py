@@ -158,15 +158,15 @@ class Referral(models.Model):
 
 		# Set the message intro string based on whether the referral is to someone on the case load or out of the system
 		if (clientName):
-			messageIntro = '\n Hi {}, \n {} \n We\'ll send you another text with some links. --{} \n\n--------- '.format(clientName, self.notes, userName)
+			messageIntro = '\nHi {}, \n{}\n--{}\n\n---------'.format(clientName, self.notes, userName)
 		else:
-			messageIntro = '\n {} \n We\'ll send you another text with some links. --{} \n\n--------- '.format(self.notes, userName)
+			messageIntro = '\n{}\n--{}\n\n---------'.format(self.notes, userName)
 
 		# Create the query string and the message body
 		queryString = '?key=' + referralTimeStamp
 		queryString = queryString.replace(' ', '%20') # Make SMS links accessible 
-		links = [ '\n' + r.name + ': https://newera412.com/resources/' + str(r.id) + queryString + '\n' for r in self.resource_set.all() ]
-		messageBody = ''.join(links) + '--- \n See us online for more: www.newera412.com'
+		links = [ '\n' + r.name + ': http://newera412.com/resources/' + str(r.id) + queryString + '\n' for r in self.resource_set.all() ]
+		messageBody = ''.join(links) + '---------\nSee us online for more: www.newera412.com'
 		
 		client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 		client.messages.create(from_=settings.TWILIO_PHONE_NUMBER, to=to, body= messageIntro + messageBody)

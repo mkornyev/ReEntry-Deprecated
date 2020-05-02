@@ -1,15 +1,18 @@
 # <a href="http://newera412.com/" target="_blank">NewERA412 Platform</a>
 
 * Organization: ReEntry412
-* Client Contact: <a href="mailto:Taili.Thompson@alleghenycounty.us">`Taili Thompson`</a>
+* Client Contact: <a href="mailto:bvbaseball42@gmail.com">`Taili Thompson`</a>
 * Student Consultants: <a href="https://github.com/brentthongg">`Brent Hong`</a>, <a href="">`Max Kornyev`</a>, and <a href="https://github.com/epiccrash">`Joseph Perrino`</a>
+* `See the GitHub Wiki for more important information`
 
-### Versions
+### Application Versions
 
 * `Python 3.6.6`
 * `Django 3.0.2 final`
+* `Twilio 6.38.0`
+* See `requirements.txt` for a complete enumaration of package dependencies
 
-### Dependency Setup 
+### Dependency Setup (DEVELOPMENT)
 
 ###### First Time: 
 
@@ -22,25 +25,25 @@ The following will set up a python environment **in the same directory** as the 
 
 ###### De Futuro (important):  
 
-* **After installing new python libraries to your pipenv, you must update the `requirements.txt` file** 
+* **After installing new python libraries to your pipenv, you must update the `requirements.txt` file**
 * Do this by running `pip freeze > requirements.txt`
 
 ### Test Suite 
 
-* Run the suite with `./manage.py test`
+* Run the suite with `./manage.py test` (Only model tests are incuded)
 
 ### Included Scripts 
 
-###### Populate 
+###### Populate (DEPRECATED)
 
 * `python manage.py populate`
 * Creates an sow user (**is_staff**): User(username='sow', password='sow')
 * And an admin (**is_superuser**): User(username='admin', password='admin')
 
-###### Drop
+###### Drop (DEPRECATED)
 
 * `python manage.py drop`
-* Destroys created objects
+* Destroys all user objects
 
 ###### Load Tags and Resources
 
