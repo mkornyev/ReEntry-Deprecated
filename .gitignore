@@ -3,6 +3,7 @@
 db.sqlite3
 migrations
 .DS_Store
+staticfiles/*
 .vscode/
 newera_env/
 NewEra/user_uploads/*
