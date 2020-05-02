@@ -10,7 +10,7 @@ $(document).ready(function() {
         $('#make-referral').click(toggleSelect);
         localStorage.stagedResources = "[]";
         localStorage.inReferralMode = "1";
-    } 
+    }
 
     else {
         $('#make-referral').attr('state', 'on');
@@ -28,8 +28,11 @@ $(document).ready(function() {
             e.preventDefault()
             return false 
         }
-
-        return true 
+	
+	/* Clear out local storage before submitting. */
+	localStorage.inReferralMode.length = 0;
+	localStorage.stagedResources = "[]"    
+	return true 
     })
 });
 

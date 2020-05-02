@@ -11,6 +11,19 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from django.core.exceptions import ImproperlyConfigured
+
+from dotenv import load_dotenv
+load_dotenv()
+
+# ENV VAR FETCHER / WRAPPER 
+def get_env_value(env_variable):
+    try:
+      	return os.environ[env_variable]
+    except KeyError:
+        error_msg = 'Couldn\'t fetch the {} from the env'.format(env_variable)
+        raise ImproperlyConfigured(error_msg)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +33,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'rzg+4u-9t+24vbk0!=5w6)&^thk3q%!ouc53&4&e*bn$jc@45e'
+SECRET_KEY = get_env_value('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.newera412.com', 'newera412.com', '67.205.174.6']
+ALLOWED_HOSTS = ['67.205.174.6', 'www.newera412.com', 'newera412.com']
 
 # Application definition
 
@@ -72,7 +85,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ReEntryApp.wsgi.application'
 
 
-# Database
+# Development Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
@@ -139,10 +152,16 @@ AUTH_USER_MODEL = 'NewEra.User'
 # EMAIL (Temporary credentials added below:)
 EMAIL_HOST = 'smtp.gmail.com'   
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'realistic.reentry.412@gmail.com'
-EMAIL_HOST_PASSWORD = 'reentry412'
+EMAIL_HOST_USER = get_env_value('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = get_env_value('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+# TWILIO SMS
+
+TWILIO_PHONE_NUMBER = get_env_value('TWILIO_PHONE_NUMBER')
+TWILIO_ACCOUNT_SID = get_env_value('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = get_env_value('TWILIO_AUTH_TOKEN')
 
 # For use in links sent in EMAIL/SMS notifications 
 # REFERRAL_LINK_ROOT = 'www.newera412.com'

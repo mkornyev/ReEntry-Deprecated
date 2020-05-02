@@ -26,8 +26,9 @@ from django.contrib import messages
 
 from django.utils import timezone
 
-from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag, SMS_CARRIERS
+from NewEra.models import User, CaseLoadUser, Resource, Referral, Tag
 from NewEra.forms import LoginForm, RegistrationForm, EditUserForm, EditSelfUserForm, CaseLoadUserForm, CreateResourceForm, TagForm, ResourceFilter, EditReferralNotesForm
+
 
 ###################################### 
 #              CONSTANTS 
@@ -305,8 +306,7 @@ def resetViews(request):
 @login_required
 def create_referral(request):
 	resources = request.GET.get('resources', None)	
-	recipients = [] 
-	carriers = list(SMS_CARRIERS.keys())
+	recipients = []
 	
 	if request.user.is_superuser: 
 		recipients = CaseLoadUser.objects.filter(is_active=True).all()
@@ -317,13 +317,13 @@ def create_referral(request):
 		resources = [digit.strip() for digit in ast.literal_eval(resources)] # Safely parse array
 		resources = [ get_object_or_404(Resource, id=resourceId) for resourceId in resources ]
 
-		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
+		return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients })
 
 	elif request.method == 'POST': 
 		phoneInput = ''.join(digit for digit in request.POST.get('phone', '') if digit.isdigit())
 		
 		# Referral to someone on a case load
-		if 'resources[]' in request.POST and 'user_id' in request.POST and 'carrier' in request.POST and 'notes' in request.POST: 
+		if 'resources[]' in request.POST and 'user_id' in request.POST and 'notes' in request.POST: 
 			caseload_user = get_object_or_404(CaseLoadUser, id=request.POST['user_id'])
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 
@@ -335,30 +335,24 @@ def create_referral(request):
 			referral = Referral(email=caseload_user.email, phone=caseload_user.phone, notes=request.POST['notes'], user=request.user, caseUser=caseload_user)
 
 		# Out of system referral
-		elif 'resources[]' in request.POST and 'phone' in request.POST and 'carrier' in request.POST and 'email' in request.POST and 'notes' in request.POST and (len(phoneInput) == 10 or len(phoneInput) == 0): 
+		elif 'resources[]' in request.POST and 'phone' in request.POST and 'email' in request.POST and 'notes' in request.POST and (len(phoneInput) == 10 or len(phoneInput) == 0): 
 			resources = [get_object_or_404(Resource, id=num) for num in request.POST.getlist('resources[]')]
 			referral = Referral(email=request.POST['email'], phone=phoneInput, notes=request.POST['notes'], user=request.user)
 			nameInput = request.POST['name']
 			
 		else: 
 			messages.error(request, 'Please fill out all fields.')
-			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients, 'carriers': carriers})
+			return render(request, 'NewEra/create_referral.html', {'resources': resources, 'recipients': recipients })
 		
 		referral.save()
 
 		for r in resources: 
 			referral.resource_set.add(r)
-
-		carrierList = list(SMS_CARRIERS.keys())
-		carrier = request.POST['carrier']
-
-		if carrier not in carrierList: 
-			raise Http404
 		
 		# Send the referral via email and SMS
 		referralTimeStamp = str(referral.referral_date)
 		referral.sendEmail(referralTimeStamp, nameInput)
-		referral.sendSMS(carrier, referralTimeStamp, nameInput)
+		referral.sendSMS(referralTimeStamp, nameInput)
 
 	messages.success(request, 'Successfully created a new referral.')
 
