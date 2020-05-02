@@ -1,0 +1,147 @@
+  
+/* Page Styles  */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#app-nav {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.content {
+    margin: auto;
+    width: 100%;
+}
+
+table th, table td {
+    /* padding-left: 10px; */
+    padding-right: 10px;
+}
+
+ul.errorlist {
+    color: indianred;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+#backend-messages,
+#backend-messages li div { 
+    margin: 0px; 
+}
+
+/* Resource Filters / Search */
+
+#searchBar {
+    display: inline-block;
+    width: calc(100% - 320px);
+}
+
+#searchBarButton {
+    display: inline-block;
+    width: 100px;
+    font-size: 1.2em;
+}
+
+#searchFilter {
+    display: inline-block;
+    width: 200px;
+    font-size: 1.2em;
+}
+
+/* Resources */
+/*
+#resource-bg {
+    background-size: cover;
+    background-position: 20% 20%;
+    backdrop-filter: brightness(20%);
+    height: 300px;
+    width: 100%;
+}
+*/
+.white-background {
+    background-color: white;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.10), 0 3px 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+.shadow {
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.10), 0 3px 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+.read-link {
+    text-decoration: none;
+    color: #089000;
+}
+
+.read-link:hover {
+    color: #0a5d00; 
+    text-decoration: none; 
+    cursor: pointer;  
+}
+
+.delete-link {
+    text-decoration: none;
+    color: #dd0000;
+}
+
+.delete-link:hover {
+    color: #8b0000; 
+    text-decoration: none; 
+    cursor: pointer;  
+}
+
+
+/* Modal Styling */
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%;
+  overflow: auto;
+  background-color: black;
+  opacity: .8;
+  padding-top: 50px;
+}
+
+.modal-content {
+    color: white;
+    margin: 5% auto 15% auto; 
+    width: 70%;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.resource-img {
+    max-width: 100%;
+
+    background-size:cover;
+    background-position:50% 50%;
+}
+
+@media screen and (max-width: 300px) {
+  .cancelbtn, .deletebtn {
+     width: 100%;
+  }
+}
+
+.border-3 {
+    border-width: 3px !important;
+}

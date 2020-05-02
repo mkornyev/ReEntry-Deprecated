@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 from django.core.exceptions import ImproperlyConfigured
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # ENV VAR FETCHER / WRAPPER 
 def get_env_value(env_variable):
     try:
@@ -35,7 +38,7 @@ SECRET_KEY = get_env_value('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['newera-app.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['67.205.174.6', 'www.newera412.com', 'newera412.com']
 
 # Application definition
 

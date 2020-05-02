@@ -143,7 +143,7 @@ class Referral(models.Model):
 		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message, fail_silently=True)
 
 	# Sends a text message to the referral recipient containing the referred resources
-	def sendSMS(self, smsCarrier, referralTimeStamp, clientName):
+	def sendSMS(self, referralTimeStamp, clientName):
 		# Do not send a text if the field is empty
 		if (not self.phone or self.phone == '') and (not self.caseUser or not self.caseUser.phone or self.caseUser.phone == ''):
 			return
