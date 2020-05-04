@@ -12,16 +12,18 @@
 * `Twilio 6.38.0`
 * See `requirements.txt` for a complete enumaration of package dependencies
 
+***
+
 ### Dependency Setup (DEVELOPMENT)
 
 ###### First Time: 
 
-The following will set up a python environment **in the same directory** as the cloned project. This allows you to keep all your project dependencies (or `pip modules`) in isolation, and running their correct versions. 
+The following will set up a python environment for the cloned project. This allows you to keep all your project dependencies (or `pip modules`) in isolation, and running their correct versions. 
 
 * Create the env: `virtualenv django_env` (set `django_env` to your preferred env name) 
 * Start the env: `source django_env/bin/activate`
 * Install all dependencies: `pip install -r requirements.txt`
-* Exit the env: `deactivate` 
+* Exit the env: `deactivate` or exit terminal 
 
 ###### De Futuro (important):  
 
