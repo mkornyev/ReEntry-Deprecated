@@ -85,7 +85,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ReEntryApp.wsgi.application'
 
 
-# Development Database
+# DEPLOYMENT DATABASE 
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
@@ -98,6 +98,8 @@ DATABASES = {
             'PORT' : '',
         }
 }
+
+# DEVELOPMENT DATABASE 
 
 DATABASES = {
     'default': {
@@ -129,18 +131,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'America/New_York'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 #####################################################
-
-# Library Vars 
+# Additional Non-Trivial Vars
+#####################################################
 
 # AUTH 
 LOGIN_URL = '/login'
@@ -165,8 +163,6 @@ TWILIO_AUTH_TOKEN = get_env_value('TWILIO_AUTH_TOKEN')
 
 # For use in links sent in EMAIL/SMS notifications 
 # REFERRAL_LINK_ROOT = 'www.newera412.com'
-
-#####################################################
 
 # Misc Deployment Vars 
 
