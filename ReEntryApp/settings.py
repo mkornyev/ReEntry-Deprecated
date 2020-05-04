@@ -88,13 +88,18 @@ WSGI_APPLICATION = 'ReEntryApp.wsgi.application'
 # DEPLOYMENT DATABASE 
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+DB_NAME = get_env_value("DB_NAME")
+DB_USER = get_env_value("DB_USER")
+DB_PASS = get_env_value("DB_PASS")
+DB_HOST = get_env_value("DB_HOST")
+
 DATABASES = {
         'default' : {
             'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-            'NAME' : 'NewEra',
-            'USER' : 'taili',
-            'PASSWORD' : 'VeChain3d3$$',
-            'HOST' : 'localhost',
+            'NAME' : DB_NAME,
+            'USER' : DB_USER,
+            'PASSWORD' : DB_PASS,
+            'HOST' : DB_HOST,
             'PORT' : '',
         }
 }
