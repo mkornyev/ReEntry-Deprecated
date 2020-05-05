@@ -36,7 +36,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = get_env_value('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['67.205.174.6', 'www.newera412.com', 'newera412.com']
 
@@ -88,25 +88,22 @@ WSGI_APPLICATION = 'ReEntryApp.wsgi.application'
 # DEPLOYMENT DATABASE 
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+DB_NAME = get_env_value("DB_NAME")
+DB_USER = get_env_value("DB_USER")
+DB_PASS = get_env_value("DB_PASS")
+DB_HOST = get_env_value("DB_HOST")
+
 DATABASES = {
         'default' : {
             'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-            'NAME' : 'NewEra',
-            'USER' : 'taili',
-            'PASSWORD' : 'VeChain3d3$$',
-            'HOST' : 'localhost',
+            'NAME' : DB_NAME,
+            'USER' : DB_USER,
+            'PASSWORD' : DB_PASS,
+            'HOST' : DB_HOST,
             'PORT' : '',
         }
 }
 
-# DEVELOPMENT DATABASE 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
